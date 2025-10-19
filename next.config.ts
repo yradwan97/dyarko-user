@@ -1,7 +1,31 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from 'next-intl/plugin';
+
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    localPatterns: [
+      {
+        pathname: '/api/proxy-image',
+        search: '**',
+      },
+      {
+        pathname: '/**',
+      },
+    ],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: "new.dyarko.com"
+      },
+      {
+        protocol: "http",
+        hostname: "**"
+      }
+    ]
+  }
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

@@ -1,26 +1,229 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* Dyarko Brand Colors */
+  --color-main-100: #E3E7EE;
+  --color-main-200: #C8CFDC;
+  --color-main-300: #AEB7CA;
+  --color-main-400: #939FB8;
+  --color-main-500: #1D3557;
+  --color-main-600: #152844;
+
+  --color-secondary-100: #FDDCDC;
+  --color-secondary-200: #FCAAAA;
+  --color-secondary-300: #FA7777;
+  --color-secondary-400: #F94545;
+  --color-secondary-500: #E63946;
+
+  --color-steelBlue-100: #E5EFF5;
+  --color-steelBlue-200: #C9DEE9;
+  --color-steelBlue-300: #A6CDDF;
+  --color-steelBlue-400: #82BCD4;
+  --color-steelBlue-500: #457B9D;
+
+  --color-teal-100: #ECF9F8;
+  --color-teal-200: #D8F3F1;
+  --color-teal-300: #C3EEEA;
+  --color-teal-400: #AFE8E3;
+  --color-teal-500: #A8DADB;
+
+  --color-ivory-100: #F6FCF3;
+  --color-ivory-200: #EDF9E8;
+  --color-ivory-300: #E3F5DC;
+  --color-ivory-400: #DAF2D1;
+  --color-ivory-500: #F1FAEE;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --radius: 0.5rem;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --background: 0 0% 100%;
+  --foreground: 210 46% 20%;
+  --card: 0 0% 100%;
+  --card-foreground: 210 46% 20%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 210 46% 20%;
+  --primary: 210 46% 20%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 354 73% 63%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 200 31% 56%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 354 73% 63%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 210 46% 20%;
+  --chart-1: 210 46% 20%;
+  --chart-2: 354 73% 63%;
+  --chart-3: 200 31% 56%;
+  --chart-4: 180 46% 70%;
+  --chart-5: 87 40% 59%;
+  --sidebar: 0 0% 98%;
+  --sidebar-foreground: 210 46% 20%;
+  --sidebar-primary: 210 46% 20%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 210 40% 96%;
+  --sidebar-accent-foreground: 210 46% 20%;
+  --sidebar-border: 214 32% 91%;
+  --sidebar-ring: 210 46% 20%;
+
+  /* Dyarko Brand Colors */
+  --main-100: #E3E7EE;
+  --main-200: #C8CFDC;
+  --main-300: #AEB7CA;
+  --main-400: #939FB8;
+  --main-500: #1D3557;
+  --main-600: #152844;
+
+  --secondary-100: #FDDCDC;
+  --secondary-200: #FCAAAA;
+  --secondary-300: #FA7777;
+  --secondary-400: #F94545;
+  --secondary-500: #E63946;
+
+  --steelBlue-100: #E5EFF5;
+  --steelBlue-200: #C9DEE9;
+  --steelBlue-300: #A6CDDF;
+  --steelBlue-400: #82BCD4;
+  --steelBlue-500: #457B9D;
+
+  --teal-100: #ECF9F8;
+  --teal-200: #D8F3F1;
+  --teal-300: #C3EEEA;
+  --teal-400: #AFE8E3;
+  --teal-500: #A8DADB;
+
+  --ivory-100: #F6FCF3;
+  --ivory-200: #EDF9E8;
+  --ivory-300: #E3F5DC;
+  --ivory-400: #DAF2D1;
+  --ivory-500: #F1FAEE;
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  /* Focus styles for accessibility */
+  *:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  /* Smooth transitions */
+  * {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+
+  /* Remove transitions for motion-reduced preference */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
