@@ -40,7 +40,7 @@ export default function SavedPropertiesPage() {
       {savedProperties.length === 0 ? (
         <div className="py-12 text-center">
           <Heart className="mx-auto h-16 w-16 text-gray-300 mb-4" />
-          <Typography variant="body-lg" as="p" className="text-gray-500 mb-2">
+          <Typography variant="body-lg-medium" as="p" className="text-gray-500 mb-2">
             {t("no-properties")}
           </Typography>
           <Typography variant="body-sm" as="p" className="text-gray-400">
@@ -51,7 +51,17 @@ export default function SavedPropertiesPage() {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {savedProperties.map((saved) => (
-              <PropertyCard key={saved._id} property={saved.property} />
+              <PropertyCard
+                key={saved._id}
+                name={saved.property?.title || ""}
+                location={saved.property?.location?.city || ""}
+                price={saved.property?.price ? `${saved.property.price} KWD` : ""}
+                image={saved.property?.images?.[0]}
+                badge={saved.property?.rent_type}
+                propertyType={saved.property?.type}
+                propertyId={saved.property?._id}
+                isVerified={saved.property?.verified}
+              />
             ))}
           </div>
 

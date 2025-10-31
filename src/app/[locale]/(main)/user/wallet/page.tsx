@@ -76,7 +76,7 @@ export default function WalletPage() {
       <div className="rounded-lg border-2 border-main-400 bg-gradient-to-br from-main-50 to-main-100 p-8">
         <div className="flex items-center justify-center gap-3 mb-2">
           <WalletIcon className="h-8 w-8 text-main-600" />
-          <Typography variant="body-lg" as="p" className="text-gray-600">
+          <Typography variant="body-lg-medium" as="p" className="text-gray-600">
             {t("balance")}
           </Typography>
         </div>
@@ -94,7 +94,7 @@ export default function WalletPage() {
         {transactions.length === 0 ? (
           <div className="py-12 text-center">
             <WalletIcon className="mx-auto h-16 w-16 text-gray-300 mb-4" />
-            <Typography variant="body-lg" as="p" className="text-gray-500">
+            <Typography variant="body-lg-medium" as="p" className="text-gray-500">
               {t("no-transactions")}
             </Typography>
           </div>
@@ -133,7 +133,7 @@ export default function WalletPage() {
 
                   <div className="text-right">
                     <Typography
-                      variant="body-lg"
+                      variant="body-lg-medium"
                       as="p"
                       className={`font-bold ${
                         transaction.type === "credit" || transaction.type === "deposit"

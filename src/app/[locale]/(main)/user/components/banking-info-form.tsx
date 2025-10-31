@@ -37,8 +37,8 @@ export default function BankingInfoForm({ formMethods }: BankingInfoFormProps) {
           })}
           className="h-12"
         />
-        {errors.ACCName && (
-          <p className="text-sm text-red-600">{errors.ACCName.message}</p>
+        {errors.ACCName?.message && (
+          <p className="text-sm text-red-600">{errors.ACCName.message as string}</p>
         )}
         <p className="text-xs text-gray-500">{t("account-name-hint")}</p>
       </div>
@@ -55,8 +55,8 @@ export default function BankingInfoForm({ formMethods }: BankingInfoFormProps) {
           })}
           className="h-12"
         />
-        {errors.bankName && (
-          <p className="text-sm text-red-600">{errors.bankName.message}</p>
+        {errors.bankName?.message && (
+          <p className="text-sm text-red-600">{errors.bankName.message as string}</p>
         )}
         <p className="text-xs text-gray-500">{t("bank-name-hint")}</p>
       </div>
@@ -73,8 +73,8 @@ export default function BankingInfoForm({ formMethods }: BankingInfoFormProps) {
           })}
           className="h-12 uppercase"
         />
-        {errors.IBAN && (
-          <p className="text-sm text-red-600">{errors.IBAN.message}</p>
+        {errors.IBAN?.message && (
+          <p className="text-sm text-red-600">{errors.IBAN.message as string}</p>
         )}
         <p className="text-xs text-gray-500">{t("iban-hint")}</p>
       </div>
@@ -91,8 +91,8 @@ export default function BankingInfoForm({ formMethods }: BankingInfoFormProps) {
           })}
           className="h-12 uppercase"
         />
-        {errors.swiftCode && (
-          <p className="text-sm text-red-600">{errors.swiftCode.message}</p>
+        {errors.swiftCode?.message && (
+          <p className="text-sm text-red-600">{errors.swiftCode.message as string}</p>
         )}
         <p className="text-xs text-gray-500">{t("swift-hint")}</p>
       </div>

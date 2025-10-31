@@ -34,8 +34,8 @@ export default function SocialMediaForm({ formMethods }: SocialMediaFormProps) {
           {...register("facebook")}
           className="h-12"
         />
-        {errors.facebook && (
-          <p className="text-sm text-red-600">{errors.facebook.message}</p>
+        {errors.facebook?.message && (
+          <p className="text-sm text-red-600">{errors.facebook.message as string}</p>
         )}
       </div>
 
@@ -52,8 +52,8 @@ export default function SocialMediaForm({ formMethods }: SocialMediaFormProps) {
           {...register("X")}
           className="h-12"
         />
-        {errors.X && (
-          <p className="text-sm text-red-600">{errors.X.message}</p>
+        {errors.X?.message && (
+          <p className="text-sm text-red-600">{errors.X.message as string}</p>
         )}
       </div>
 
@@ -70,8 +70,8 @@ export default function SocialMediaForm({ formMethods }: SocialMediaFormProps) {
           {...register("linkedin")}
           className="h-12"
         />
-        {errors.linkedin && (
-          <p className="text-sm text-red-600">{errors.linkedin.message}</p>
+        {errors.linkedin?.message && (
+          <p className="text-sm text-red-600">{errors.linkedin.message as string}</p>
         )}
       </div>
 
@@ -88,8 +88,8 @@ export default function SocialMediaForm({ formMethods }: SocialMediaFormProps) {
           {...register("snapchat")}
           className="h-12"
         />
-        {errors.snapchat && (
-          <p className="text-sm text-red-600">{errors.snapchat.message}</p>
+        {errors.snapchat?.message && (
+          <p className="text-sm text-red-600">{errors.snapchat.message as string}</p>
         )}
       </div>
     </div>

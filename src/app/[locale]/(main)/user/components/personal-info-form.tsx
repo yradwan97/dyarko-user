@@ -102,8 +102,8 @@ export default function PersonalInfoForm({
           {...register("name", { required: t("name-required") })}
           className="h-12"
         />
-        {errors.name && (
-          <p className="text-sm text-red-600">{errors.name.message}</p>
+        {errors.name?.message && (
+          <p className="text-sm text-red-600">{errors.name.message as string}</p>
         )}
       </div>
 
@@ -117,8 +117,8 @@ export default function PersonalInfoForm({
           {...register("phone", { required: t("phone-required") })}
           className="h-12"
         />
-        {errors.phone && (
-          <p className="text-sm text-red-600">{errors.phone.message}</p>
+        {errors.phone?.message && (
+          <p className="text-sm text-red-600">{errors.phone.message as string}</p>
         )}
       </div>
 
@@ -138,8 +138,8 @@ export default function PersonalInfoForm({
           })}
           className="h-12"
         />
-        {errors.email && (
-          <p className="text-sm text-red-600">{errors.email.message}</p>
+        {errors.email?.message && (
+          <p className="text-sm text-red-600">{errors.email.message as string}</p>
         )}
       </div>
     </div>

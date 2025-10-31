@@ -110,7 +110,7 @@ export default function MyRealEstatesPage() {
         <TabsContent value="installments" className="mt-6">
           <div className="py-12 text-center">
             <CreditCard className="mx-auto h-16 w-16 text-gray-300 dark:text-gray-700 mb-4" />
-            <Typography variant="body-lg" as="p" className="text-gray-500 dark:text-gray-400 mb-2">
+            <Typography variant="body-lg-medium" as="p" className="text-gray-500 dark:text-gray-400 mb-2">
               {t("no-installments")}
             </Typography>
             <Typography variant="body-sm" as="p" className="text-gray-400 dark:text-gray-500">

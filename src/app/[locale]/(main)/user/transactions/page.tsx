@@ -79,7 +79,7 @@ export default function TransactionsPage() {
       {transactions.length === 0 ? (
         <div className="py-12 text-center">
           <Receipt className="mx-auto h-16 w-16 text-gray-300 mb-4" />
-          <Typography variant="body-lg" as="p" className="text-gray-500 mb-2">
+          <Typography variant="body-lg-medium" as="p" className="text-gray-500 mb-2">
             {t("no-transactions")}
           </Typography>
           <Typography variant="body-sm" as="p" className="text-gray-400">
