@@ -1,32 +1,90 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import HeadTitle from "./head-title";
-import FeatureItem from "./feature-item";
+import Typography from "@/components/shared/typography";
 
-interface ServicesComponentProps {
-  services: string[];
+interface Service {
+  _id?: string;
+  nameAr?: string;
+  nameEn?: string;
+  price?: number;
 }
 
-export default function ServicesComponent({ services }: ServicesComponentProps) {
+interface ServicesComponentProps {
+  services: (string | Service)[];
+  currency?: string;
+}
+
+export default function ServicesComponent({ services, currency = "KWD" }: ServicesComponentProps) {
   const t = useTranslations("Properties.Details");
+  const locale = useLocale();
+
+  if (!services || services.length === 0) {
+    return null;
+  }
 
   return (
     <div className="border-b border-gray-200 py-12 dark:border-gray-700">
       <HeadTitle text={t("services")} />
-      <div className="flex space-x-20">
-        <div className="flex-1">
-          <ul className="list-disc space-y-2 sm:space-y-5">
-            {services.map((service, i) => (
-              <FeatureItem
-                key={i}
-                className="font-medium capitalize text-black dark:text-white"
-                firstText={service}
-              />
-            ))}
-          </ul>
+
+      {services.length > 0 ? (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {services.map((service, index) => {
+            // Handle both string and object formats
+            const serviceName = typeof service === 'string'
+              ? service
+              : (locale === "ar" ? service.nameAr : service.nameEn) || service.nameEn || service.nameAr;
+
+            const servicePrice = typeof service === 'object' ? service.price : null;
+            const serviceId = typeof service === 'object' && service._id ? service._id : index;
+
+            return (
+              <div
+                key={serviceId}
+                className="rounded-lg border border-gray-200 bg-white overflow-hidden shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-gray-800"
+              >
+                <div className="p-4 space-y-2">
+                  <Typography
+                    variant="body-md"
+                    as="h4"
+                    className="font-bold capitalize text-gray-800 dark:text-gray-200"
+                  >
+                    {serviceName}
+                  </Typography>
+
+                  {servicePrice !== null && servicePrice !== undefined && (
+                    <div className="flex justify-between items-center">
+                      <Typography
+                        variant="body-sm"
+                        as="span"
+                        className="text-gray-600 dark:text-gray-400"
+                      >
+                        {t("price")}
+                      </Typography>
+                      <Typography
+                        variant="body-sm"
+                        as="span"
+                        className="font-semibold text-primary"
+                      >
+                        {servicePrice} {currency}
+                      </Typography>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
-      </div>
+      ) : (
+        <Typography
+          variant="body-md"
+          as="p"
+          className="text-center py-8 text-gray-500 dark:text-gray-400"
+        >
+          {t("no-data")}
+        </Typography>
+      )}
     </div>
   );
 }

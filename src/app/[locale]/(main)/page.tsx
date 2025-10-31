@@ -1,21 +1,24 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-
-import MobileFeaturedProperties from "@/components/sections/mobile-featured-properties";
-import MobileBestCompanies from "@/components/sections/mobile-best-companies";
-import PropertiesSection from "@/components/sections/properties-section";
-import SessionDebug from "@/components/shared/session-debug";
+import HeroSection from "@/components/sections/hero-section";
+import ServicesSection from "@/components/sections/services-section";
+import PropertiesFilterSection from "@/components/sections/properties-filter-section";
+import LandingVideosSection from "@/components/sections/landing-videos-section";
+import AboutUsSection from "@/components/sections/new-about-us";
+import FeaturedCompaniesSection from "@/components/sections/new-featured-companies";
+import NewsletterSection from "@/components/sections/new-newsletter-section";
 
 export default function Home() {
-  const { data: session } = useSession();
 
   return (
-    <>
-      <SessionDebug />
-      <MobileFeaturedProperties />
-      <MobileBestCompanies />
-      <PropertiesSection />
-    </>
+    <div className="container">
+      <HeroSection />
+      <ServicesSection />
+      <PropertiesFilterSection />
+      <LandingVideosSection />
+      <AboutUsSection />
+      <FeaturedCompaniesSection />
+      <NewsletterSection />
+    </div>
   );
 }

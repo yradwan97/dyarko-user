@@ -41,6 +41,13 @@ export const authOptions: NextAuthConfig = {
               accessToken: apiData.data?.accessToken || apiData.accessToken,
               refreshToken: apiData.data?.refreshToken || apiData.refreshToken,
               role: userData.role || credentials?.role || "user",
+              // Include user profile fields
+              country: userData.country,
+              phoneNumber: userData.phoneNumber,
+              points: userData.points,
+              status: userData.status,
+              isConfirmed: userData.isConfirmed,
+              nationalID: userData.nationalID,
               // Store the complete user data for later use
               data: userData,
             };
@@ -67,19 +74,47 @@ export const authOptions: NextAuthConfig = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
+      // Initial sign in
       if (user) {
         return {
           ...token,
           user: {
             ...user,
             data: user.data || {}
-          }
+          },
+          // Store the time when token was created
+          iat: Math.floor(Date.now() / 1000),
+          // JWT typically expires in 2 hours (7200 seconds), matching session maxAge
+          exp: Math.floor(Date.now() / 1000) + 7200
         };
       }
+
+      // Check if token is expired
+      const now = Math.floor(Date.now() / 1000);
+      if (token.exp && now >= (token.exp as number)) {
+        console.log("⚠️ JWT token has expired");
+        // Return null to invalidate the session
+        return null as any;
+      }
+
+      // If update trigger, refresh the token
+      if (trigger === "update") {
+        return {
+          ...token,
+          iat: now,
+          exp: now + 7200
+        };
+      }
+
       return token;
     },
     async session({ session, token }) {
+      // If token is null (expired), return null session
+      if (!token) {
+        return null as any;
+      }
+
       if (token.user) {
         const userData = token.user as Record<string, unknown>;
         session.user = {
@@ -87,6 +122,12 @@ export const authOptions: NextAuthConfig = {
           accessToken: userData.accessToken as string,
           refreshToken: userData.refreshToken as string,
           role: userData.role as string,
+          country: userData.country as string,
+          phoneNumber: userData.phoneNumber as string,
+          points: userData.points as number,
+          status: userData.status as string,
+          isConfirmed: userData.isConfirmed as boolean,
+          nationalID: userData.nationalID as string,
           // Spread all data from the API response
           ...(userData.data as Record<string, unknown> || {}),
           // Also spread top-level user data for backward compatibility

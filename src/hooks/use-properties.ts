@@ -43,10 +43,14 @@ export function useProperties(params: GetPropertiesParams = {}) {
   });
 }
 
-export function useFeaturedProperties(page: number = 1, size: number = 10) {
+export function useFeaturedProperties(
+  page: number = 1,
+  size: number = 10,
+  country?: string
+) {
   return useQuery({
-    queryKey: ["featured-properties", page, size],
-    queryFn: () => getProperties({ page, size, isFeatured: true }),
+    queryKey: ["featured-properties", page, size, country],
+    queryFn: () => getProperties({ page, size, isFeatured: true, country }),
     staleTime: 1000 * 60 * 5, // 5 minutes
     retry: false, // Don't retry on failure
     gcTime: 0, // Don't cache failed queries

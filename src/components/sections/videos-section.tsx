@@ -5,14 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import VideoCard from "@/components/shared/video-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useVideos } from "@/hooks/use-videos";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+import PaginationControls from "@/components/shared/pagination-controls";
 
 export default function VideosSection() {
   const locale = useLocale();
@@ -29,37 +22,8 @@ export default function VideosSection() {
   const totalPages = data?.data?.totalPages || 1;
 
   const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  };
-
-  const renderPageNumbers = () => {
-    const pages = [];
-    const maxVisible = 5;
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
-
-    if (endPage - startPage + 1 < maxVisible) {
-      startPage = Math.max(1, endPage - maxVisible + 1);
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(
-        <PaginationItem key={i}>
-          <PaginationLink
-            onClick={() => handlePageChange(i)}
-            isActive={currentPage === i}
-            className="cursor-pointer"
-          >
-            {i}
-          </PaginationLink>
-        </PaginationItem>
-      );
-    }
-
-    return pages;
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -96,35 +60,12 @@ export default function VideosSection() {
             ))}
           </div>
 
-          {totalPages > 1 && (
-            <div className="mt-8 flex justify-center">
-              <Pagination>
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      onClick={() => handlePageChange(currentPage - 1)}
-                      className={
-                        currentPage === 1
-                          ? "pointer-events-none opacity-50"
-                          : "cursor-pointer"
-                      }
-                    />
-                  </PaginationItem>
-                  {renderPageNumbers()}
-                  <PaginationItem>
-                    <PaginationNext
-                      onClick={() => handlePageChange(currentPage + 1)}
-                      className={
-                        currentPage === totalPages
-                          ? "pointer-events-none opacity-50"
-                          : "cursor-pointer"
-                      }
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            </div>
-          )}
+          <PaginationControls
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            disabled={isLoading}
+          />
         </>
       )}
     </section>

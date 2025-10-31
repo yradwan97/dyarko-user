@@ -8,6 +8,26 @@ declare module "next-auth" {
       role?: string;
       device_token?: string;
       currency?: string;
+      country?: string;
+      phoneNumber?: string;
+      points?: number;
+      status?: string;
+      isConfirmed?: boolean;
+      nationalID?: string;
+      bankInfo?: {
+        IBAN?: string;
+        bankName?: string;
+        swiftCode?: string;
+        ACCName?: string;
+        _id?: string;
+      };
+      socialMedia?: {
+        facebook?: string;
+        X?: string;
+        linkedin?: string;
+        snapchat?: string;
+        _id?: string;
+      };
     } & DefaultSession["user"];
   }
 
@@ -16,6 +36,12 @@ declare module "next-auth" {
     accessToken?: string;
     refreshToken?: string;
     role?: string;
+    country?: string;
+    phoneNumber?: string;
+    points?: number;
+    status?: string;
+    isConfirmed?: boolean;
+    nationalID?: string;
     data?: Record<string, unknown>;
   }
 }
@@ -26,6 +52,11 @@ declare module "next-auth/jwt" {
       accessToken?: string;
       refreshToken?: string;
       role?: string;
+      country?: string;
+      phoneNumber?: string;
+      points?: number;
+      status?: string;
+      isConfirmed?: boolean;
       data?: Record<string, unknown>;
     };
   }

@@ -1,15 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useProperty } from "@/hooks/use-properties";
+import { useCountries } from "@/hooks/use-countries";
 import { toast } from "sonner";
 import { axiosClient } from "@/lib/services/axios-client";
 import { ChevronLeft, Share2, Heart, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { getLocalizedPath, cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import PropertySlider from "./components/property-slider";
 import AboutProperty from "./components/about-property";
 
@@ -24,6 +26,18 @@ export default function PropertyDetails({ id }: PropertyDetailsProps) {
   const [liked, setLiked] = useState(false);
 
   const { data: property, isLoading, error, refetch } = useProperty(id);
+  const { data: countries } = useCountries();
+
+  // Get currency based on property country
+  const currency = useMemo(() => {
+    if (!property || !countries) return "KWD";
+    const country = countries.find(c =>
+      c.countryEn === property.country ||
+      c.countryAr === property.country ||
+      c.code === property.country
+    );
+    return country?.currency || "KWD";
+  }, [property, countries]);
 
   useEffect(() => {
     if (property) {
@@ -35,8 +49,11 @@ export default function PropertyDetails({ id }: PropertyDetailsProps) {
   const createPropertyView = async (propertyId: string) => {
     try {
       await axiosClient.post(`/properties/${propertyId}/view`);
-    } catch (e) {
-      console.error("Failed to create property view:", e);
+    } catch (e: any) {
+      // Ignore canceled requests (happens when component unmounts or navigates away)
+      if (e?.code !== 'ERR_CANCELED' && e?.name !== 'CanceledError') {
+        console.error("Failed to create property view:", e);
+      }
     }
   };
 
@@ -76,7 +93,7 @@ export default function PropertyDetails({ id }: PropertyDetailsProps) {
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+        <Spinner className="h-12 w-12 text-main-400" />
       </div>
     );
   }
@@ -93,12 +110,12 @@ export default function PropertyDetails({ id }: PropertyDetailsProps) {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Back Button */}
       <div className="container mx-auto px-4 pt-6">
         <Link
           href={getLocalizedPath("/properties", locale)}
-          className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary-dark transition-colors"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-all hover:gap-3"
         >
           <ChevronLeft className="h-5 w-5" />
           {t("back")}
@@ -143,6 +160,7 @@ export default function PropertyDetails({ id }: PropertyDetailsProps) {
             <Button
               variant="outline"
               onClick={handleShareClicked}
+              className="hover:bg-primary hover:text-white hover:border-primary transition-all"
             >
               <Share2 className="h-4 w-4" />
               {t("Share.title")}
@@ -152,6 +170,10 @@ export default function PropertyDetails({ id }: PropertyDetailsProps) {
             <Button
               variant="outline"
               onClick={handleLikePressed}
+              className={cn(
+                "hover:bg-primary hover:text-white hover:border-primary transition-all",
+                liked && "bg-red-50 border-red-300 text-red-600 hover:bg-red-600 hover:text-white"
+              )}
             >
               <Heart className={cn("h-4 w-4", liked && "fill-current")} />
               {liked ? t("Save.unfavorite") : t("Save.favorite")}
@@ -163,7 +185,7 @@ export default function PropertyDetails({ id }: PropertyDetailsProps) {
         {property && <PropertySlider property={property} />}
 
         {/* About Property */}
-        {property && <AboutProperty property={property} />}
+        {property && <AboutProperty property={property} currency={currency} />}
       </div>
     </div>
   );

@@ -49,10 +49,12 @@ function extractErrorMessage(error: unknown, t: (key: string) => string): string
   return t("errors.unexpected");
 }
 
-export function useLogin() {
+export function useLogin(redirectPath?: string | null) {
   const router = useRouter();
   const locale = useLocale();
   const t = useTranslations("Auth.Messages");
+
+  console.log("🔵 useLogin hook initialized with redirectPath:", redirectPath);
 
   return useMutation({
     mutationFn: async (credentials: LoginCredentials) => {
@@ -94,7 +96,11 @@ export function useLogin() {
 
       console.log("🟢 CLIENT: Login successful!");
       toast.success(t("loginSuccess"));
-      router.push(getLocalizedPath("/", locale));
+
+      // Redirect to the specified path or home
+      const destination = redirectPath || getLocalizedPath("/", locale);
+      console.log("🟢 CLIENT: Redirecting to:", destination);
+      router.push(destination);
       router.refresh();
     },
     onError: (error: unknown) => {

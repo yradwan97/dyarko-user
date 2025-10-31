@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Property } from "@/lib/services/api/properties";
 import { getLocalizedPath } from "@/lib/utils";
+import { getPropertyPrice, getPropertyPeriod, formatPrice } from "@/lib/utils/property-pricing";
 import { toast } from "sonner";
 import { axiosClient } from "@/lib/services/axios-client";
 import { Button } from "@/components/ui/button";
@@ -15,12 +16,14 @@ import ScheduleTour from "./schedule-tour";
 
 interface ReservationBoxProps {
   property: Property;
+  currency?: string;
 }
 
-export default function ReservationBox({ property }: ReservationBoxProps) {
+export default function ReservationBox({ property, currency = "KWD" }: ReservationBoxProps) {
   const locale = useLocale();
   const { data: session } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
   const [confirmedUser, setConfirmedUser] = useState(false);
   const [isContactOwnerOpen, setIsContactOwnerOpen] = useState(false);
   const [isScheduleTourOpen, setIsScheduleTourOpen] = useState(false);
@@ -59,24 +62,13 @@ export default function ReservationBox({ property }: ReservationBoxProps) {
     }
   }, [session]);
 
-  const getPropertyPrice = () => {
-    if (property.dailyPrice) return property.dailyPrice;
-    if (property.weeklyPrice) return property.weeklyPrice;
-    if (property.monthlyPrice) return property.monthlyPrice;
-    return 0;
-  };
-
-  const getPropertyPeriod = () => {
-    if (property.isDaily) return "day";
-    if (property.isWeekly) return "week";
-    if (property.isMonthly) return "month";
-    return "month";
-  };
+  const price = getPropertyPrice(property);
+  const period = getPropertyPeriod(property);
 
   const decideSubmitButtonLinkHref = () => {
     if (property.offerType === "rent") {
       if (confirmedUser) {
-        return getLocalizedPath(`/application/${property._id}`, locale);
+        return getLocalizedPath(`/rent/${property._id}`, locale);
       } else {
         return getLocalizedPath("/login/confirm", locale);
       }
@@ -90,7 +82,8 @@ export default function ReservationBox({ property }: ReservationBoxProps) {
 
   const handleMainSubmitButtonClick = async () => {
     if (!session) {
-      router.push(getLocalizedPath("/login", locale));
+      const currentPath = encodeURIComponent(pathname);
+      router.push(getLocalizedPath(`/login?redirect=${currentPath}`, locale));
       return;
     }
 
@@ -154,7 +147,7 @@ export default function ReservationBox({ property }: ReservationBoxProps) {
       </Dialog>
 
       {/* Reservation Box */}
-      <div className="sticky top-24 rounded-md border-[1.5px] border-gray-200 p-6 dark:border-gray-700">
+      <div className="sticky top-24 rounded-xl border-[1.5px] border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow dark:border-gray-700 dark:bg-gray-800">
         {isTentGroup ? (
           <p className="text-center text-sm text-black dark:text-white">{t("tent-group")}</p>
         ) : isReplacement ? (
@@ -176,12 +169,12 @@ export default function ReservationBox({ property }: ReservationBoxProps) {
                 {property.offerType === "rent" ? t("rent-price") : t("price")}
               </span>
               <p className="text-lg font-bold text-yellow-600">
-                {getPropertyPrice()} {t("kwd")}
-                {property.offerType === "rent" && (
+                {price} {currency}
+                {property.offerType === "rent" && period && (
                   <sub>
                     <span className="text-xs text-gray-500 dark:text-gray-400">
                       {" "}
-                      / {tPrice(getPropertyPeriod())}
+                      / {tPrice(period)}
                     </span>
                   </sub>
                 )}
@@ -199,19 +192,19 @@ export default function ReservationBox({ property }: ReservationBoxProps) {
         )}
 
         <Button
-          className="my-6 flex w-full items-center justify-center gap-2"
+          className="my-6 flex w-full items-center bg-main-600 text-white hover:bg-main-300 hover:text-main-500 justify-center gap-2 h-12 font-semibold shadow-sm hover:shadow-md transition-all"
           onClick={handleMainSubmitButtonClick}
         >
           <FileText className="h-5 w-5" />
           <span className="font-bold">{property && t(property.offerType)}</span>
         </Button>
 
-        <div className="my-6 h-px bg-gray-200 dark:bg-gray-700" />
+        <div className="my-6 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent dark:via-gray-600" />
 
-        <p className="my-6 text-center text-lg font-bold">{t("request-home-tour")}</p>
+        <p className="my-6 text-center text-lg font-bold text-gray-800 dark:text-gray-200">{t("request-home-tour")}</p>
 
         <Button
-          className="my-6 flex w-full items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700"
+          className="my-6 flex w-full items-center justify-center gap-2 h-12 bg-main-500/90 hover:bg-main-500/50 font-semibold shadow-sm hover:shadow-md transition-all"
           onClick={() => setIsScheduleTourOpen(true)}
         >
           <MapPin className="h-5 w-5" />

@@ -3,9 +3,10 @@
 import { useState } from "react";
 import Image from "next/image";
 import { Property } from "@/lib/services/api/properties";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { X, ChevronUp, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 interface PropertySliderProps {
   property: Property;
@@ -49,6 +50,9 @@ export default function PropertySlider({ property }: PropertySliderProps) {
       {/* Image Modal */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="max-w-4xl p-0">
+          <VisuallyHidden>
+            <DialogTitle>Property Image</DialogTitle>
+          </VisuallyHidden>
           <div className="relative h-[80vh] w-full">
             <button
               onClick={() => setIsOpen(false)}
@@ -69,7 +73,7 @@ export default function PropertySlider({ property }: PropertySliderProps) {
       </Dialog>
 
       {/* Image Gallery */}
-      <div className="mt-10 flex gap-3">
+      <div className="mt-10 flex gap-3 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm">
         {/* Vertical Carousel (only show if there are multiple images) */}
         {hasMultipleImages && (
           <div className="flex flex-col gap-2">
@@ -77,7 +81,7 @@ export default function PropertySlider({ property }: PropertySliderProps) {
             {scrollPosition > 0 && (
               <button
                 onClick={scrollUp}
-                className="flex h-8 items-center justify-center rounded bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
+                className="flex h-8 items-center justify-center rounded bg-gray-200 hover:bg-primary hover:text-white transition-colors dark:bg-gray-700 dark:hover:bg-primary"
               >
                 <ChevronUp className="h-4 w-4" />
               </button>
@@ -93,9 +97,9 @@ export default function PropertySlider({ property }: PropertySliderProps) {
                     <div
                       key={actualIndex}
                       className={cn(
-                        "h-20 w-20 cursor-pointer rounded border-2 p-1 transition-all",
+                        "h-20 w-20 cursor-pointer rounded-lg border-2 p-1 transition-all hover:scale-105",
                         selectedImageIndex === actualIndex
-                          ? "border-primary"
+                          ? "border-primary shadow-md"
                           : "border-gray-200 dark:border-gray-700 hover:border-primary/50"
                       )}
                       onClick={() => selectImage(actualIndex)}
@@ -116,7 +120,7 @@ export default function PropertySlider({ property }: PropertySliderProps) {
             {scrollPosition < allImages.length - maxVisibleThumbnails && (
               <button
                 onClick={scrollDown}
-                className="flex h-8 items-center justify-center rounded bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
+                className="flex h-8 items-center justify-center rounded bg-gray-200 hover:bg-primary hover:text-white transition-colors dark:bg-gray-700 dark:hover:bg-primary"
               >
                 <ChevronDown className="h-4 w-4" />
               </button>
@@ -125,13 +129,13 @@ export default function PropertySlider({ property }: PropertySliderProps) {
         )}
 
         {/* Main Image */}
-        <div className="h-[450px] flex-1 rounded border border-primary p-3">
+        <div className="h-[450px] flex-1 rounded-lg border-2 border-primary p-3 overflow-hidden group">
           <Image
             src={allImages[selectedImageIndex]}
             height={450}
             width={800}
             alt={property.title}
-            className="h-full w-full cursor-pointer object-cover rounded"
+            className="h-full w-full cursor-pointer object-cover rounded-lg transition-transform group-hover:scale-105"
             onClick={() => openOverlay(allImages[selectedImageIndex])}
           />
         </div>

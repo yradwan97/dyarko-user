@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 
 interface PropertyCardProps {
   variant?: "featured" | "list";
-  image: string;
+  image?: string | null;
   name: string;
   location: string;
   price: string;
@@ -40,18 +40,19 @@ export default function PropertyCard({
 }: PropertyCardProps) {
   const locale = useLocale();
   const isRTL = locale === "ar";
+  const imageSrc = image || "/assets/property-1.png";
 
   if (variant === "featured") {
     return (
       <Card className="group min-w-[220px] flex-shrink-0 overflow-hidden border-0 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] dark:bg-gray-800 dark:shadow-[0_2px_8px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_8px_16px_rgba(0,0,0,0.3)]">
         <div className="relative h-44 w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
           <Image
-            src={image}
+            src={imageSrc}
             alt={name}
             fill
             sizes="220px"
             priority={priority}
-            unoptimized={image.startsWith('/api/proxy-image')}
+            unoptimized={imageSrc.startsWith('/api/proxy-image')}
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
           {badge && (
@@ -64,6 +65,17 @@ export default function PropertyCard({
               )}
             >
               {badge}
+            </Badge>
+          )}
+          {secondaryBadge && (
+            <Badge
+              variant="secondary"
+              className={cn(
+                "absolute top-10 border-0 bg-main-500/90 px-2 py-0.5 text-[10px] text-white backdrop-blur-sm hover:bg-secondary-600 capitalize",
+                isRTL ? "right-3" : "left-3"
+              )}
+            >
+              {secondaryBadge}
             </Badge>
           )}
         </div>
@@ -94,12 +106,12 @@ export default function PropertyCard({
       <CardContent className={cn("flex gap-4 p-4", isRTL && "flex-row-reverse")}>
         <div className="relative h-28 w-28 flex-shrink-0 overflow-hidden rounded-xl bg-gradient-to-br from-gray-50 to-gray-100">
           <Image
-            src={image}
+            src={imageSrc}
             alt={name}
             fill
             sizes="112px"
             priority={priority}
-            unoptimized={image.startsWith('/api/proxy-image')}
+            unoptimized={imageSrc.startsWith('/api/proxy-image')}
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
           {badge && (

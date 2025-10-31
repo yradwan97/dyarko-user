@@ -1,19 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import type { Session } from "next-auth";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 
-import { CalendarIcon } from "@/components/icons";
 import Button from "@/components/shared/button";
 import CustomSelect from "@/components/shared/custom-select";
 import DropDownSelect from "@/components/shared/dropdown-select";
 import Typography from "@/components/shared/typography";
+import { DatePicker } from "@/components/ui/date-picker";
 import { useGetPropertyTypes } from "@/hooks/use-properties";
-import { governorates } from "@/lib/utils/property";
+import { useCities } from "@/hooks/use-cities";
+import { useCountryContext } from "@/components/providers/country-provider";
 import type { Governorate } from "@/types/property";
 import { getLocalizedPath } from "@/lib/utils";
 
@@ -26,20 +25,40 @@ export function SearchTabContent({ tab, session }: SearchTabContentProps) {
   const t = useTranslations("HomePage.Slider.TabsContent");
   const router = useRouter();
   const locale = useLocale();
-  const { data: propertyTypes } = useGetPropertyTypes();
+  const { selectedCountry } = useCountryContext();
+  // const { data: propertyTypes } = useGetPropertyTypes();
+  const { data: cities, isLoading: citiesLoading } = useCities(selectedCountry);
   const [date, setDate] = useState<Date | null>(null);
-  const [selectedGov, setSelectedGov] = useState<Governorate | undefined>(governorates[0]);
+  const [selectedGov, setSelectedGov] = useState<Governorate | undefined>(undefined);
   const [selectedPropertyType, setSelectedPropertyType] = useState<{ name: string; value: string } | undefined>();
 
+  // Convert cities to governorate format for compatibility with CustomSelect
+  const cityOptions: Governorate[] = useMemo(() => {
+    return cities
+      ? cities.map((city) => ({
+          id: city.key,
+          name: city.city,
+          icon: city.city,
+        }))
+      : [];
+  }, [cities]);
+
+  // Update selected city when cities load or country changes
   useEffect(() => {
-    if (propertyTypes && propertyTypes.length > 0) {
-      setSelectedPropertyType(propertyTypes[0]);
+    if (cityOptions.length > 0) {
+      setSelectedGov(cityOptions[0]);
     }
-  }, [propertyTypes]);
+  }, [cityOptions]);
+
+  // useEffect(() => {
+  //   if (propertyTypes && propertyTypes.length > 0) {
+  //     setSelectedPropertyType(propertyTypes[0]);
+  //   }
+  // }, [propertyTypes]);
 
   const handleSearch = () => {
     const params = new URLSearchParams();
-    params.append("payment_type", tab);
+    params.append("offerType", tab);
     if (date) params.append("date", date.toISOString());
     if (selectedGov) params.append("city", selectedGov.id);
     if (selectedPropertyType) params.append("type", selectedPropertyType.value);
@@ -48,40 +67,36 @@ export function SearchTabContent({ tab, session }: SearchTabContentProps) {
   };
 
   return (
-    <div className="flex w-full flex-col gap-4 lg:flex-row lg:items-end">
+    <div className="flex w-full flex-col gap-4 lg:flex-row lg:items-center">
       {/* Location */}
-      <div className="flex-1">
+      <div className="w-full flex-1">
         <Typography variant="body-md" as="p" className="mb-2 text-gray-600">
           {t("location")}
         </Typography>
         <CustomSelect
-          isGov
-          containerClass="w-full rounded-lg py-2 px-4"
-          values={governorates}
+          containerClass="w-full rounded-lg px-4"
+          values={cityOptions}
           selected={selectedGov}
           setSelected={setSelectedGov}
+          disabled={citiesLoading}
         />
       </div>
 
       {/* Date */}
-      <div className="flex-1">
+      <div className="w-full flex-1">
         <Typography variant="body-md" as="p" className="mb-2 text-gray-600">
           {t("when")}
         </Typography>
-        <div className="relative">
-          <DatePicker
-            className="w-full rounded-lg border border-gray-200 px-4 py-2 text-base font-medium text-foreground placeholder:text-gray-400 focus:border-main-400 focus:outline-none"
-            selected={date}
-            onChange={(date) => setDate(date)}
-            placeholderText={t("date-placeholder")}
-            dateFormat="dd/MM/yyyy"
-          />
-          <CalendarIcon className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 stroke-gray-600" />
-        </div>
+        <DatePicker
+          date={date}
+          onDateChange={(newDate) => setDate(newDate || null)}
+          placeholder={t("date-placeholder")}
+          className="h-10 border-gray-200 focus:border-main-400"
+        />
       </div>
 
       {/* Property Type - Only for rent/installment and logged in users */}
-      {session && tab !== "buy" && propertyTypes && (
+      {/* {session && tab !== "buy" && propertyTypes && (
         <div className="flex-1">
           <Typography variant="body-md" as="p" className="mb-2 text-gray-600">
             {t("type")}
@@ -92,10 +107,10 @@ export function SearchTabContent({ tab, session }: SearchTabContentProps) {
             onSelect={(indx) => setSelectedPropertyType(propertyTypes[indx])}
           />
         </div>
-      )}
+      )} */}
 
       {/* Search Button */}
-      <div className="flex-1">
+      <div className="w-full lg:flex-1 lg:pt-8">
         <Button
           variant="primary"
           onClick={handleSearch}

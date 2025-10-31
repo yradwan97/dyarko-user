@@ -11,12 +11,16 @@ import AmenetiesComponent from "./ameneties-component";
 import ServicesComponent from "./services-component";
 import Location from "./location";
 import ReservationBox from "./reservation-box";
+import HotelApartments from "./hotel-apartments";
+import PropertyGroups from "./property-groups";
+import InteriorDesign from "./interior-design";
 
 interface AboutPropertyProps {
   property: Property;
+  currency?: string;
 }
 
-export default function AboutProperty({ property }: AboutPropertyProps) {
+export default function AboutProperty({ property, currency = "KWD" }: AboutPropertyProps) {
   const locale = useLocale();
   const tListing = useTranslations("Properties.Listing");
   const t = useTranslations("Properties.Details");
@@ -35,7 +39,7 @@ export default function AboutProperty({ property }: AboutPropertyProps) {
         <div
           className={`flex ${
             locale === "ar" ? "flex-row-reverse" : "flex-row"
-          } flex-wrap gap-6 rounded-md border-[1.5px] border-gray-200 p-6 dark:border-gray-700 lg:gap-10`}
+          } flex-wrap gap-6 rounded-xl border-[1.5px] border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:gap-10`}
         >
           {/* Bedrooms */}
           {property?.bedrooms && (
@@ -150,9 +154,9 @@ export default function AboutProperty({ property }: AboutPropertyProps) {
             href={property.contract}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-4 flex flex-row items-center space-x-4"
+            className="mt-4 flex flex-row items-center space-x-4 p-4 rounded-lg bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors group"
           >
-            <div className="flex h-11 w-11 flex-row items-center justify-center rounded-2xl bg-gray-100 dark:bg-gray-800">
+            <div className="flex h-11 w-11 flex-row items-center justify-center rounded-2xl bg-primary/10 group-hover:bg-primary/20 transition-colors dark:bg-primary/20 dark:group-hover:bg-primary/30">
               <Paperclip className="h-6 w-6 text-primary" />
             </div>
             <p className="font-bold text-gray-800 dark:text-gray-200">{t("documents")}</p>
@@ -194,7 +198,7 @@ export default function AboutProperty({ property }: AboutPropertyProps) {
               </div>
               <Link
                 href={getLocalizedPath(`/company-details/${ownerId}`, locale)}
-                className="flex w-full items-center justify-center gap-2 rounded-lg border border-primary px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-white sm:w-auto"
+                className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-primary px-4 py-2 text-sm font-medium text-primary transition-all hover:bg-primary hover:text-white hover:shadow-md sm:w-auto"
               >
                 <svg
                   className="h-4 w-4"
@@ -218,13 +222,31 @@ export default function AboutProperty({ property }: AboutPropertyProps) {
         {/* Feature Component */}
         <FeatureComponent property={property} />
 
+        {/* Hotel Apartments (for hotelapartment category) */}
+        {property.category === "hotelapartment" && (
+          <HotelApartments property={property} currency={currency} />
+        )}
+
+        {/* Property Groups (for booth category) */}
+        {property.category === "booth" && (
+          <PropertyGroups property={property} type="booth" currency={currency} />
+        )}
+
+        {/* Property Groups (for camp category) */}
+        {property.category === "camp" && (
+          <PropertyGroups property={property} type="camp" currency={currency} />
+        )}
+
         {/* Amenities */}
         {amenities && amenities.length > 0 && (
           <AmenetiesComponent amenities={amenities} />
         )}
 
         {/* Services */}
-        {services && services.length > 0 && <ServicesComponent services={services} />}
+        {services && services.length > 0 && <ServicesComponent services={services} currency={currency} />}
+
+        {/* Interior Design */}
+        <InteriorDesign interiorDesign={property.interiorDesign} />
 
         {/* Location */}
         <Location coords={{ long, lat }} />
@@ -236,7 +258,7 @@ export default function AboutProperty({ property }: AboutPropertyProps) {
           locale === "ar" ? "lg:order-1" : "lg:order-2"
         }`}
       >
-        <ReservationBox property={property} />
+        <ReservationBox property={property} currency={currency} />
       </div>
     </div>
   );

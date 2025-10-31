@@ -30,7 +30,13 @@
       "Bash(git config user.email)",
       "Bash(gh auth login)",
       "Bash(git push -u origin master)",
-      "Bash(git remote set-url origin https://yradwan97@github.com/yradwan97/dyarko-user.git)"
+      "Bash(git remote set-url origin https://yradwan97@github.com/yradwan97/dyarko-user.git)",
+      "Read(//c/Users/Youssef/Pictures/Screenshots/**)",
+      "Bash(copy:*)",
+      "Bash(tree:*)",
+      "Bash(npm start)",
+      "Bash(del C:UsersYoussefprojectsdyarko-usersrccomponentsprovidersauth-token-sync.tsx)",
+      "Bash(node -e:*)"
     ],
     "deny": [],
     "ask": []

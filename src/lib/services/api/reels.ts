@@ -27,6 +27,7 @@ export interface Video {
   description?: string;
   createdAt?: string;
   updatedAt?: string;
+  expirationDate?: string;
 }
 
 // Interface for detailed reel data from getReelById
@@ -89,12 +90,13 @@ export interface GetVideosParams {
   page?: number;
   size?: number;
   search?: string;
+  owner?: string;
 }
 
 export const getVideos = async (
   params: GetVideosParams = {}
 ): Promise<VideosResponse> => {
-  const { page = 1, size = 9, search } = params;
+  const { page = 1, size = 9, search, owner } = params;
 
   // Build query params
   const queryParams = new URLSearchParams();
@@ -103,6 +105,10 @@ export const getVideos = async (
 
   if (search) {
     queryParams.append("search", search);
+  }
+
+  if (owner) {
+    queryParams.append("owner", owner);
   }
 
   const url = `/reels?${queryParams.toString()}`;

@@ -1,17 +1,13 @@
 import axios from "axios";
 
+// Extend Window interface to include our redirect flag
+declare global {
+  interface Window {
+    __redirectingToLogin?: boolean;
+  }
+}
+
 const API_URI = process.env.NEXT_PUBLIC_API_URI;
-
-// Token store to avoid circular dependencies with getSession
-let cachedToken: string | null = null;
-
-// Function to set the token (call this after login)
-export const setAuthToken = (token: string | null) => {
-  cachedToken = token;
-};
-
-// Function to get the current token
-export const getAuthToken = () => cachedToken;
 
 // Create axios instance for non-authenticated requests
 export const noAuthAxios = axios.create({
@@ -21,6 +17,9 @@ export const noAuthAxios = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+// No request interceptor needed for non-authenticated requests
+// Accept-Language will be handled by the provider
 
 // Add response interceptor to handle non-JSON responses
 noAuthAxios.interceptors.response.use(
@@ -63,25 +62,15 @@ export const axiosClient = axios.create({
   validateStatus: (status) => status >= 200 && status < 400,
 });
 
-// Add request interceptor to attach token to every request
-axiosClient.interceptors.request.use(
-  (config) => {
-    // Use cached token to avoid circular dependencies
-    if (cachedToken) {
-      config.headers.Authorization = `Bearer ${cachedToken}`;
-    }
+// Request interceptor removed - token and locale handling moved to AxiosInterceptorProvider
+// This allows for reactive token management with NextAuth session
 
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-// Add same response interceptor to authenticated client
+// Response interceptor for handling non-JSON responses
+// Note: 401/403 auth errors are handled in AxiosInterceptorProvider
 axiosClient.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
+    // Handle non-JSON responses
     if (error.response) {
       const contentType = error.response.headers?.["content-type"];
 

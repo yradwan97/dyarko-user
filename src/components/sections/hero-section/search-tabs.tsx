@@ -28,7 +28,7 @@ export function SearchTabs({ session }: SearchTabsProps) {
   }
 
   return (
-    <div className="mb-32 w-full md:mb-36 lg:w-full xl:w-4/6">
+    <div className="mb-32 w-full md:mb-36 lg:w-full">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-3 rounded-t-lg bg-white">
           <TabsTrigger
@@ -52,14 +52,14 @@ export function SearchTabs({ session }: SearchTabsProps) {
         </TabsList>
 
         <div className="relative">
-          <div className="absolute left-0 top-0 z-10 w-full rounded-b-lg bg-white shadow-xl md:w-[500px] lg:w-[840px]">
-            <TabsContent value="rent" className="mt-0 p-6">
+          <div className="absolute start-0 top-0 z-10 w-full max-w-full rounded-b-lg bg-white shadow-xl md:min-w-[500px] lg:min-w-[640px] xl:min-w-[700px]">
+            <TabsContent value="rent" className="mt-0 p-4 md:p-6">
               <SearchTabContent tab="rent" session={session} />
             </TabsContent>
-            <TabsContent value="buy" className="mt-0 p-6">
+            <TabsContent value="buy" className="mt-0 p-4 md:p-6">
               <SearchTabContent tab="buy" session={session} />
             </TabsContent>
-            <TabsContent value="installment" className="mt-0 p-6">
+            <TabsContent value="installment" className="mt-0 p-4 md:p-6">
               <SearchTabContent tab="installment" session={session} />
             </TabsContent>
           </div>

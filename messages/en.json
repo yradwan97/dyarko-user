@@ -6,6 +6,7 @@
     "copyright": "© {year} DYARKO. All rights reserved.",
     "selectOption": "Select an option",
     "helloSignIn": "Hello, Sign in",
+    "kwd": "KWD",
     "PaymentMethods": {
       "rent": "Rent",
       "cash": "Cash",
@@ -28,12 +29,29 @@
     "Categories": {
       "title": "Property Categories",
       "no-data": "No data yet",
-      "house": "House",
-      "caravan": "Caravan",
       "category": "Category",
+      "house": "House",
       "chalet": "Chalet",
-      "farm": "Farm",
+      "tent": "Tent",
+      "camp": "Camp",
+      "camper": "Camper",
       "land": "Land",
+      "farm": "Farm",
+      "booth": "Booth",
+      "jakhoor": "Jakhoor",
+      "kashta": "Kashta",
+      "hall": "Hall",
+      "shop": "Shop",
+      "hotelApartment": "Hotel Apartment",
+      "barn": "Barn",
+      "officeAndStudio": "Office & Studio",
+      "clinic": "Clinic",
+      "cafeAndRestaurant": "Cafe & Restaurant",
+      "factory": "Factory",
+      "voucher": "Voucher",
+      "tower": "Residential Tower",
+      "court": "Court",
+      "caravan": "Caravan",
       "tent_single": "Single Tent",
       "tent_group": "Tent Group"
     },
@@ -55,7 +73,9 @@
     "paid": "Paid",
     "unpaid": "Unpaid",
     "navigation-menu": "Navigation Menu",
-    "searchPlaceholder": "Search properties..."
+    "searchPlaceholder": "Search properties...",
+    "previous": "Previous",
+    "next": "Next"
   },
   "PropertySearch": {
     "home": "Home",
@@ -70,7 +90,19 @@
       "reset": "Reset"
     }
   },
+  "PropertyListing": {
+    "title": "Browse Properties -",
+    "description": "Find your perfect property from our extensive listings",
+    "location": "Location",
+    "when": "Available Date",
+    "date-placeholder": "Select date",
+    "price": "Price Range",
+    "search": "Search",
+    "reset": "Reset",
+    "no-results": "No properties found"
+  },
   "Navbar": {
+    "search": "search",
     "rent": "rent",
     "buy": "buy",
     "cash": "cash",
@@ -227,7 +259,8 @@
           "placeholder": "Leave a comment"
         },
         "add": "Add",
-        "available-slots": "Available time slot"
+        "available-slots": "Available time slot",
+        "cancel": "Cancel"
       },
       "area": "Area",
       "area-unit-1": "m<sup>2</sup>",
@@ -242,12 +275,35 @@
       "documents": "Attached Documents",
       "listed-by": "Listed by property owner",
       "more-info": "Get more info",
+      "rental-amenities": "Unit Amenities",
       "rental-features": "Unit features",
       "services": "Available Extra Services",
       "interior": "Interior Details",
       "map": "Map",
       "map-header": "Drag the pin and drop to select a location.",
-      "rental-amenities": "Unit Amenities"
+      "apartments": "Apartments",
+      "apartment": "Apartment",
+      "apartment-details": "Apartment Details",
+      "groups": "Groups",
+      "booth": "Booth",
+      "tent": "Tent",
+      "related-booths": "Related Booths",
+      "related-tents": "Related Tents",
+      "none": "None",
+      "no-groups-available": "No groups available",
+      "pricing": "Pricing",
+      "description": "Description",
+      "insurance": "Insurance",
+      "daily-price": "Daily Price",
+      "weekly-price": "Weekly Price",
+      "monthly-price": "Monthly Price",
+      "bedrooms": "Bedrooms",
+      "bathrooms": "Bathrooms",
+      "beds": "Beds",
+      "baths": "Baths",
+      "price": "Price",
+      "kwd": "KWD",
+      "no-data": "No data available"
     }
   },
   "HomePage": {
@@ -282,6 +338,11 @@
     },
     "FeaturedCompaniesSection": {
       "title": "Featured Companies"
+    },
+    "FeaturedCompanies": {
+      "main": "Featured Companies",
+      "sub": "We are working with 100+ companies from whome you can get your desired property.",
+      "noCompanies": "No companies available"
     },
     "NewsletterSection": {
       "title": "Subscribe to Our Newsletter",
@@ -365,10 +426,6 @@
       "sub": "Whether it’s selling your current home, getting financing, or buying a new home, we make it easy  and efficient. The best part? you’ll save a bunch of money and time with our services.",
       "see-more": "See more"
     },
-    "FeaturedCompanies": {
-      "main": "Featured Companies",
-      "sub": "We are working with 100+ companies from whome you can get your desired property."
-    },
     "Newsletter": {
       "no-spam": "No Spam Promise",
       "main": "Are you a landlord?",
@@ -417,7 +474,7 @@
         "open-file": "Open File"
       },
       "Copyright": {
-        "1": "©2024 Dyarko. All rights reserved",
+        "1": "©{date} Dyarko. All rights reserved",
         "2": "Developed by",
         "3": "Echosoft"
       }
@@ -530,8 +587,25 @@
     "agree-privacy": "Agree to privacy policies"
   },
   "Companies": {
-    "title": "Owners",
+    "title": "Companies",
+    "description": "Discover and connect with property owners. Find your next home with trusted landlords.",
     "desc": "We are working with 100+ owners from whom you can get your desired property.",
+    "error": "Failed to load companies",
+    "no-companies": "No companies found",
+    "previous": "Previous",
+    "next": "Next",
+    "follow": "Follow",
+    "unfollow": "Unfollow",
+    "no-reviews": "No reviews",
+    "about-placeholder": "We provide comprehensive property protection and liability coverage to ensure our customers enjoy a secure and worry-free life. Our insurance solutions are designed to safeguard your assets and enhance your peace of mind, offering you a better and more secure future.",
+    "no-properties": "No properties available",
+    "videos": "Videos",
+    "video": "Video",
+    "tabs": {
+      "all": "All Properties",
+      "rent": "For Rent",
+      "installment": "For Sale (Installment)"
+    },
     "SingleCompany": {
       "unfollow": "Unfollow",
       "follow": "Follow",
@@ -561,12 +635,16 @@
         "thank-you": "Thank you for your review",
         "rate": "Rate",
         "review": "Review",
-        "submit": "Submit"
+        "review-placeholder": "Write your review...",
+        "submit": "Submit",
+        "submitting": "Submitting..."
       }
     }
   },
   "Videos": {
     "title": "All videos",
+    "expires-at": "Expires at",
+    "expired": "Expired",
     "Details": {
       "Share": {
         "title": "Share Video",
@@ -1015,5 +1093,316 @@
     "description": "You need to be logged in to access this content. Please log in to continue.",
     "login": "Go to Login",
     "cancel": "Cancel"
+  },
+  "PropertySearch": {
+    "title": "Search Properties",
+    "description": "Find your perfect property with advanced filters",
+    "no-results": "No properties found matching your criteria",
+    "filters": {
+      "location": "Location",
+      "more-filters": "More Filters",
+      "max-price": "Max Price",
+      "enter-price": "Enter max price",
+      "property-type": "Property Type",
+      "sort-by": "Sort By",
+      "advanced-title": "Advanced Filters",
+      "advanced-description": "Refine your search with these options",
+      "offer-type": "Offer Type",
+      "rent": "Rent",
+      "installment": "Installment",
+      "price-range": "Price Range",
+      "reset": "Reset",
+      "apply": "Apply Filters"
+    }
+  },
+  "User": {
+    "currency": "KWD",
+    "Sidebar": {
+      "profile": "Profile",
+      "change-password": "Change Password",
+      "wallet": "Wallet",
+      "saved": "Saved Properties",
+      "my-requests": "My Requests",
+      "my-real-estates": "My Real Estate",
+      "transactions": "Transactions",
+      "logout": "Logout",
+      "account": "Account"
+    },
+    "Profile": {
+      "title": "My Profile",
+      "description": "Manage your personal information and banking details",
+      "tabs": {
+        "personal": "Personal Info",
+        "banking": "Banking Info",
+        "social": "Social Media"
+      },
+      "sections": {
+        "personal": "Personal Information",
+        "banking": "Bank Information",
+        "social": "Social Media"
+      },
+      "Personal": {
+        "upload": "Upload Photo",
+        "remove": "Remove Photo",
+        "name": "Full Name",
+        "name-placeholder": "Enter your full name",
+        "name-required": "Name is required",
+        "phone": "Phone Number",
+        "phone-placeholder": "5XXXXXXX",
+        "phone-required": "Phone number is required",
+        "email": "Email Address",
+        "email-placeholder": "hi@example.com",
+        "email-required": "Email is required",
+        "email-invalid": "Please enter a valid email address",
+        "save": "Save Changes",
+        "cancel": "Cancel",
+        "image-success": "Profile image updated successfully",
+        "image-fail": "Failed to update profile image",
+        "profile-success": "Profile updated successfully",
+        "profile-fail": "Failed to update profile"
+      },
+      "Banking": {
+        "description": "Update your banking information for transactions and withdrawals",
+        "account-name": "Account Holder Name",
+        "account-name-placeholder": "Enter account holder name",
+        "account-name-required": "Account holder name is required",
+        "account-name-hint": "Full name as it appears on your bank account",
+        "bank-name": "Bank Name",
+        "bank-name-placeholder": "Enter bank name",
+        "bank-name-required": "Bank name is required",
+        "bank-name-hint": "Name of your banking institution",
+        "iban": "IBAN",
+        "iban-placeholder": "Enter IBAN",
+        "iban-required": "IBAN is required",
+        "iban-hint": "International Bank Account Number",
+        "swift": "Swift Code",
+        "swift-placeholder": "Enter Swift code",
+        "swift-required": "Swift code is required",
+        "swift-hint": "Bank Identifier Code",
+        "save": "Save Changes",
+        "cancel": "Cancel",
+        "banking-success": "Banking information updated successfully",
+        "banking-fail": "Failed to update banking information"
+      },
+      "SocialMedia": {
+        "facebook": "Facebook",
+        "facebook-placeholder": "https://www.facebook.com/username",
+        "facebook-invalid": "Please enter a valid Facebook URL",
+        "twitter": "X (Twitter)",
+        "twitter-placeholder": "https://x.com/username",
+        "twitter-invalid": "Please enter a valid X/Twitter URL",
+        "linkedin": "LinkedIn",
+        "linkedin-placeholder": "https://www.linkedin.com/in/username",
+        "linkedin-invalid": "Please enter a valid LinkedIn URL",
+        "snapchat": "Snapchat",
+        "snapchat-placeholder": "https://www.snapchat.com/add/username",
+        "snapchat-invalid": "Please enter a valid Snapchat URL",
+        "save": "Save Changes",
+        "cancel": "Cancel",
+        "success": "Social media links updated successfully",
+        "fail": "Failed to update social media links"
+      }
+    },
+    "ChangePassword": {
+      "title": "Change Password",
+      "description": "Update your password to keep your account secure",
+      "old-password": "Current Password",
+      "old-password-placeholder": "Enter current password",
+      "new-password": "New Password",
+      "new-password-placeholder": "Enter new password",
+      "confirm-password": "Confirm New Password",
+      "confirm-password-placeholder": "Confirm new password",
+      "required": "This field is required",
+      "min": "Password must be at least 6 characters",
+      "dont-match": "Passwords do not match",
+      "save": "Save Changes",
+      "cancel": "Cancel",
+      "success-title": "Password Changed Successfully",
+      "success-message": "Your password has been updated. Please use your new password for future logins.",
+      "ok": "OK",
+      "error": "Failed to change password"
+    },
+    "Wallet": {
+      "title": "My Wallet",
+      "description": "Manage your wallet balance and view transaction history",
+      "balance": "Current Balance",
+      "recent-transactions": "Recent Transactions",
+      "no-transactions": "No transactions yet",
+      "transaction-id": "Transaction ID",
+      "type": "Type",
+      "amount": "Amount",
+      "status": "Status",
+      "date": "Date"
+    },
+    "Saved": {
+      "title": "Saved Properties",
+      "description": "Properties you've saved for later viewing",
+      "no-properties": "No saved properties yet",
+      "no-properties-description": "Start saving properties you're interested in to view them later"
+    },
+    "MyRequests": {
+      "title": "My Requests",
+      "description": "View and manage your rental and purchase requests",
+      "no-requests": "No requests yet",
+      "no-requests-description": "Your property requests will appear here",
+      "request-title": "Property Request",
+      "request-id": "Request ID",
+      "type": "Request Type",
+      "tour-date": "Tour Date",
+      "currency": "KWD",
+      "owner": "Owner",
+      "user": "User",
+      "total": "Total",
+      "months": "months",
+      "not-available": "N/A",
+      "created": "Created",
+      "owner-comment": "Owner Comment",
+      "admin-comment": "Admin Comment",
+      "reason": "Reason",
+      "showing-page": "Showing page {currentPage} of {totalPages} ({itemsCount} total items)",
+      "tabs": {
+        "tours": "Tours",
+        "rent": "Rent",
+        "service": "Services",
+        "installments": "Installments",
+        "disclaimers": "Disclaimers",
+        "ads": "User Ads"
+      },
+      "no-tours": "No tour requests yet",
+      "no-rent": "No rent requests yet",
+      "no-service": "No service requests yet",
+      "no-installments": "No installment requests yet",
+      "no-disclaimers": "No disclaimer requests yet",
+      "no-ads": "No ads yet"
+    },
+    "MyRealEstates": {
+      "title": "My Real Estate",
+      "description": "Properties you currently own or manage",
+      "no-properties": "No properties yet",
+      "no-properties-description": "You don't have any properties listed",
+      "tabs": {
+        "rents": "Rents",
+        "installments": "Installments"
+      },
+      "RentCard": {
+        "code": "Code",
+        "status": "Status",
+        "amount": "Amount",
+        "tenant": "Tenant",
+        "dates": "Rental Period"
+      },
+      "RentDetailsModal": {
+        "title": "Rental Details",
+        "loading": "Loading...",
+        "no-data": "No rental details available",
+        "property-details": "Property Details",
+        "rental-period": "Rental Period",
+        "rental-info": "Rental Information",
+        "tenant-info": "Tenant Information",
+        "location": "Location",
+        "category": "Category",
+        "type": "Type",
+        "start-date": "Start Date",
+        "end-date": "End Date",
+        "amount": "Amount",
+        "rent-type": "Rent Type",
+        "last-paid": "Last Paid At",
+        "tenant-name": "Name",
+        "phone": "Phone",
+        "national-id": "National ID",
+        "code": "Code",
+        "status": {
+          "active": "Active",
+          "pending": "Pending",
+          "expired": "Expired",
+          "cancelled": "Cancelled"
+        },
+        "rent-types": {
+          "daily": "Daily",
+          "weekly": "Weekly",
+          "monthly": "Monthly"
+        }
+      },
+      "no-rents": "No rents found",
+      "no-rents-description": "You don't have any rental properties yet",
+      "no-installments": "No installments found",
+      "no-installments-description": "You don't have any installment properties yet"
+    },
+    "Transactions": {
+      "title": "Transaction History",
+      "description": "View your complete transaction history",
+      "no-transactions": "No transactions yet",
+      "no-transactions-description": "Your transactions will appear here once you make payments",
+      "transaction-id": "Transaction ID",
+      "description": "Description",
+      "type": "Type",
+      "amount": "Amount",
+      "status": "Status",
+      "date": "Date"
+    }
+  },
+  "Rent": {
+    "error": {
+      "title": "Error",
+      "message": "Property not found or unavailable"
+    },
+    "steps": {
+      "rentDetails": "Rent Details",
+      "chooseDate": "Choose Date",
+      "agreements": "Agreements",
+      "checkout": "Checkout"
+    },
+    "Step1": {
+      "rentType": "Rent Type",
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "weekdays": "Weekdays",
+      "holidays": "Holidays",
+      "extraService": "Extra Service",
+      "kwd": "KWD",
+      "next": "Next"
+    },
+    "Step2": {
+      "chooseYourDates": "Choose your dates",
+      "selectDates": "Select your preferred rental dates from the calendar below",
+      "note": "Note",
+      "noteAvailableDate": "This unit becomes available for booking starting {date}",
+      "noteUnavailableDate": "Unavailable units are likely booked for your chosen dates",
+      "selectedDates": "Selected dates",
+      "next": "Next"
+    },
+    "Step3": {
+      "title": "Agreements",
+      "termsAndConditions": "Terms & conditions",
+      "refundPolicy": "Refund policy",
+      "contract": "Contract",
+      "ownerRoles": "Owner rules:",
+      "familyOnly": "family only.",
+      "checkAll": "Check all",
+      "next": "Next"
+    },
+    "Step4": {
+      "rentDetails": "Rent Details",
+      "checkInOut": "Check-In & Out Date:",
+      "checkInOutTime": "Check-In & Out time:",
+      "timePlaceholder": "2:00 PM - 10:00 AM",
+      "rentType": "Rent type:",
+      "rentAmount": "Rent Amount:",
+      "notSelected": "Not selected",
+      "invoiceDetails": "Invoice Details",
+      "rent": "Rent",
+      "insurance": "Insurance",
+      "services": "Services",
+      "service": "Service",
+      "commission": "Commission",
+      "tax": "Tax",
+      "total": "Total",
+      "note": "Note",
+      "securityDepositNote": "Any security deposit will be held by Dyarko as a guarantee and refunded after your rental ends, per Terms & Conditions.",
+      "commissionNote": "Any commission on your invoice comes from the agent or broker — not from Dyarko.",
+      "completePurchase": "Complete Purchase",
+      "sendRequest": "Send Request"
+    }
   }
 }

@@ -22,10 +22,10 @@ export function CircleIcon({
         className
       )}
     >
-      <div className="relative flex h-full w-full items-center justify-center rounded-full bg-main-yellow-400">
+      <div className="relative flex h-full w-full items-center justify-center rounded-full">
         {icon}
         {subIcon && (
-          <div className="absolute -right-1 top-9 flex h-6 w-6 items-center justify-center rounded-lg bg-main-400">
+          <div className="absolute -right-1 top-9 flex h-6 w-6 items-center justify-center rounded-lg bg-secondary-400">
             {subIcon}
           </div>
         )}

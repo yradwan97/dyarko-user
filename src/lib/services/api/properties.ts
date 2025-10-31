@@ -35,7 +35,7 @@ export interface Property {
   image?: string | null;
   images?: string[];
   amenities: string[];
-  services: string[];
+  services: PropertyService[];
   saved: number;
   views: number;
   searchFeature?: string;
@@ -50,6 +50,7 @@ export interface Property {
   isTerminated: boolean;
   allowCountry: string;
   allowNationality: string;
+  rules?: string
   __t?: string; // Property type discriminator
   // Physical characteristics
   bedrooms?: number;
@@ -63,6 +64,10 @@ export interface Property {
   weeklyPrice?: number;
   isMonthly?: boolean;
   monthlyPrice?: number;
+  isWeekdays?: boolean;
+  weekdaysPrice?: number;
+  isHolidays?: boolean;
+  holidaysPrice?: number;
   hasInsurance?: boolean;
   insurancePrice?: number;
   availableDate?: string;
@@ -113,15 +118,15 @@ export interface Property {
 export interface PropertiesResponse {
   status: string;
   message: string;
-  
-    data: {
-      data: Property[];
-      total: number;
-      page: number;
-      size: number;
-      totalPages: number;
-    };
-  
+
+  data: {
+    data: Property[];
+    total: number;
+    page: number;
+    size: number;
+    totalPages: number;
+  };
+
 }
 
 export interface GetPropertiesParams {
@@ -130,10 +135,32 @@ export interface GetPropertiesParams {
   isFeatured?: boolean;
   category?: string;
   type?: string;
-  minPrice?: number;
-  maxPrice?: number;
+  priceFrom?: number;
+  priceTo?: number;
   city?: string;
+  country?: string;
   sortBy?: "mostPopular" | "bestOffer" | "nearest";
+  sort?: string;
+  owner?: string;
+  offerType?: "RENT" | "INSTALLMENT" | "SALE" | string;
+  search?: string;
+  bedrooms?: string | number;
+  bathrooms?: string | number;
+  isDaily?: boolean | string;
+  isWeekly?: boolean | string;
+  isMonthly?: boolean | string;
+  isWeekdays?: boolean | string;
+  isHolidays?: boolean | string;
+}
+
+export interface PropertyService {
+  image: string
+  accessType: string
+  nameAr: string
+  nameEn: string
+  owner: string
+  price: number
+  _id: string
 }
 
 export const getProperties = async (
@@ -145,10 +172,22 @@ export const getProperties = async (
     isFeatured,
     category,
     type,
-    minPrice,
-    maxPrice,
+    priceFrom,
+    priceTo,
     city,
+    country,
     sortBy,
+    sort,
+    owner,
+    offerType,
+    search,
+    bedrooms,
+    bathrooms,
+    isDaily,
+    isWeekly,
+    isMonthly,
+    isWeekdays,
+    isHolidays,
   } = params;
 
   // Build query params
@@ -168,20 +207,67 @@ export const getProperties = async (
     queryParams.append("type", type);
   }
 
-  if (minPrice !== undefined) {
-    queryParams.append("minPrice", minPrice.toString());
+  if (priceFrom !== undefined) {
+    queryParams.append("priceFrom", priceFrom.toString());
   }
 
-  if (maxPrice !== undefined) {
-    queryParams.append("maxPrice", maxPrice.toString());
+  if (priceTo !== undefined) {
+    queryParams.append("priceTo", priceTo.toString());
   }
 
   if (city) {
     queryParams.append("city", city);
   }
 
-  if (sortBy) {
-    queryParams.append("sortBy", sortBy);
+  if (country) {
+    queryParams.append("country", country);
+  }
+
+  // Handle both sortBy/sort naming conventions
+  const effectiveSort = sortBy ?? sort;
+  if (effectiveSort) {
+    queryParams.append("sortBy", effectiveSort);
+  }
+
+  if (owner) {
+    queryParams.append("owner", owner);
+  }
+
+  if (offerType) {
+    queryParams.append("offerType", offerType);
+  }
+
+  if (search) {
+    queryParams.append("search", search);
+  }
+
+  if (bedrooms) {
+    queryParams.append("bedrooms", bedrooms.toString());
+  }
+
+  if (bathrooms) {
+    queryParams.append("bathrooms", bathrooms.toString());
+  }
+
+  // Time-based availability filters
+  if (isDaily) {
+    queryParams.append("isDaily", "true");
+  }
+
+  if (isWeekly) {
+    queryParams.append("isWeekly", "true");
+  }
+
+  if (isMonthly) {
+    queryParams.append("isMonthly", "true");
+  }
+
+  if (isWeekdays) {
+    queryParams.append("isWeekdays", "true");
+  }
+
+  if (isHolidays) {
+    queryParams.append("isHolidays", "true");
   }
 
   const url = `/properties/?${queryParams.toString()}`;

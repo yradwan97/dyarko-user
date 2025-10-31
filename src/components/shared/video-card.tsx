@@ -3,8 +3,8 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useLocale } from "next-intl";
-import { HeartIcon, EyeIcon, MessageCircleIcon, PlayCircleIcon } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { HeartIcon, EyeIcon, MessageCircleIcon, PlayCircleIcon, ClockIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Video } from "@/lib/services/api/reels";
@@ -17,6 +17,7 @@ interface VideoCardProps {
 export default function VideoCard({ video, priority = false }: VideoCardProps) {
   const locale = useLocale();
   const isRTL = locale === "ar";
+  const t = useTranslations("Videos");
 
   const formatCount = (count: number | undefined): string => {
     if (!count || count === 0) {
@@ -29,6 +30,20 @@ export default function VideoCard({ video, priority = false }: VideoCardProps) {
       return `${(count / 1000).toFixed(1)}K`;
     }
     return count.toString();
+  };
+
+  const formatExpiryDate = (date: string): string => {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    const hours = String(d.getHours()).padStart(2, "0");
+    const minutes = String(d.getMinutes()).padStart(2, "0");
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+  };
+
+  const isExpired = (date: string): boolean => {
+    return new Date(date) < new Date();
   };
 
   return (
@@ -51,6 +66,25 @@ export default function VideoCard({ video, priority = false }: VideoCardProps) {
           <h3 className="mb-3 line-clamp-2 text-sm font-semibold text-main-500 dark:text-main-400">
             {video.title}
           </h3>
+
+          {video.expirationDate && (
+            <div className={cn("mb-3 flex items-center gap-1.5", isRTL && "flex-row-reverse")}>
+              <ClockIcon className={cn(
+                "h-4 w-4",
+                isExpired(video.expirationDate) ? "text-red-500" : "text-main-500 dark:text-main-400"
+              )} />
+              {isExpired(video.expirationDate) ? (
+                <span className="text-xs font-medium text-red-500">
+                  {t("expired")}
+                </span>
+              ) : (
+                <span className="text-xs font-medium text-main-500 dark:text-main-400">
+                  {t("expires-at")}: {formatExpiryDate(video.expirationDate)}
+                </span>
+              )}
+            </div>
+          )}
+
           <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900">
             <div className={cn("flex items-center gap-1.5", isRTL && "flex-row-reverse")}>
               <EyeIcon className="h-4 w-4 text-gray-400 dark:text-gray-500" />

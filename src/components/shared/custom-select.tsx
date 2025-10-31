@@ -18,6 +18,7 @@ interface CustomSelectProps {
   selected: Governorate | undefined;
   setSelected: (value: Governorate) => void;
   isGov?: boolean;
+  disabled?: boolean;
 }
 
 export default function CustomSelect({
@@ -26,11 +27,14 @@ export default function CustomSelect({
   selected,
   setSelected,
   isGov,
+  disabled
 }: CustomSelectProps) {
   const t = useTranslations("General.Regions");
 
   const handleChange = (value: string) => {
     const selectedItem = values.find((v) => v.id === value);
+    console.log(selectedItem, "selectedItem");
+    console.log(selected, "selected");
     if (selectedItem) {
       setSelected(selectedItem);
     }
@@ -38,8 +42,9 @@ export default function CustomSelect({
 
   return (
     <Select
-      value={selected?.id}
+      value={selected?.id || ""}
       onValueChange={handleChange}
+      disabled={disabled}
     >
       <SelectTrigger
         className={cn(containerClass)}

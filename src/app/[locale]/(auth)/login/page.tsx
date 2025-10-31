@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
@@ -23,12 +23,16 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLogin } from "@/hooks/use-auth";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect") ? decodeURIComponent(searchParams.get("redirect")!) : null;
   const { data: session, status } = useSession();
   const t = useTranslations("Login");
-  const loginMutation = useLogin();
+  const loginMutation = useLogin(redirect);
   const [showPassword, setShowPassword] = useState(false);
+
+  console.log("🔵 Login page - redirect param:", redirect);
 
   const loginSchema = useMemo(() => z.object({
     email: z.string().min(1, t("Form.email.required")).email(t("Form.email.valid")),
@@ -47,9 +51,12 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (session) {
-      router.back();
+      // If there's a redirect param, go there, otherwise go to home
+      const destination = redirect || "/";
+      console.log("🔵 Session exists, redirecting to:", destination);
+      router.push(destination);
     }
-  }, [session, router]);
+  }, [session, router, redirect]);
 
   const onSubmit = (data: LoginFormData) => {
     loginMutation.mutate(data);
@@ -193,5 +200,31 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="mx-auto w-full max-w-md px-4 py-16 md:py-24">
+        <div className="mb-8 space-y-3 text-center">
+          <Skeleton className="mx-auto h-8 w-48" />
+          <Skeleton className="mx-auto h-4 w-64" />
+        </div>
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-12 w-full" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-12 w-full" />
+          </div>
+          <Skeleton className="h-12 w-full" />
+        </div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }

@@ -36,17 +36,17 @@ export default function ScheduleTour({
 
   const [availableTimeSlots, setAvailableTimeSlots] = useState<any[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-  const [comment, setComment] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
 
   useEffect(() => {
-    if (visible) {
+    if (visible && ownerId) {
       const fetchAvailableTimeSlots = async () => {
         try {
-          const response = await axiosClient.get(`/Schedules/${ownerId}`);
-          setAvailableTimeSlots(response.data.data);
+          const response = await axiosClient.get(`/schedules?owner=${ownerId}`);
+          setAvailableTimeSlots(response.data.data.data || []);
         } catch (error) {
-          console.error("Error fetching unavailable time slots:", error);
+          console.error("Error fetching schedules:", error);
+          setAvailableTimeSlots([]);
         }
       };
       fetchAvailableTimeSlots();
@@ -60,6 +60,18 @@ export default function ScheduleTour({
     return `${hours}:${minutes}`;
   };
 
+  const isDateAvailable = (date: Date) => {
+    if (!availableTimeSlots || availableTimeSlots.length === 0) return false;
+
+    const checkDate = new Date(date.setHours(0, 0, 0, 0));
+
+    return availableTimeSlots.some((slot) => {
+      const from = new Date(new Date(slot.from).setHours(0, 0, 0, 0));
+      const to = new Date(new Date(slot.to).setHours(0, 0, 0, 0));
+      return checkDate >= from && checkDate <= to;
+    });
+  };
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -68,18 +80,16 @@ export default function ScheduleTour({
       return;
     }
 
-    const tourData: any = {
-      date: format(new Date(selectedDate), "yyyy/MM/dd"),
-      phone: phoneNumber,
+    const tourData = {
       property: propertyId,
+      date: format(new Date(selectedDate), "MM/dd/yyyy"),
+      mobileNumber: phoneNumber,
     };
-    if (comment) tourData.comment = comment;
 
     try {
       await axiosClient.post("/tours", tourData);
       toast.success(t("success"));
       setVisible(false);
-      setComment("");
       setPhoneNumber("");
       setSelectedDate(undefined);
     } catch (error) {
@@ -89,74 +99,97 @@ export default function ScheduleTour({
 
   return (
     <Dialog open={visible} onOpenChange={setVisible}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle className="text-center text-2xl">{t("title")}</DialogTitle>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 p-0">
+        <DialogHeader className="px-6 pt-6 pb-4">
+          <DialogTitle className="text-2xl font-bold text-gray-900 dark:text-white">
+            {t("title")}
+          </DialogTitle>
         </DialogHeader>
 
-        <div className="p-6">
-          <div className="flex flex-col space-y-4 lg:flex-row lg:space-x-4 lg:space-y-0">
-            {/* Calendar */}
-            <div className="w-full lg:w-1/2">
+        <form onSubmit={onSubmit} className="px-6 pb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Calendar Section */}
+            <div className="flex flex-col items-center justify-start">
               <Calendar
                 mode="single"
                 selected={selectedDate}
                 onSelect={setSelectedDate}
-                className="rounded-md border"
+                disabled={(date) => !isDateAvailable(date)}
+                className="rounded-lg border border-gray-200 dark:border-gray-700 w-fit p-3"
               />
-              {availableTimeSlots.length > 0 && (
-                <div className="mt-5 text-center">
-                  <p className="text-lg font-medium">
-                    {t("available-slots")}
-                    <div className="mt-2 flex w-auto justify-center rounded-lg bg-orange-500 p-1 text-white shadow-lg shadow-gray-400">
-                      {`${getDisplayTime(availableTimeSlots[0].from)} - ${getDisplayTime(
-                        availableTimeSlots[0].to
-                      )}`}
-                    </div>
-                  </p>
-                </div>
-              )}
             </div>
 
-            {/* Form */}
-            <form className="w-full lg:w-1/2" onSubmit={onSubmit}>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="phoneNumber">{t("Phone.label")}</Label>
-                  <Input
-                    id="phoneNumber"
-                    type="tel"
-                    placeholder={t("Phone.placeholder")}
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                  />
-                  {errors.phoneNumber && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.phoneNumber.message as string}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <Label htmlFor="comment">{t("Comment.label")}</Label>
-                  <Textarea
-                    id="comment"
-                    rows={6}
-                    placeholder={t("Comment.placeholder")}
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                  />
-                </div>
+            {/* Form Section */}
+            <div className="flex flex-col justify-center">
+              <div className="space-y-2">
+                <Label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t("Phone.label")}
+                </Label>
+                <Input
+                  id="phoneNumber"
+                  type="tel"
+                  placeholder={t("Phone.placeholder")}
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  className="h-11 bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700"
+                  required
+                />
               </div>
-            </form>
+            </div>
           </div>
 
-          <div className="mt-4 flex justify-end">
-            <Button className="rounded-lg px-8 py-2" onClick={onSubmit}>
+          {/* Available Time Slots */}
+          {availableTimeSlots.length > 0 && (
+            <div className="mt-6 space-y-2">
+              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t("available-slots")}
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {availableTimeSlots.map((slot, index) => (
+                  <div
+                    key={index}
+                    className="inline-flex items-center gap-1.5 rounded-md bg-gray-100 dark:bg-gray-700 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300"
+                  >
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <span>
+                      {`${getDisplayTime(slot.from)} - ${getDisplayTime(slot.to)}`}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="mt-6 flex justify-end gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setVisible(false)}
+              className="px-6 h-11 font-medium border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+            >
+              {t("cancel") || "Cancel"}
+            </Button>
+            <Button
+              type="submit"
+              className="px-8 h-11 font-semibold bg-main-500 hover:bg-main-500/90 text-white shadow-sm hover:shadow-md transition-all"
+            >
               {t("add")}
             </Button>
           </div>
-        </div>
+        </form>
       </DialogContent>
     </Dialog>
   );

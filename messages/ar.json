@@ -6,6 +6,7 @@
     "copyright": "© {year} ديــاركو. جميع الحقوق محفوظة.",
     "selectOption": "اختر خياراً",
     "helloSignIn": "مرحباً، سجل دخولك",
+    "kwd": "د.ك",
     "PaymentMethods": {
       "rent": "إيجار",
       "cash": "كاش",
@@ -28,11 +29,29 @@
     "Categories": {
       "title": "أقسام العقارات",
       "no-data": "لا توجد بيانات بعد",
+      "category": "الفئة",
       "house": "منزل",
+      "chalet": "شاليهات",
+      "tent": "خيمة",
+      "camp": "مخيمات",
+      "camper": "كرفانات",
+      "land": "أراضي",
+      "farm": "مزارع",
+      "booth": "بوثات",
+      "jakhoor": "جواخير",
+      "kashta": "كشتات",
+      "hall": "قاعات",
+      "shop": "محلات",
+      "hotelApartment": "شقق فندقية",
+      "barn": "اسطبل",
+      "officeAndStudio": "مكاتب & ستوديوهات",
+      "clinic": "عيادة",
+      "cafeAndRestaurant": "كافيهات & مطاعم",
+      "factory": "مصانع",
+      "voucher": "قسائم",
+      "tower": "برج سكني",
+      "court": "ملاعب",
       "caravan": "كرفان",
-      "chalet": "شالية",
-      "farm": "مزرعة",
-      "land": "أرض",
       "tent_single": "مخيم خاص",
       "tent_group": "مخيمات جماعية"
     },
@@ -54,7 +73,9 @@
     "paid": "مدفوعة",
     "unpaid": "غير مدفوعة",
     "navigation-menu": "قائمة التنقل",
-    "searchPlaceholder": "ابحث عن عقارات..."
+    "searchPlaceholder": "ابحث عن عقارات...",
+    "previous": "السابق",
+    "next": "التالي"
   },
   "PropertySearch": {
     "home": "الرئيسية",
@@ -69,7 +90,19 @@
       "reset": "إعادة تعيين المرشحات"
     }
   },
+  "PropertyListing": {
+    "title": "تصفح العقارات -",
+    "description": "اعثر على عقارك المثالي من قوائمنا الواسعة",
+    "location": "الموقع",
+    "when": "تاريخ التوفر",
+    "date-placeholder": "اختر التاريخ",
+    "price": "نطاق السعر",
+    "search": "بحث",
+    "reset": "إعادة تعيين",
+    "no-results": "لم يتم العثور على عقارات"
+  },
   "Navbar": {
+    "search": "بحث",
     "rent": "إيجار",
     "buy": "شراء",
     "cash": "كاش",
@@ -215,13 +248,15 @@
         },
         "missing-fields": "يرجى التأكد من تحديد تاريخ وإدخال رقم هاتفك!",
         "success": "تمت طلب المعاينة بنجاح، في انتظار تأكيد المالك.",
+        "error": "خطأ في إضافة المعاينة، يرجى المحاولة مرة أخرى لاحقاً",
         "title": "تحديد معاينة",
         "Comment": {
           "label": "تعليق",
           "placeholder": "أترك تعليقك"
         },
         "add": "إضافة",
-        "available-slots": "وقت الزيارة المتاح"
+        "available-slots": "وقت الزيارة المتاح",
+        "cancel": "إلغاء"
       },
       "area": "المساحة",
       "area-unit-1": "m<sup>2</sup>",
@@ -241,7 +276,30 @@
       "interior": "التصميم الداخلى",
       "map": "الخريطة",
       "map-header": ".اسحب الدبوس وأتركة لتحديد الموقع",
-      "rental-amenities": "وسائل الراحة بالعقار"
+      "rental-amenities": "وسائل الراحة بالعقار",
+      "apartments": "الشقق",
+      "apartment": "شقة",
+      "apartment-details": "تفاصيل الشقة",
+      "groups": "المجموعات",
+      "booth": "كشك",
+      "tent": "خيمة",
+      "related-booths": "الأكشاك المرتبطة",
+      "related-tents": "الخيام المرتبطة",
+      "none": "لا يوجد",
+      "no-groups-available": "لا توجد مجموعات متاحة",
+      "pricing": "الأسعار",
+      "description": "الوصف",
+      "insurance": "التأمين",
+      "daily-price": "السعر اليومي",
+      "weekly-price": "السعر الأسبوعي",
+      "monthly-price": "السعر الشهري",
+      "bedrooms": "غرف النوم",
+      "bathrooms": "الحمامات",
+      "beds": "غرف",
+      "baths": "حمامات",
+      "price": "السعر",
+      "kwd": "دينار كويتي",
+      "no-data": "لا توجد بيانات متاحة"
     }
   },
   "HomePage": {
@@ -279,6 +337,11 @@
     },
     "FeaturedCompaniesSection": {
       "title": "شركات مميزة"
+    },
+    "FeaturedCompanies": {
+      "main": "الشركات المميزة",
+      "sub": "نحن نعمل مع أكثر من 1000 شركة يمكنك من خلالها الحصول على العقار الذي تريده.",
+      "noCompanies": "لا توجد شركات متاحة"
     },
     "NewsletterSection": {
       "title": "اشترك في نشرتنا الإخبارية",
@@ -358,10 +421,6 @@
       "main": "نحن نسهل الأمر على المستأجرين والملاك.",
       "sub": "سواء كان الأمر يتعلق ببيع منزلك الحالي، أو الحصول على تمويل، أو شراء منزل جديد، فإننا نجعل الأمر سهلاً وفعالاً. أفضل شئ ؟ انك ستوفر الكثير من المال والوقت مع خدماتنا.",
       "see-more": "عرض المزيد"
-    },
-    "FeaturedCompanies": {
-      "main": "الشركات المميزة",
-      "sub": "نحن نعمل مع أكثر من 1000 شركة يمكنك من خلالها الحصول على العقار الذي تريده."
     },
     "Newsletter": {
       "no-spam": "لا يوجد بريد مزعج",
@@ -521,8 +580,25 @@
     "agree-privacy": "الموافقة على سياسات الخصوصية"
   },
   "Companies": {
-    "title": "الملاك",
+    "title": "الشركات",
+    "description": "اكتشف وتواصل مع مالكي العقارات. اعثر على منزلك القادم مع ملاك موثوقين.",
     "desc": "نحن نعمل مع أكثر من 1000 مالك يمكنك منهم الحصول على العقار الذي تريده.",
+    "error": "فشل تحميل الشركات",
+    "no-companies": "لا توجد شركات",
+    "previous": "السابق",
+    "next": "التالي",
+    "follow": "متابعة",
+    "unfollow": "إلغاء المتابعة",
+    "no-reviews": "لا يوجد تقييمات",
+    "about-placeholder": "نحن نقدم حماية شاملة للممتلكات وتحمل المسؤولية لضمان تمتع عملائنا بحياة آمنة وخالية من القلق. تم تصميم حلول التأمين لدينا لحماية أصولك وتعزيز راحة بالك، مما يوفر لك مستقبلًا أفضل وأكثر أمانًا.",
+    "no-properties": "لا توجد عقارات متاحة",
+    "videos": "الفيديوهات",
+    "video": "فيديو",
+    "tabs": {
+      "all": "كل العقارات",
+      "rent": "للإيجار",
+      "installment": "للبيع (بالتقسيط)"
+    },
     "SingleCompany": {
       "unfollow": "الغاء المتابعة",
       "follow": "متابعة",
@@ -552,12 +628,16 @@
         "thank-you": "شكراً لك على تقييمك",
         "rate": "معدل",
         "review": "تقييم",
-        "submit": "تأكيد"
+        "review-placeholder": "اكتب تقييمك...",
+        "submit": "تأكيد",
+        "submitting": "جاري الإرسال..."
       }
     }
   },
   "Videos": {
     "title": "كل الفيديوهات",
+    "expires-at": "تنتهي في",
+    "expired": "منتهي",
     "Details": {
       "Share": {
         "title": "مشاركة الفيديو",
@@ -1002,5 +1082,316 @@
     "description": "يجب تسجيل الدخول للوصول إلى هذا المحتوى. يرجى تسجيل الدخول للمتابعة.",
     "login": "الذهاب لتسجيل الدخول",
     "cancel": "إلغاء"
+  },
+  "PropertySearch": {
+    "title": "البحث عن العقارات",
+    "description": "ابحث عن العقار المثالي باستخدام الفلاتر المتقدمة",
+    "no-results": "لم يتم العثور على عقارات تطابق معاييرك",
+    "filters": {
+      "location": "الموقع",
+      "more-filters": "المزيد من الفلاتر",
+      "max-price": "الحد الأقصى للسعر",
+      "enter-price": "أدخل الحد الأقصى للسعر",
+      "property-type": "نوع العقار",
+      "sort-by": "ترتيب حسب",
+      "advanced-title": "فلاتر متقدمة",
+      "advanced-description": "حسّن بحثك باستخدام هذه الخيارات",
+      "offer-type": "نوع العرض",
+      "rent": "إيجار",
+      "installment": "تقسيط",
+      "price-range": "نطاق السعر",
+      "reset": "إعادة تعيين",
+      "apply": "تطبيق الفلاتر"
+    }
+  },
+  "User": {
+    "currency": "د.ك",
+    "Sidebar": {
+      "profile": "الملف الشخصي",
+      "change-password": "تغيير كلمة المرور",
+      "wallet": "المحفظة",
+      "saved": "العقارات المحفوظة",
+      "my-requests": "طلباتي",
+      "my-real-estates": "عقاراتي",
+      "transactions": "المعاملات المالية",
+      "logout": "تسجيل الخروج",
+      "account": "الحساب"
+    },
+    "Profile": {
+      "title": "ملفي الشخصي",
+      "description": "إدارة معلوماتك الشخصية والمصرفية",
+      "tabs": {
+        "personal": "المعلومات الشخصية",
+        "banking": "بيانات حسابك البنكي",
+        "social": "وسائل التواصل الاجتماعي"
+      },
+      "sections": {
+        "personal": "المعلومات الشخصية",
+        "banking": "بيانات حسابك البنكي",
+        "social": "وسائل التواصل الاجتماعي"
+      },
+      "Personal": {
+        "upload": "تحميل الصورة",
+        "remove": "حذف الصورة",
+        "name": "الاسم الكامل",
+        "name-placeholder": "أدخل اسمك الكامل",
+        "name-required": "الاسم مطلوب",
+        "phone": "رقم الهاتف",
+        "phone-placeholder": "5XXXXXXX",
+        "phone-required": "رقم الهاتف مطلوب",
+        "email": "البريد الإلكتروني",
+        "email-placeholder": "hi@example.com",
+        "email-required": "البريد الإلكتروني مطلوب",
+        "email-invalid": "يرجى إدخال بريد إلكتروني صحيح",
+        "save": "حفظ التغييرات",
+        "cancel": "إلغاء",
+        "image-success": "تم تحديث صورة الملف الشخصي بنجاح",
+        "image-fail": "فشل تحديث صورة الملف الشخصي",
+        "profile-success": "تم تحديث الملف الشخصي بنجاح",
+        "profile-fail": "فشل تحديث الملف الشخصي"
+      },
+      "Banking": {
+        "description": "قم بتحديث معلوماتك المصرفية للمعاملات والسحوبات",
+        "account-name": "اسم صاحب الحساب",
+        "account-name-placeholder": "أدخل اسم صاحب الحساب",
+        "account-name-required": "اسم صاحب الحساب مطلوب",
+        "account-name-hint": "الاسم الكامل كما يظهر في حسابك البنكي",
+        "bank-name": "اسم البنك",
+        "bank-name-placeholder": "أدخل اسم البنك",
+        "bank-name-required": "اسم البنك مطلوب",
+        "bank-name-hint": "اسم المؤسسة المصرفية الخاصة بك",
+        "iban": "رقم الآيبان",
+        "iban-placeholder": "أدخل رقم الآيبان",
+        "iban-required": "رقم الآيبان مطلوب",
+        "iban-hint": "رقم الحساب المصرفي الدولي",
+        "swift": "رمز السويفت",
+        "swift-placeholder": "أدخل رمز السويفت",
+        "swift-required": "رمز السويفت مطلوب",
+        "swift-hint": "رمز التعريف البنكي",
+        "save": "حفظ التغييرات",
+        "cancel": "إلغاء",
+        "banking-success": "تم تحديث المعلومات المصرفية بنجاح",
+        "banking-fail": "فشل تحديث المعلومات المصرفية"
+      },
+      "SocialMedia": {
+        "facebook": "فيسبوك",
+        "facebook-placeholder": "https://www.facebook.com/username",
+        "facebook-invalid": "يرجى إدخال رابط فيسبوك صحيح",
+        "twitter": "إكس (تويتر)",
+        "twitter-placeholder": "https://x.com/username",
+        "twitter-invalid": "يرجى إدخال رابط إكس/تويتر صحيح",
+        "linkedin": "لينكد إن",
+        "linkedin-placeholder": "https://www.linkedin.com/in/username",
+        "linkedin-invalid": "يرجى إدخال رابط لينكد إن صحيح",
+        "snapchat": "سناب شات",
+        "snapchat-placeholder": "https://www.snapchat.com/add/username",
+        "snapchat-invalid": "يرجى إدخال رابط سناب شات صحيح",
+        "save": "حفظ التغييرات",
+        "cancel": "إلغاء",
+        "success": "تم تحديث روابط وسائل التواصل الاجتماعي بنجاح",
+        "fail": "فشل تحديث روابط وسائل التواصل الاجتماعي"
+      }
+    },
+    "ChangePassword": {
+      "title": "تغيير كلمة المرور",
+      "description": "قم بتحديث كلمة المرور للحفاظ على أمان حسابك",
+      "old-password": "كلمة المرور الحالية",
+      "old-password-placeholder": "أدخل كلمة المرور الحالية",
+      "new-password": "كلمة المرور الجديدة",
+      "new-password-placeholder": "أدخل كلمة المرور الجديدة",
+      "confirm-password": "تأكيد كلمة المرور الجديدة",
+      "confirm-password-placeholder": "أكد كلمة المرور الجديدة",
+      "required": "هذا الحقل مطلوب",
+      "min": "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل",
+      "dont-match": "كلمات المرور غير متطابقة",
+      "save": "حفظ التغييرات",
+      "cancel": "إلغاء",
+      "success-title": "تم تغيير كلمة المرور بنجاح",
+      "success-message": "تم تحديث كلمة المرور الخاصة بك. يرجى استخدام كلمة المرور الجديدة لتسجيلات الدخول المستقبلية.",
+      "ok": "حسناً",
+      "error": "فشل تغيير كلمة المرور"
+    },
+    "Wallet": {
+      "title": "محفظتي",
+      "description": "إدارة رصيد محفظتك وعرض سجل المعاملات",
+      "balance": "الرصيد الحالي",
+      "recent-transactions": "المعاملات الأخيرة",
+      "no-transactions": "لا توجد معاملات بعد",
+      "transaction-id": "رقم المعاملة",
+      "type": "النوع",
+      "amount": "المبلغ",
+      "status": "الحالة",
+      "date": "التاريخ"
+    },
+    "Saved": {
+      "title": "العقارات المحفوظة",
+      "description": "العقارات التي حفظتها للعرض لاحقاً",
+      "no-properties": "لا توجد عقارات محفوظة بعد",
+      "no-properties-description": "ابدأ في حفظ العقارات التي تهتم بها لعرضها لاحقاً"
+    },
+    "MyRequests": {
+      "title": "طلباتي",
+      "description": "عرض وإدارة طلبات الإيجار والشراء الخاصة بك",
+      "no-requests": "لا توجد طلبات بعد",
+      "no-requests-description": "ستظهر طلبات العقارات الخاصة بك هنا",
+      "request-title": "طلب عقار",
+      "request-id": "رقم الطلب",
+      "type": "نوع الطلب",
+      "tour-date": "تاريخ المعاينة",
+      "currency": "د.ك",
+      "owner": "المالك",
+      "user": "المستخدم",
+      "total": "الإجمالي",
+      "months": "أشهر",
+      "not-available": "غير متاح",
+      "created": "تم الإنشاء",
+      "owner-comment": "تعليق المالك",
+      "admin-comment": "تعليق الإدارة",
+      "reason": "السبب",
+      "showing-page": "عرض صفحة {currentPage} من {totalPages} ({itemsCount} عنصر إجمالي)",
+      "tabs": {
+        "tours": "المعاينات",
+        "rent": "الإيجار",
+        "service": "الخدمات",
+        "installments": "التقسيط",
+        "disclaimers": "إخلاء الطرف",
+        "ads": "إعلانات المستخدم"
+      },
+      "no-tours": "لا توجد طلبات معاينة بعد",
+      "no-rent": "لا توجد طلبات إيجار بعد",
+      "no-service": "لا توجد طلبات خدمات بعد",
+      "no-installments": "لا توجد طلبات تقسيط بعد",
+      "no-disclaimers": "لا توجد طلبات إخلاء طرف بعد",
+      "no-ads": "لا توجد إعلانات بعد"
+    },
+    "MyRealEstates": {
+      "title": "عقاراتي",
+      "description": "العقارات التي تملكها أو تديرها حالياً",
+      "no-properties": "لا توجد عقارات بعد",
+      "no-properties-description": "ليس لديك أي عقارات مدرجة",
+      "tabs": {
+        "rents": "الإيجارات",
+        "installments": "الأقساط"
+      },
+      "RentCard": {
+        "code": "الكود",
+        "status": "الحالة",
+        "amount": "المبلغ",
+        "tenant": "المستأجر",
+        "dates": "فترة الإيجار"
+      },
+      "RentDetailsModal": {
+        "title": "تفاصيل الإيجار",
+        "loading": "جارٍ التحميل...",
+        "no-data": "لا توجد تفاصيل إيجار متاحة",
+        "property-details": "تفاصيل العقار",
+        "rental-period": "فترة الإيجار",
+        "rental-info": "معلومات الإيجار",
+        "tenant-info": "معلومات المستأجر",
+        "location": "الموقع",
+        "category": "الفئة",
+        "type": "النوع",
+        "start-date": "تاريخ البداية",
+        "end-date": "تاريخ النهاية",
+        "amount": "المبلغ",
+        "rent-type": "نوع الإيجار",
+        "last-paid": "آخر دفعة في",
+        "tenant-name": "الاسم",
+        "phone": "الهاتف",
+        "national-id": "الرقم الوطني",
+        "code": "الكود",
+        "status": {
+          "active": "نشط",
+          "pending": "قيد الانتظار",
+          "expired": "منتهي",
+          "cancelled": "ملغي"
+        },
+        "rent-types": {
+          "daily": "يومي",
+          "weekly": "أسبوعي",
+          "monthly": "شهري"
+        }
+      },
+      "no-rents": "لا توجد إيجارات",
+      "no-rents-description": "ليس لديك أي عقارات مؤجرة بعد",
+      "no-installments": "لا توجد أقساط",
+      "no-installments-description": "ليس لديك أي عقارات بنظام التقسيط بعد"
+    },
+    "Transactions": {
+      "title": "سجل المعاملات",
+      "description": "عرض سجل المعاملات الكامل الخاص بك",
+      "no-transactions": "لا توجد معاملات بعد",
+      "no-transactions-description": "ستظهر معاملاتك هنا بمجرد إجراء المدفوعات",
+      "transaction-id": "رقم المعاملة",
+      "description": "الوصف",
+      "type": "النوع",
+      "amount": "المبلغ",
+      "status": "الحالة",
+      "date": "التاريخ"
+    }
+  },
+  "Rent": {
+    "error": {
+      "title": "خطأ",
+      "message": "العقار غير موجود أو غير متاح"
+    },
+    "steps": {
+      "rentDetails": "تفاصيل الإيجار",
+      "chooseDate": "اختيار التاريخ",
+      "agreements": "الاتفاقيات",
+      "checkout": "الدفع"
+    },
+    "Step1": {
+      "rentType": "نوع الإيجار",
+      "daily": "يومي",
+      "weekly": "أسبوعي",
+      "monthly": "شهري",
+      "weekdays": "أيام الأسبوع",
+      "holidays": "العطلات",
+      "extraService": "خدمات إضافية",
+      "kwd": "د.ك",
+      "next": "التالي"
+    },
+    "Step2": {
+      "chooseYourDates": "اختر تواريخك",
+      "selectDates": "حدد تواريخ الإيجار المفضلة لديك من التقويم أدناه",
+      "note": "ملاحظة",
+      "noteAvailableDate": "هذه الوحدة تصبح متاحة للحجز ابتداءً من 12/10/2025",
+      "noteUnavailableDate": "من المحتمل أن تكون الوحدات غير المتاحة محجوزة للتواريخ المختارة",
+      "selectedDates": "التواريخ المحددة",
+      "next": "التالي"
+    },
+    "Step3": {
+      "title": "الاتفاقيات",
+      "termsAndConditions": "الشروط والأحكام",
+      "refundPolicy": "سياسة الاسترداد",
+      "contract": "العقد",
+      "ownerRoles": "قواعد المالك:",
+      "familyOnly": "للعائلات فقط.",
+      "checkAll": "تحديد الكل",
+      "next": "التالي"
+    },
+    "Step4": {
+      "rentDetails": "تفاصيل الإيجار",
+      "checkInOut": "تاريخ الدخول والخروج:",
+      "checkInOutTime": "وقت الدخول والخروج:",
+      "timePlaceholder": "2:00 مساءً - 10:00 صباحاً",
+      "rentType": "نوع الإيجار:",
+      "rentAmount": "مبلغ الإيجار:",
+      "notSelected": "غير محدد",
+      "invoiceDetails": "تفاصيل الفاتورة",
+      "rent": "الإيجار",
+      "insurance": "التأمين",
+      "services": "الخدمات",
+      "service": "خدمة",
+      "commission": "العمولة",
+      "tax": "الضريبة",
+      "total": "الإجمالي",
+      "note": "ملاحظة",
+      "securityDepositNote": "سيتم الاحتفاظ بأي وديعة تأمين من قبل ديارك كضمان وإعادتها بعد انتهاء إيجارك، وفقًا للشروط والأحكام.",
+      "commissionNote": "أي عمولة في فاتورتك تأتي من الوكيل أو الوسيط - وليس من ديارك.",
+      "completePurchase": "إتمام الشراء",
+      "sendRequest": "إرسال الطلب"
+    }
   }
 }

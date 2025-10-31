@@ -13,6 +13,7 @@ import Navbar from "./header/navbar";
 import MobileSidebar from "./header/mobile-sidebar";
 import NotificationDropdown from "./header/notification-dropdown";
 import LocalizationDropdown from "./header/localization-dropdown";
+import CountryDropdown from "./header/country-dropdown";
 import UserProfilePopover from "./header/user-profile-popover";
 import Button from "@/components/shared/button";
 import { useGetNotifications, useMarkAllNotificationsRead } from "@/hooks/use-notifications";
@@ -69,10 +70,7 @@ export default function Header() {
                 className="h-10 w-10 object-contain"
               />
             </Link>
-            <button className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100">
-              <MapPinIcon className="h-4 w-4" />
-              <span>{t("defaultLocation")}</span>
-            </button>
+            <CountryDropdown />
           </div>
 
           {/* Center navigation */}
