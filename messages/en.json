@@ -43,6 +43,7 @@
       "hall": "Hall",
       "shop": "Shop",
       "hotelApartment": "Hotel Apartment",
+      "hotelapartment": "Hotel Apartment",
       "barn": "Barn",
       "officeAndStudio": "Office & Studio",
       "clinic": "Clinic",
@@ -57,7 +58,7 @@
     },
     "PoweredBy": {
       "main": "Powered by",
-      "sub": "You agree to Estatery's",
+      "sub": "You agree to Echo Soft's",
       "link": "Terms of Use & Privacy Policy.",
       "long-text": "You don't need to consent as a condition of renting any property, or buying any other goods or services. Message/data rates may apply."
     },
@@ -75,7 +76,13 @@
     "navigation-menu": "Navigation Menu",
     "searchPlaceholder": "Search properties...",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "sqm": "sqm",
+    "contact-for-price": "Contact for price",
+    "rent": "Rent",
+    "sale": "Sale",
+    "shared": "Shared",
+    "replacement": "Replacement"
   },
   "PropertySearch": {
     "home": "Home",
@@ -233,7 +240,8 @@
         "replacement": "Contact Owner",
         "request-home-tour": "Request a home tour",
         "request-tour": "Request a tour",
-        "tour-text": "It’s free, with no obligation － cancel anytime.",
+        "tour-text": "It's free, with no obligation － cancel anytime.",
+        "login-to-schedule": "Login to schedule a tour",
         "price": "Price",
         "kwd": "KWD",
         "min-months": "Minimum months:",
@@ -294,6 +302,7 @@
       "pricing": "Pricing",
       "description": "Description",
       "insurance": "Insurance",
+      "capacity": "Capacity",
       "daily-price": "Daily Price",
       "weekly-price": "Weekly Price",
       "monthly-price": "Monthly Price",
@@ -519,13 +528,16 @@
     },
     "Confirm": {
       "header": "Your email has been verified successfully!",
-      "subheader": "Close this tab and proceed to login with your credentials."
+      "subheader": "Close this tab and proceed to login with your credentials.",
+      "go-to-login": "Go to Login"
     }
   },
   "SignUp": {
+    "create-account": "Create Account",
+    "sub": "Sign up to get started",
     "title": "Sign Up",
     "subtitle": "Create your account to get started",
-    "sign-up": "Signup",
+    "sign-up": "Sign Up",
     "loading": "Creating account...",
     "Success": {
       "1": "Sign Up Successful",
@@ -546,32 +558,37 @@
       "valid": "Please enter a valid name",
       "letters-only": "Name must contain only letters"
     },
-    "CivilianId": {
-      "label": "Civilian ID",
-      "placeholder": "Ex. 813843478293",
-      "required": "Civilian Id is required",
-      "valid": "Please enter a valid Civilian ID (12 numbers)",
-      "exact-length": "Civilian ID must be exactly 12 digits",
-      "numbers-only": "Civilian ID must contain only numbers"
+    "Country": {
+      "label": "Country",
+      "placeholder": "Select your country",
+      "required": "Country is required"
+    },
+    "Nationality": {
+      "label": "Nationality",
+      "placeholder": "Select your nationality",
+      "required": "Nationality is required"
     },
     "Phone": {
       "label": "Phone Number",
       "placeholder": "Please enter your phone number",
-      "required": "Phone number is required"
+      "required": "Phone number is required",
+      "numbers-only": "Phone number must contain only digits",
+      "length": "Phone number must be exactly {length} digits"
     },
     "Password": {
       "label": "Password",
       "placeholder": "Enter password",
       "required": "Password is required",
-      "valid": "Minimum character length is 6"
+      "valid": "Minimum character length is 8"
     },
     "got-account": "Already have a user account?",
     "login": "Login Here",
     "is-owner": "Already have an owner account?",
+    "owner-login": "Owner Login",
     "agree": "Please agree to the following",
     "Modals": {
       "view-file": "View file",
-      "content": "content",
+      "content": "Content",
       "terms": {
         "title": "Terms & Conditions"
       },
@@ -1016,14 +1033,14 @@
     "total": "Total",
     "pay": "Pay"
   },
-  "ForgetPassword": {
+  "ForgotPassword": {
     "title": "Forgot Password",
-    "header": "Enter email address",
+    "header": "Enter your email address and we'll send you a link to reset your password",
     "request-button": "Request new password",
     "cancel": "Cancel",
-    "emailLabel": "Email Address",
-    "emailPlaceholder": "Enter your email",
-    "submitButton": "Send Reset Link",
+    "loading": "Sending...",
+    "success": "Password reset email sent successfully",
+    "error": "Failed to send password reset email",
     "Email": {
       "label": "Email",
       "placeholder": "hi@example.com",
@@ -1115,6 +1132,13 @@
       "apply": "Apply Filters"
     }
   },
+  "PaymentMethodDialog": {
+    "title": "Select Payment Method",
+    "amount": "Amount",
+    "cancel": "Cancel",
+    "confirm": "Confirm Payment",
+    "processing": "Processing..."
+  },
   "User": {
     "currency": "KWD",
     "Sidebar": {
@@ -1131,6 +1155,7 @@
     "Profile": {
       "title": "My Profile",
       "description": "Manage your personal information and banking details",
+      "no-session": "No session data available. Please log in.",
       "tabs": {
         "personal": "Personal Info",
         "banking": "Banking Info",
@@ -1247,11 +1272,18 @@
       "no-requests-description": "Your property requests will appear here",
       "request-title": "Property Request",
       "request-id": "Request ID",
+      "invoice-id": "Invoice ID",
       "type": "Request Type",
       "tour-date": "Tour Date",
       "currency": "KWD",
       "owner": "Owner",
       "user": "User",
+      "extend-to": "Extend To",
+      "invoice-amount": "Invoice Amount",
+      "original-date": "Original Date",
+      "pay-now": "Pay Now",
+      "payment-failed": "Payment failed. Please try again.",
+      "invoice-not-available": "Invoice information not available. Please contact support.",
       "total": "Total",
       "months": "months",
       "not-available": "N/A",
@@ -1266,14 +1298,30 @@
         "service": "Services",
         "installments": "Installments",
         "disclaimers": "Disclaimers",
-        "ads": "User Ads"
+        "ads": "User Ads",
+        "extend-invoices": "Invoice Extensions",
+        "end-contracts": "End Contracts"
       },
       "no-tours": "No tour requests yet",
       "no-rent": "No rent requests yet",
       "no-service": "No service requests yet",
+      "no-extend-invoices": "No invoice extension requests yet",
+      "no-end-contracts": "No end contract requests yet",
       "no-installments": "No installment requests yet",
       "no-disclaimers": "No disclaimer requests yet",
-      "no-ads": "No ads yet"
+      "no-ads": "No ads yet",
+      "ad-details": "Ad Details",
+      "price": "Price",
+      "price-type": "Price Type",
+      "price-type-daily": "Daily",
+      "price-type-weekly": "Weekly",
+      "price-type-monthly": "Monthly",
+      "posted-by": "Posted By",
+      "ad-id": "Ad ID",
+      "comments": "Comments",
+      "no-comments": "No comments yet",
+      "ad-not-found": "Ad not found",
+      "view-property": "View Property"
     },
     "MyRealEstates": {
       "title": "My Real Estate",
@@ -1290,6 +1338,75 @@
         "amount": "Amount",
         "tenant": "Tenant",
         "dates": "Rental Period"
+      },
+      "InstallmentCard": {
+        "code": "Code",
+        "owner": "Owner",
+        "user": "User",
+        "amount": "Monthly Payment",
+        "period": "Period",
+        "months": "months",
+        "type": "Payment Type",
+        "monthly": "Monthly",
+        "quarterly": "Quarterly",
+        "semi-annual": "Semi-Annual",
+        "annual": "Annual",
+        "start-date": "Start Date",
+        "end-date": "End Date",
+        "not-available": "N/A"
+      },
+      "InstallmentDetailsModal": {
+        "title": "Installment Details",
+        "loading": "Loading...",
+        "code": "Code",
+        "no-data": "No installment details available",
+        "owner-status": "Owner Status",
+        "user-status": "User Status",
+        "property-details": "Property Details",
+        "location": "Location",
+        "property-price": "Property Price",
+        "installment-details": "Installment Details",
+        "monthly-payment": "Monthly Payment",
+        "period": "Period",
+        "months": "months",
+        "payment-type": "Payment Type",
+        "plan": "Plan",
+        "dates": "Dates",
+        "start-date": "Start Date",
+        "end-date": "End Date",
+        "owner-details": "Owner Details",
+        "name": "Name",
+        "phone": "Phone",
+        "download-contract": "Download Contract",
+        "download-invoices": "Download Invoices",
+        "invoices-downloaded": "Invoices downloaded successfully",
+        "download-error": "Failed to download invoices. Please try again.",
+        "not-available": "N/A",
+        "monthly": "Monthly",
+        "quarterly": "Quarterly",
+        "semi-annual": "Semi-Annual",
+        "annual": "Annual",
+        "tabs": {
+          "details": "Installment Details",
+          "invoices": "Invoices"
+        }
+      },
+      "InstallmentInvoicesTab": {
+        "no-invoices": "No invoices found",
+        "invoice-number": "Invoice #{number}",
+        "property-code": "Property Code",
+        "amount": "Amount",
+        "due-date": "Due Date",
+        "tax": "Tax",
+        "commission": "Commission",
+        "pay-now": "Pay Now",
+        "view-invoice": "View Invoice",
+        "popup-blocked": "Popup blocked. Redirecting to payment page...",
+        "payment-error": "Payment failed. Please try again.",
+        "status": {
+          "paid": "Paid",
+          "unpaid": "Unpaid"
+        }
       },
       "RentDetailsModal": {
         "title": "Rental Details",
@@ -1311,6 +1428,24 @@
         "phone": "Phone",
         "national-id": "National ID",
         "code": "Code",
+        "pickup-location": "Pickup Location",
+        "tabs": {
+          "details": "Rent Details",
+          "invoices": "Invoices"
+        },
+        "actions": {
+          "download-contract": "Download Contract",
+          "download-invoices": "Download Invoices",
+          "request-end-contract": "Request End Contract",
+          "request-services": "Request Services",
+          "add-claims": "Add Claims",
+          "disclaimer-request": "Disclaimer Request",
+          "services-placeholder": "Request services functionality coming soon",
+          "claims-placeholder": "Add claims functionality coming soon",
+          "disclaimer-placeholder": "Disclaimer request functionality coming soon"
+        },
+        "invoices-downloaded": "Invoices downloaded successfully",
+        "download-error": "Failed to download invoices. Please try again.",
         "status": {
           "active": "Active",
           "pending": "Pending",
@@ -1321,7 +1456,92 @@
           "daily": "Daily",
           "weekly": "Weekly",
           "monthly": "Monthly"
+        },
+        "confirmation": {
+          "confirm": "Confirm",
+          "cancel": "Cancel",
+          "end-contract": {
+            "title": "Request End Contract",
+            "description": "Are you sure you want to request to end this rental contract? This action will notify the property owner."
+          },
+          "services": {
+            "title": "Request Services",
+            "description": "Are you sure you want to request services for this rental property? This will notify the property management."
+          },
+          "claims": {
+            "title": "Add Claims",
+            "description": "Are you sure you want to submit a claim for this rental property? Please ensure you have all necessary information ready."
+          },
+          "disclaimer": {
+            "title": "Disclaimer Request",
+            "description": "Are you sure you want to submit a disclaimer request for this rental property? This will be reviewed by the property owner."
+          }
         }
+      },
+      "EndContractDialog": {
+        "title": "Request End Contract",
+        "description": "Please provide a reason for ending this rental contract. This request will be reviewed by the property owner.",
+        "reason": "Reason",
+        "reason-placeholder": "Please explain why you would like to end the contract...",
+        "cancel": "Cancel",
+        "submit": "Submit Request",
+        "success": "End contract request submitted successfully",
+        "error": "Failed to submit request. Please try again.",
+        "fill-reason": "Please provide a reason for ending the contract"
+      },
+      "ClaimsDialog": {
+        "title": "Add Claims",
+        "description": "Submit a claim regarding your rental property. Include detailed information and supporting documentation.",
+        "claims": "Claim Description",
+        "claims-placeholder": "Please describe your claim in detail...",
+        "attachment": "Attachment (PDF, DOC, DOCX, or Images - max 10MB)",
+        "file-too-large": "File size must be less than 10MB",
+        "click-or-drag": "Click to upload or drag and drop",
+        "drop-file": "Drop file here",
+        "cancel": "Cancel",
+        "submit": "Submit Claim",
+        "success": "Claim submitted successfully",
+        "error": "Failed to submit claim. Please try again.",
+        "fill-all-fields": "Please provide claim description and attachment"
+      },
+      "DisclaimerDialog": {
+        "title": "Disclaimer Request",
+        "description": "Request a disclaimer for this rental property. This will be reviewed and processed accordingly.",
+        "cancel": "Cancel",
+        "submit": "Submit Request",
+        "success": "Disclaimer request submitted successfully",
+        "error": "Failed to submit disclaimer request. Please try again."
+      },
+      "InvoicesTab": {
+        "status": {
+          "pending": "Upcoming",
+          "paid": "Paid",
+          "extended": "Extended"
+        },
+        "no-invoices": "No invoices found",
+        "invoice-number": "Invoice #{number}",
+        "pay-now": "Pay Now",
+        "view-invoice": "View Invoice",
+        "extend-invoice": "Extend Invoice",
+        "view-pdf": "View PDF",
+        "download-pdf": "Download PDF",
+        "previous": "Previous",
+        "next": "Next",
+        "page-info": "Page {current} of {total}",
+        "popup-blocked": "Please allow popups to proceed with payment",
+        "payment-error": "Failed to initiate payment. Please try again."
+      },
+      "ExtendInvoiceDialog": {
+        "title": "Extend Invoice",
+        "extend-date": "Extend Date",
+        "select-date": "Pick a date",
+        "reason": "Reason",
+        "reason-placeholder": "Enter the reason for extending this invoice...",
+        "cancel": "Cancel",
+        "submit": "Submit",
+        "success": "Invoice extension request submitted successfully",
+        "error": "Failed to submit extension request. Please try again.",
+        "fill-all-fields": "Please fill in all fields"
       },
       "no-rents": "No rents found",
       "no-rents-description": "You don't have any rental properties yet",
@@ -1349,6 +1569,8 @@
     "steps": {
       "rentDetails": "Rent Details",
       "chooseDate": "Choose Date",
+      "selectTents": "Select Tents",
+      "selectApartments": "Select Apartments",
       "agreements": "Agreements",
       "checkout": "Checkout"
     },
@@ -1361,7 +1583,13 @@
       "holidays": "Holidays",
       "extraService": "Extra Service",
       "kwd": "KWD",
-      "next": "Next"
+      "next": "Next",
+      "pickup-location-title": "Pickup Location",
+      "pickup-location-description": "Click on the map to select your desired pickup location",
+      "selected-location": "Selected location",
+      "map-api-key-required": "Map requires Google Maps API key",
+      "map-error": "Error loading map",
+      "map-loading": "Loading map..."
     },
     "Step2": {
       "chooseYourDates": "Choose your dates",
@@ -1370,6 +1598,44 @@
       "noteAvailableDate": "This unit becomes available for booking starting {date}",
       "noteUnavailableDate": "Unavailable units are likely booked for your chosen dates",
       "selectedDates": "Selected dates",
+      "selectTimeRange": "Select Time Range",
+      "fromTime": "From",
+      "toTime": "To",
+      "timeRangeNote": "Please select the start and end time for your court booking",
+      "next": "Next"
+    },
+    "Step2_5": {
+      "camp-layout": "Camp Layout",
+      "no-tents": "No tents available in this property",
+      "layout-note": "Click on available tents to select them. Unavailable tents are likely booked for your chosen dates.",
+      "choose-tents": "Choose Tents",
+      "tent-chosen": "Tent Chosen",
+      "tent": "Tent",
+      "booth": "Booth",
+      "name": "Name",
+      "price": "Price",
+      "insurance": "Insurance",
+      "camp-note": "Note: This is the camp's layout. The tents you select will match the same numbers and locations shown here",
+      "details-note": "Note: You can check all tent details inside the camp details section",
+      "select-type": "Select Type",
+      "select-rooms-description": "Now you can choose the room types you need and how many of each!",
+      "apartment": "Apartment",
+      "duplex": "Duplex",
+      "suite": "Suite",
+      "studio": "Studio",
+      "bedrooms": "Bedrooms",
+      "bathrooms": "Bathrooms",
+      "unit-type": "Unit Type",
+      "person": "Person",
+      "quantity": "Quantity",
+      "select": "Select",
+      "bed": "Bed",
+      "bath": "Bath",
+      "day": "DAY",
+      "week": "Week",
+      "month": "Month",
+      "no-apartments-available": "No apartments available for the selected rent type",
+      "max": "Max",
       "next": "Next"
     },
     "Step3": {
@@ -1388,8 +1654,10 @@
       "checkInOutTime": "Check-In & Out time:",
       "timePlaceholder": "2:00 PM - 10:00 AM",
       "rentType": "Rent type:",
+      "timeRange": "Time Range:",
       "rentAmount": "Rent Amount:",
       "notSelected": "Not selected",
+      "selectedApartments": "Selected Apartments",
       "invoiceDetails": "Invoice Details",
       "rent": "Rent",
       "insurance": "Insurance",
@@ -1404,5 +1672,37 @@
       "completePurchase": "Complete Purchase",
       "sendRequest": "Send Request"
     }
+  },
+  "Map": {
+    "view-details": "View Details",
+    "loading-map": "Loading map...",
+    "no-properties": "No properties found in this area"
+  },
+  "CreateAd": {
+    "title": "Create ADS",
+    "subtitle": "Post your needs and let agents help you to find the right property",
+    "payment-title": "Payment",
+    "title-label": "Title",
+    "title-placeholder": "title *",
+    "title-required": "Title is required",
+    "description-placeholder": "Description*",
+    "description-required": "Description is required",
+    "description-max": "Description must be 500 characters or less",
+    "price-label": "Budget Price",
+    "price-placeholder": "from..",
+    "price-required": "Price is required",
+    "price-type-label": "Period",
+    "price-type-placeholder": "Select period",
+    "price-type-required": "Price type is required",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "submit": "Submit",
+    "pay-with": "Pay with",
+    "loading-payments": "Loading payment methods...",
+    "continue": "Continue",
+    "submitting": "Creating ad...",
+    "success-message": "Ad created successfully!",
+    "error-message": "Failed to create ad. Please try again."
   }
 }

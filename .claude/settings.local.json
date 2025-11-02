@@ -36,7 +36,9 @@
       "Bash(tree:*)",
       "Bash(npm start)",
       "Bash(del C:UsersYoussefprojectsdyarko-usersrccomponentsprovidersauth-token-sync.tsx)",
-      "Bash(node -e:*)"
+      "Bash(node -e:*)",
+      "Bash(nul)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

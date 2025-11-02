@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
@@ -13,6 +14,13 @@ import {
   Building2,
   DollarSign,
   Clock,
+  MoreVertical,
+  Download,
+  FileX,
+  Wrench,
+  AlertCircle,
+  FileWarning,
+  FileText,
 } from "lucide-react";
 import {
   Dialog,
@@ -20,10 +28,36 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 import { getRentById } from "@/lib/services/api/rents";
+import { downloadRentInvoices } from "@/lib/services/api/invoices";
 import { useCountryCurrency } from "@/hooks/use-country-currency";
+import PickupLocationMapView from "@/components/ui/pickup-location-map-view";
+import RentInvoicesTab from "./rent-invoices-tab";
+import RequestEndContractDialog from "./request-end-contract-dialog";
+import AddClaimsDialog from "./add-claims-dialog";
+import DisclaimerRequestDialog from "./disclaimer-request-dialog";
+import { toast } from "sonner";
 
 interface RentDetailsModalProps {
   rentId: string | null;
@@ -38,6 +72,10 @@ export default function RentDetailsModal({
 }: RentDetailsModalProps) {
   const t = useTranslations("User.MyRealEstates.RentDetailsModal");
   const tCategories = useTranslations("General.Categories");
+  const [showEndContractDialog, setShowEndContractDialog] = useState(false);
+  const [showClaimsDialog, setShowClaimsDialog] = useState(false);
+  const [showDisclaimerDialog, setShowDisclaimerDialog] = useState(false);
+  const [showServicesConfirmation, setShowServicesConfirmation] = useState(false);
 
   const { data: rent, isLoading } = useQuery({
     queryKey: ["rent-details", rentId],
@@ -66,6 +104,45 @@ export default function RentDetailsModal({
     }
   };
 
+  const handleDownloadContract = () => {
+    if (rent?.property.contract) {
+      window.open(rent.property.contract, "_blank");
+    }
+  };
+
+  const handleRequestEndContract = () => {
+    setShowEndContractDialog(true);
+  };
+
+  const handleRequestServices = () => {
+    setShowServicesConfirmation(true);
+  };
+
+  const handleAddClaims = () => {
+    setShowClaimsDialog(true);
+  };
+
+  const handleDisclaimerRequest = () => {
+    setShowDisclaimerDialog(true);
+  };
+
+  const handleConfirmServices = () => {
+    // TODO: Implement request services
+    toast.info(t("actions.services-placeholder"));
+    setShowServicesConfirmation(false);
+  };
+
+  const handleDownloadInvoices = async () => {
+    if (!rentId) return;
+
+    try {
+      await downloadRentInvoices(rentId);
+      toast.success(t("invoices-downloaded"));
+    } catch (error) {
+      toast.error(t("download-error"));
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto p-0 bg-white dark:bg-gray-950">
@@ -81,11 +158,78 @@ export default function RentDetailsModal({
                 </p>
               )}
             </div>
-            {rent && (
-              <Badge className={`${getStatusColor(rent.status)} shrink-0`}>
-                {t(`status.${rent.status.toLowerCase()}`)}
-              </Badge>
-            )}
+            <div className="flex items-center gap-2 shrink-0">
+              {rent && (
+                <Badge className={`${getStatusColor(rent.status)}`}>
+                  {t(`status.${rent.status.toLowerCase()}`)}
+                </Badge>
+              )}
+              {rent && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    >
+                      <MoreVertical className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    className="w-56 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800"
+                  >
+                    {rent.property.contract && (
+                      <>
+                        <DropdownMenuItem
+                          onClick={handleDownloadContract}
+                          className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-gray-100 dark:focus:bg-gray-800"
+                        >
+                          <Download className="h-4 w-4 mr-2 text-gray-600 dark:text-gray-400" />
+                          <span className="text-gray-900 dark:text-white">{t("actions.download-contract")}</span>
+                        </DropdownMenuItem>
+                      </>
+                    )}
+                    <DropdownMenuItem
+                      onClick={handleDownloadInvoices}
+                      className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-gray-100 dark:focus:bg-gray-800"
+                    >
+                      <FileText className="h-4 w-4 mr-2 text-gray-600 dark:text-gray-400" />
+                      <span className="text-gray-900 dark:text-white">{t("actions.download-invoices")}</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={handleRequestEndContract}
+                      className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-gray-100 dark:focus:bg-gray-800"
+                    >
+                      <FileX className="h-4 w-4 mr-2 text-gray-600 dark:text-gray-400" />
+                      <span className="text-gray-900 dark:text-white">{t("actions.request-end-contract")}</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={handleRequestServices}
+                      className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-gray-100 dark:focus:bg-gray-800"
+                    >
+                      <Wrench className="h-4 w-4 mr-2 text-gray-600 dark:text-gray-400" />
+                      <span className="text-gray-900 dark:text-white">{t("actions.request-services")}</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={handleAddClaims}
+                      className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-gray-100 dark:focus:bg-gray-800"
+                    >
+                      <AlertCircle className="h-4 w-4 mr-2 text-gray-600 dark:text-gray-400" />
+                      <span className="text-gray-900 dark:text-white">{t("actions.add-claims")}</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={handleDisclaimerRequest}
+                      className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-gray-100 dark:focus:bg-gray-800"
+                    >
+                      <FileWarning className="h-4 w-4 mr-2 text-gray-600 dark:text-gray-400" />
+                      <span className="text-gray-900 dark:text-white">{t("actions.disclaimer-request")}</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
           </div>
         </DialogHeader>
 
@@ -94,7 +238,17 @@ export default function RentDetailsModal({
             <Spinner className="h-12 w-12 text-main-400" />
           </div>
         ) : rent ? (
-          <div className="px-6 pb-6 space-y-6 bg-white dark:bg-gray-950">
+          <Tabs defaultValue="details" className="px-6 pb-6 bg-white dark:bg-gray-950">
+            <TabsList className="w-full mb-6">
+              <TabsTrigger value="details" className="flex-1">
+                {t("tabs.details")}
+              </TabsTrigger>
+              <TabsTrigger value="invoices" className="flex-1">
+                {t("tabs.invoices")}
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="details" className="space-y-6 mt-0">
             {/* Property Image */}
             {rent.property.image && (
               <div className="relative h-48 w-full rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-800">
@@ -284,12 +438,81 @@ export default function RentDetailsModal({
                 </div>
               </div>
             )}
-          </div>
+
+            {/* Pickup Location - Movable Campers Only */}
+            {rent.property.category === "camper" &&
+             rent.property.type === "movable" &&
+             rent.lat &&
+             rent.long && (
+              <div className="space-y-3">
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+                  {t("pickup-location")}
+                </h3>
+                <PickupLocationMapView
+                  latitude={Number(rent.lat)}
+                  longitude={Number(rent.long)}
+                  zoom={15}
+                  height="300px"
+                />
+              </div>
+            )}
+            </TabsContent>
+
+            <TabsContent value="invoices" className="mt-0">
+              <RentInvoicesTab
+                rentId={rent._id}
+                propertyCountry={rent.property.country}
+              />
+            </TabsContent>
+          </Tabs>
         ) : (
           <div className="px-6 pb-6 text-center text-gray-500 dark:text-gray-400">
             {t("no-data")}
           </div>
         )}
+
+        {/* Services Confirmation Alert Dialog */}
+        <AlertDialog open={showServicesConfirmation} onOpenChange={setShowServicesConfirmation}>
+          <AlertDialogContent className="bg-white dark:bg-gray-950">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-gray-900 dark:text-white">
+                {t("confirmation.services.title")}
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-gray-600 dark:text-gray-400">
+                {t("confirmation.services.description")}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="text-gray-900 dark:text-white">
+                {t("confirmation.cancel")}
+              </AlertDialogCancel>
+              <AlertDialogAction onClick={handleConfirmServices}>
+                {t("confirmation.confirm")}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Request End Contract Dialog */}
+        <RequestEndContractDialog
+          rentId={rentId}
+          open={showEndContractDialog}
+          onOpenChange={setShowEndContractDialog}
+        />
+
+        {/* Add Claims Dialog */}
+        <AddClaimsDialog
+          rentId={rentId}
+          open={showClaimsDialog}
+          onOpenChange={setShowClaimsDialog}
+        />
+
+        {/* Disclaimer Request Dialog */}
+        <DisclaimerRequestDialog
+          rentId={rentId}
+          open={showDisclaimerDialog}
+          onOpenChange={setShowDisclaimerDialog}
+        />
       </DialogContent>
     </Dialog>
   );

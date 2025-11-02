@@ -1,12 +1,13 @@
 import RentApplication from "./rent-application";
 
 interface RentPageProps {
-  params: {
+  params: Promise<{
     id: string;
     locale: string;
-  };
+  }>;
 }
 
-export default function RentPage({ params }: RentPageProps) {
-  return <RentApplication propertyId={params.id} />;
+export default async function RentPage({ params }: RentPageProps) {
+  const { id } = await params;
+  return <RentApplication propertyId={id} />;
 }

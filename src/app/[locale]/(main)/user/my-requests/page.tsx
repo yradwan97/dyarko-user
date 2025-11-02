@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { FileText, Calendar, MapPin, Home, Wrench, DollarSign, FileCheck, Megaphone } from "lucide-react";
+import { FileText, Calendar, MapPin, Home, Wrench, DollarSign, FileCheck, Megaphone, Clock, FileX } from "lucide-react";
 import { useSession } from "next-auth/react";
 
 import Typography from "@/components/shared/typography";
@@ -11,8 +11,13 @@ import { useGetRequests } from "@/hooks/use-user";
 import { Spinner } from "@/components/ui/spinner";
 import PaginationControls from "@/components/shared/pagination-controls";
 import Image from "next/image";
+import AdDetailsDialog from "@/components/dialogs/ad-details-dialog";
+import PaymentMethodDialog from "@/components/dialogs/payment-method-dialog";
+import { Button } from "@/components/ui/button";
+import { usePayInvoice } from "@/hooks/use-invoices";
+import { toast } from "sonner";
 
-type TabType = "tours" | "rent" | "service" | "installments" | "disclaimers" | "ads";
+type TabType = "tours" | "rent" | "service" | "installments" | "disclaimers" | "ads" | "extend-invoices" | "end-contracts";
 
 const getTabEndpoints = (userId?: string): Record<TabType, string> => ({
   tours: "/tours",
@@ -21,6 +26,8 @@ const getTabEndpoints = (userId?: string): Record<TabType, string> => ({
   installments: "/installments",
   disclaimers: "/disclaimers",
   ads: `/ads?user=${userId || ""}`,
+  "extend-invoices": "/invoices/extends",
+  "end-contracts": "/end-contracts",
 });
 
 export default function MyRequestsPage() {
@@ -28,6 +35,13 @@ export default function MyRequestsPage() {
   const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState<TabType>("tours");
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedAdId, setSelectedAdId] = useState<string | null>(null);
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
+  const [selectedInvoiceAmount, setSelectedInvoiceAmount] = useState<number | null>(null);
+
+  // Payment mutation for extend invoices
+  const payInvoiceMutation = usePayInvoice();
 
   // Get user ID from session
   const userId = session?.user?.id;
@@ -50,6 +64,48 @@ export default function MyRequestsPage() {
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Handle payment for rejected extend invoices
+  const handlePayInvoice = (invoiceId: string, amount: number) => {
+    setSelectedInvoiceId(invoiceId);
+    setSelectedInvoiceAmount(amount);
+    setPaymentDialogOpen(true);
+  };
+
+  const handleConfirmPayment = async (paymentMethod: string) => {
+    if (!selectedInvoiceId) return;
+
+    try {
+      const response = await payInvoiceMutation.mutateAsync({
+        paymentMethod,
+        invoiceId: selectedInvoiceId,
+      });
+
+      if (response.data?.PayUrl) {
+        const paymentWindow = window.open(
+          response.data.PayUrl,
+          "_blank",
+          "width=800,height=600,scrollbars=yes,resizable=yes"
+        );
+
+        if (!paymentWindow) {
+          toast.error(t("payment-failed"));
+          window.location.href = response.data.PayUrl;
+        } else {
+          const checkWindowClosed = setInterval(() => {
+            if (paymentWindow.closed) {
+              clearInterval(checkWindowClosed);
+              // Refresh data after payment window closes
+              window.location.reload();
+            }
+          }, 1000);
+        }
+      }
+    } catch (error) {
+      toast.error(t("payment-failed"));
+      throw error;
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -80,20 +136,34 @@ export default function MyRequestsPage() {
   };
 
   const renderRequestCard = (request: any, icon: React.ReactNode) => {
-    const propertyTitle = request.property?.title || request.name || t("request-title");
-    const propertyLocation = request.property
-      ? `${request.property.city || ""}, ${request.property.region || ""}`.trim().replace(/^,|,$/g, "")
+    // Handle extend invoices which have nested invoice.property structure
+    const isExtendInvoice = activeTab === "extend-invoices";
+    // Handle end contracts which have nested rent.property structure
+    const isEndContract = activeTab === "end-contracts";
+    const property = isExtendInvoice
+      ? request.invoice?.property
+      : isEndContract
+        ? request.rent?.property
+        : request.property;
+
+    const propertyTitle = property?.title || request.name || request.title || t("request-title");
+    const propertyLocation = property
+      ? `${property.city || ""}, ${property.region || ""}`.trim().replace(/^,|,$/g, "")
       : null;
 
     // Check if this is an ad with a comment (for green border)
     const hasAdComment = activeTab === "ads" && request.comment;
 
+    // Check if this is an ad (make it clickable)
+    const isAd = activeTab === "ads";
+
     return (
       <div
         key={request._id}
+        onClick={() => isAd && setSelectedAdId(request._id)}
         className={`rounded-lg border bg-white p-6 hover:shadow-md transition-shadow ${
           hasAdComment ? "border-green-500 border-2" : "border-gray-200"
-        }`}
+        } ${isAd ? "cursor-pointer" : ""}`}
       >
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-start gap-3">
@@ -110,11 +180,11 @@ export default function MyRequestsPage() {
                 </Typography>
               )}
               <Typography variant="body-sm" as="p" className="text-gray-500">
-                {t("request-id")}: {request._id.slice(-8).toUpperCase()}
+                {isExtendInvoice && request.invoice?.ID ? `${t("invoice-id")}: ${request.invoice.ID}` : `${t("request-id")}: ${request._id.slice(-8).toUpperCase()}`}
               </Typography>
-              {request.property?.code && (
+              {property?.code && (
                 <Typography variant="body-sm" as="p" className="text-gray-400">
-                  {request.property.code}
+                  {property.code}
                 </Typography>
               )}
             </div>
@@ -184,11 +254,21 @@ export default function MyRequestsPage() {
             </div>
           )}
 
-          {request.amount && (
+          {request.amount && !isAd && (
             <div className="flex items-center gap-2 text-gray-600">
               <DollarSign className="h-4 w-4 shrink-0" />
               <Typography variant="body-sm" as="span">
                 {request.amount} {t("currency")}
+              </Typography>
+            </div>
+          )}
+
+          {/* Ad specific fields */}
+          {isAd && request.price && (
+            <div className="flex items-center gap-2 text-gray-600">
+              <DollarSign className="h-4 w-4 shrink-0" />
+              <Typography variant="body-sm" as="span">
+                {request.price} {t("currency")} / {request.priceType}
               </Typography>
             </div>
           )}
@@ -216,6 +296,34 @@ export default function MyRequestsPage() {
               <Calendar className="h-4 w-4 shrink-0" />
               <Typography variant="body-sm" as="span">
                 {formatDate(request.startDate)} - {formatDate(request.endDate)}
+              </Typography>
+            </div>
+          )}
+
+          {/* Extend Invoice specific fields */}
+          {isExtendInvoice && request.extendTo && (
+            <div className="flex items-center gap-2 text-gray-600">
+              <Clock className="h-4 w-4 shrink-0" />
+              <Typography variant="body-sm" as="span">
+                {t("extend-to")}: {formatDate(request.extendTo)}
+              </Typography>
+            </div>
+          )}
+
+          {isExtendInvoice && request.invoice?.userAmount && (
+            <div className="flex items-center gap-2 text-gray-600">
+              <DollarSign className="h-4 w-4 shrink-0" />
+              <Typography variant="body-sm" as="span">
+                {t("invoice-amount")}: {request.invoice.userAmount} {t("currency")}
+              </Typography>
+            </div>
+          )}
+
+          {isExtendInvoice && request.invoice?.date && (
+            <div className="flex items-center gap-2 text-gray-600">
+              <Calendar className="h-4 w-4 shrink-0" />
+              <Typography variant="body-sm" as="span">
+                {t("original-date")}: {formatDate(request.invoice.date)}
               </Typography>
             </div>
           )}
@@ -279,6 +387,28 @@ export default function MyRequestsPage() {
             {request.description}
           </Typography>
         )}
+
+        {/* Pay Now button for rejected extend invoices */}
+        {isExtendInvoice && request.status?.toLowerCase() === "rejected" && (
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            {request.invoice?._id ? (
+              <Button
+                onClick={() => handlePayInvoice(request.invoice._id, request.invoice.amount)}
+                className="w-full bg-main-600 hover:bg-main-700 text-white font-semibold"
+              >
+                {payInvoiceMutation.isPending ? (
+                  <Spinner className="h-4 w-4" />
+                ) : (
+                  t("pay-now")
+                )}
+              </Button>
+            ) : (
+              <Typography variant="body-sm" as="p" className="text-gray-600 text-center p-3 bg-red-50 border border-red-200 rounded">
+                {t("invoice-not-available")}
+              </Typography>
+            )}
+          </div>
+        )}
       </div>
     );
   };
@@ -336,6 +466,18 @@ export default function MyRequestsPage() {
           emptyIcon: <Megaphone className="h-8 w-8 text-gray-400" />,
           emptyMessage: t("no-ads"),
         };
+      case "extend-invoices":
+        return {
+          icon: <Clock className="h-6 w-6 text-main-600" />,
+          emptyIcon: <Clock className="h-8 w-8 text-gray-400" />,
+          emptyMessage: t("no-extend-invoices"),
+        };
+      case "end-contracts":
+        return {
+          icon: <FileX className="h-6 w-6 text-main-600" />,
+          emptyIcon: <FileX className="h-8 w-8 text-gray-400" />,
+          emptyMessage: t("no-end-contracts"),
+        };
     }
   };
 
@@ -356,13 +498,55 @@ export default function MyRequestsPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="tours">{t("tabs.tours")}</TabsTrigger>
-          <TabsTrigger value="rent">{t("tabs.rent")}</TabsTrigger>
-          <TabsTrigger value="service">{t("tabs.service")}</TabsTrigger>
-          <TabsTrigger value="installments">{t("tabs.installments")}</TabsTrigger>
-          <TabsTrigger value="disclaimers">{t("tabs.disclaimers")}</TabsTrigger>
-          <TabsTrigger value="ads">{t("tabs.ads")}</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-8">
+          <TabsTrigger
+            value="tours"
+            className="data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
+          >
+            {t("tabs.tours")}
+          </TabsTrigger>
+          <TabsTrigger
+            value="rent"
+            className="data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
+          >
+            {t("tabs.rent")}
+          </TabsTrigger>
+          <TabsTrigger
+            value="service"
+            className="data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
+          >
+            {t("tabs.service")}
+          </TabsTrigger>
+          <TabsTrigger
+            value="installments"
+            className="data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
+          >
+            {t("tabs.installments")}
+          </TabsTrigger>
+          <TabsTrigger
+            value="disclaimers"
+            className="data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
+          >
+            {t("tabs.disclaimers")}
+          </TabsTrigger>
+          <TabsTrigger
+            value="ads"
+            className="data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
+          >
+            {t("tabs.ads")}
+          </TabsTrigger>
+          <TabsTrigger
+            value="extend-invoices"
+            className="data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
+          >
+            {t("tabs.extend-invoices")}
+          </TabsTrigger>
+          <TabsTrigger
+            value="end-contracts"
+            className="data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
+          >
+            {t("tabs.end-contracts")}
+          </TabsTrigger>
         </TabsList>
 
         {/* Single Tab Content - dynamically renders based on activeTab */}
@@ -395,6 +579,22 @@ export default function MyRequestsPage() {
           )}
         </div>
       </Tabs>
+
+      {/* Ad Details Dialog */}
+      <AdDetailsDialog
+        adId={selectedAdId}
+        open={!!selectedAdId}
+        onOpenChange={(open) => !open && setSelectedAdId(null)}
+      />
+
+      {/* Payment Method Dialog */}
+      <PaymentMethodDialog
+        open={paymentDialogOpen}
+        onOpenChange={setPaymentDialogOpen}
+        onConfirm={handleConfirmPayment}
+        amount={selectedInvoiceAmount || undefined}
+        currency="KWD"
+      />
     </div>
   );
 }

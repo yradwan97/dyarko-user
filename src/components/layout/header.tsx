@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useLocale, useTranslations } from "next-intl";
-import { BellIcon, BookmarkIcon, MapPinIcon, MenuIcon, SearchIcon, SlidersHorizontalIcon, ChevronDown } from "lucide-react";
+import { BellIcon, BookmarkIcon, MapPinIcon, MenuIcon, SearchIcon, SlidersHorizontalIcon, ChevronDown, PlusCircle, Map } from "lucide-react";
 import { DropdownMenu, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,7 @@ import LocalizationDropdown from "./header/localization-dropdown";
 import CountryDropdown from "./header/country-dropdown";
 import UserProfilePopover from "./header/user-profile-popover";
 import Button from "@/components/shared/button";
+import CreateAdDialog from "@/components/dialogs/create-ad-dialog";
 import { useGetNotifications, useMarkAllNotificationsRead } from "@/hooks/use-notifications";
 import type { Notification } from "@/types";
 import { cn, getLocalizedPath } from "@/lib/utils";
@@ -24,6 +25,7 @@ export default function Header() {
   const t = useTranslations("General");
   const locale = useLocale();
   const [visible, setVisible] = useState(false);
+  const [createAdOpen, setCreateAdOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const { data: session } = useSession();
   const [notificationCount, setNotificationCount] = useState(0);
@@ -57,10 +59,16 @@ export default function Header() {
       <header className="top-0 z-20 bg-white shadow-md sm:sticky dark:bg-gray-800 dark:shadow-gray-700/50">
         {/* Top row - Location, Navigation, Icons */}
         <div
-          className={`mx-auto flex ${locale === "en" ? "flex-row" : "flex-row-reverse"} items-center justify-between gap-4 border-b border-gray-200 px-4 py-3 lg:px-10 dark:border-gray-700`}
+          className={cn(
+            "mx-auto flex items-center justify-between gap-4 border-b border-gray-200 px-4 py-3 lg:px-10 dark:border-gray-700",
+            locale === "ar" ? "flex-row-reverse" : "flex-row"
+          )}
         >
           {/* Logo and Location */}
-          <div className={`flex ${locale === "en" ? "flex-row" : "flex-row-reverse"} items-center gap-3`}>
+          <div className={cn(
+            "flex items-center gap-3",
+            locale === "ar" ? "flex-row-reverse" : "flex-row"
+          )}>
             <Link href={getLocalizedPath("/", locale)} className="flex-shrink-0">
               <Image
                 src="/logo.png"
@@ -75,7 +83,10 @@ export default function Header() {
 
           {/* Center navigation */}
           <nav
-            className="hidden flex-1 items-center justify-center lg:flex lg:flex-row"
+            className={cn(
+              "hidden flex-1 items-center justify-center lg:flex",
+              locale === "ar" ? "lg:flex-row-reverse" : "lg:flex-row"
+            )}
           >
             <Navbar />
           </nav>
@@ -83,13 +94,26 @@ export default function Header() {
           {/* Right side icons */}
           {session ? (
             <div
-              className={`flex ${locale === "en" ? "flex-row" : "flex-row-reverse"} items-center gap-2 sm:gap-3`}
+              className={cn(
+                "flex items-center gap-2 sm:gap-3",
+                locale === "ar" ? "flex-row-reverse" : "flex-row"
+              )}
             >
               <LocalizationDropdown />
 
-              <button className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700">
-                <BookmarkIcon className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+              <button
+                onClick={() => setCreateAdOpen(true)}
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
+              >
+                <PlusCircle className="h-5 w-5 text-gray-700 dark:text-gray-300" />
               </button>
+
+              <Link
+                href={getLocalizedPath("/map", locale)}
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
+              >
+                <Map className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+              </Link>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -124,7 +148,10 @@ export default function Header() {
           ) : (
             <>
               <div
-                className={`hidden md:flex ${locale === "en" ? "md:flex-row" : "md:flex-row-reverse"} items-center gap-3`}
+                className={cn(
+                  "hidden md:flex items-center gap-3",
+                  locale === "ar" ? "md:flex-row-reverse" : "md:flex-row"
+                )}
               >
                 <LocalizationDropdown />
                 <Popover>
@@ -182,6 +209,7 @@ export default function Header() {
         )} */}
       </header>
       <MobileSidebar visible={visible} setVisible={setVisible} />
+      <CreateAdDialog open={createAdOpen} onOpenChange={setCreateAdOpen} />
     </>
   );
 }

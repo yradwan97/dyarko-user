@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useLocale } from "next-intl";
 import PropertyCard from "@/components/shared/property-card";
-import { Property } from "@/lib/services/api/properties";
+import { type Property } from "@/lib/services/api/properties";
 import { getProxiedImageUrl } from "@/lib/utils";
 import { getPropertyPrice, formatPrice } from "@/lib/utils/property-pricing";
 import { useCurrency } from "@/hooks/use-currency";

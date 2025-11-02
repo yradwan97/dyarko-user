@@ -117,21 +117,48 @@ export function useSignup() {
   const locale = useLocale();
   const t = useTranslations("Auth.Messages");
 
+  console.log("🔵 useSignup hook initialized");
+
   return useMutation({
     mutationFn: async (data: SignupData) => {
       try {
+        console.log("🔵 CLIENT: Attempting signup with data:", {
+          email: data.email,
+          name: data.name,
+          country: data.country,
+          nationality: data.nationality,
+          phoneNumber: data.phoneNumber,
+        });
+
         const response = await signupApi(data);
+
+        console.log("🟢 CLIENT: Signup API response:", response);
         return response;
       } catch (error) {
+        console.error("🔴 CLIENT: Signup error:", error);
+
+        if (axios.isAxiosError(error)) {
+          console.error("🔴 CLIENT: Axios error details:", {
+            status: error.response?.status,
+            statusText: error.response?.statusText,
+            data: error.response?.data,
+            headers: error.response?.headers,
+            message: error.message,
+          });
+        }
+
         throw error;
       }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("🟢 CLIENT: Signup successful, response data:", data);
       toast.success(t("signupSuccess"));
       router.push(getLocalizedPath("/login", locale));
     },
     onError: (error: unknown) => {
+      console.error("🔴 CLIENT: Signup mutation error:", error);
       const message = extractErrorMessage(error, t);
+      console.error("🔴 CLIENT: Error message to display:", message);
       toast.error(message);
     },
   });

@@ -9,15 +9,20 @@ import Typography from "@/components/shared/typography";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getRents } from "@/lib/services/api/rents";
+import { useApprovedInstallments } from "@/hooks/use-installments";
 import RentCard from "./components/rent-card";
+import InstallmentCard from "./components/installment-card";
 import RentDetailsModal from "./components/rent-details-modal";
+import InstallmentDetailsModal from "./components/installment-details-modal";
 import PaginationControls from "@/components/shared/pagination-controls";
 
 export default function MyRealEstatesPage() {
   const t = useTranslations("User.MyRealEstates");
   const [activeTab, setActiveTab] = useState<"rents" | "installments">("rents");
   const [selectedRentId, setSelectedRentId] = useState<string | null>(null);
+  const [selectedInstallmentId, setSelectedInstallmentId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isInstallmentModalOpen, setIsInstallmentModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
   const { data: rentsData, isLoading: isLoadingRents } = useQuery({
@@ -26,12 +31,22 @@ export default function MyRealEstatesPage() {
     enabled: activeTab === "rents",
   });
 
+  const { data: installmentsData, isLoading: isLoadingInstallments } = useApprovedInstallments(currentPage);
+
   const rents = rentsData?.data?.data || [];
-  const totalPages = rentsData?.data?.pages || 1;
+  const installments = installmentsData?.data?.data || [];
+  const totalPages = activeTab === "rents"
+    ? rentsData?.data?.pages || 1
+    : installmentsData?.data?.pages || 1;
 
   const handleRentClick = (rentId: string) => {
     setSelectedRentId(rentId);
     setIsModalOpen(true);
+  };
+
+  const handleInstallmentClick = (installmentId: string) => {
+    setSelectedInstallmentId(installmentId);
+    setIsInstallmentModalOpen(true);
   };
 
   const handleCloseModal = () => {
@@ -39,9 +54,19 @@ export default function MyRealEstatesPage() {
     setSelectedRentId(null);
   };
 
+  const handleCloseInstallmentModal = () => {
+    setIsInstallmentModalOpen(false);
+    setSelectedInstallmentId(null);
+  };
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value as "rents" | "installments");
+    setCurrentPage(1);
   };
 
   return (
@@ -57,7 +82,7 @@ export default function MyRealEstatesPage() {
 
       <Tabs
         value={activeTab}
-        onValueChange={(value) => setActiveTab(value as "rents" | "installments")}
+        onValueChange={handleTabChange}
         className="w-full"
       >
         <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
@@ -108,15 +133,39 @@ export default function MyRealEstatesPage() {
         </TabsContent>
 
         <TabsContent value="installments" className="mt-6">
-          <div className="py-12 text-center">
-            <CreditCard className="mx-auto h-16 w-16 text-gray-300 dark:text-gray-700 mb-4" />
-            <Typography variant="body-lg-medium" as="p" className="text-gray-500 dark:text-gray-400 mb-2">
-              {t("no-installments")}
-            </Typography>
-            <Typography variant="body-sm" as="p" className="text-gray-400 dark:text-gray-500">
-              {t("no-installments-description")}
-            </Typography>
-          </div>
+          {isLoadingInstallments ? (
+            <div className="flex justify-center py-12">
+              <Spinner className="h-12 w-12 text-main-400" />
+            </div>
+          ) : installments.length === 0 ? (
+            <div className="py-12 text-center">
+              <CreditCard className="mx-auto h-16 w-16 text-gray-300 dark:text-gray-700 mb-4" />
+              <Typography variant="body-lg-medium" as="p" className="text-gray-500 dark:text-gray-400 mb-2">
+                {t("no-installments")}
+              </Typography>
+              <Typography variant="body-sm" as="p" className="text-gray-400 dark:text-gray-500">
+                {t("no-installments-description")}
+              </Typography>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {installments.map((installment) => (
+                  <InstallmentCard
+                    key={installment._id}
+                    installment={installment}
+                    onClick={() => handleInstallmentClick(installment._id)}
+                  />
+                ))}
+              </div>
+              <PaginationControls
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                disabled={isLoadingInstallments}
+              />
+            </>
+          )}
         </TabsContent>
       </Tabs>
 
@@ -124,6 +173,12 @@ export default function MyRealEstatesPage() {
         rentId={selectedRentId}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
+      />
+
+      <InstallmentDetailsModal
+        installmentId={selectedInstallmentId}
+        isOpen={isInstallmentModalOpen}
+        onClose={handleCloseInstallmentModal}
       />
     </div>
   );

@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Typography from "@/components/shared/typography";
 import Button from "@/components/shared/button";
-import { useGetUser, useUpdateUser, useUpdateUserImage } from "@/hooks/use-user";
+import { useUpdateUser, useUpdateUserImage } from "@/hooks/use-user";
 import { Spinner } from "@/components/ui/spinner";
 import PersonalInfoForm from "../components/personal-info-form";
 import BankingInfoForm from "../components/banking-info-form";
@@ -32,39 +33,90 @@ interface ProfileFormData {
 
 export default function ProfilePage() {
   const t = useTranslations("User.Profile");
-  const { data, isLoading } = useGetUser();
+  const { data: session, status } = useSession();
   const updateUserMutation = useUpdateUser();
   const updateImageMutation = useUpdateUserImage();
   const [activeTab, setActiveTab] = useState("personal");
   const [imageFile, setImageFile] = useState<File | null>(null);
 
-  const userProfile = data?.data;
+  // Convert session user to UserProfile format
+  const userProfile = session?.user
+    ? ({
+        _id: session.user.id || "",
+        name: session.user.name || "",
+        email: session.user.email || "",
+        phoneNumber: session.user.phoneNumber || "",
+        image: session.user.image,
+        role: session.user.role || "user",
+        status: session.user.status || "",
+        country: session.user.country || "",
+        points: session.user.points || 0,
+        isConfirmed: session.user.isConfirmed || false,
+        nationalID: session.user.nationalID,
+        deviceToken: session.user.device_token,
+        bankInfo: session.user.bankInfo,
+        socialMedia: session.user.socialMedia,
+      } as any)
+    : null;
 
   const formMethods = useForm<ProfileFormData>({
     defaultValues: {
       // Personal
-      name: userProfile?.name || "",
-      phone: userProfile?.phoneNumber || "",
-      email: userProfile?.email || "",
+      name: "",
+      phone: "",
+      email: "",
       // Banking
-      ACCName: userProfile?.bankInfo?.ACCName || "",
-      bankName: userProfile?.bankInfo?.bankName || "",
-      IBAN: userProfile?.bankInfo?.IBAN || "",
-      swiftCode: userProfile?.bankInfo?.swiftCode || "",
+      ACCName: "",
+      bankName: "",
+      IBAN: "",
+      swiftCode: "",
       // Social Media
-      facebook: userProfile?.socialMedia?.facebook || "",
-      X: userProfile?.socialMedia?.X || "",
-      linkedin: userProfile?.socialMedia?.linkedin || "",
-      snapchat: userProfile?.socialMedia?.snapchat || "",
+      facebook: "",
+      X: "",
+      linkedin: "",
+      snapchat: "",
     },
   });
 
   const { handleSubmit, formState: { isDirty }, reset } = formMethods;
 
-  if (isLoading) {
+  // Update form when session data is available
+  useEffect(() => {
+    if (session?.user && status === "authenticated") {
+      const formData = {
+        // Personal
+        name: session.user.name || "",
+        phone: session.user.phoneNumber || "",
+        email: session.user.email || "",
+        // Banking
+        ACCName: session.user.bankInfo?.ACCName || "",
+        bankName: session.user.bankInfo?.bankName || "",
+        IBAN: session.user.bankInfo?.IBAN || "",
+        swiftCode: session.user.bankInfo?.swiftCode || "",
+        // Social Media
+        facebook: session.user.socialMedia?.facebook || "",
+        X: session.user.socialMedia?.X || "",
+        linkedin: session.user.socialMedia?.linkedin || "",
+        snapchat: session.user.socialMedia?.snapchat || "",
+      };
+      reset(formData);
+    }
+  }, [session?.user, status, reset]);
+
+  if (status === "loading") {
     return (
       <div className="flex justify-center py-12">
         <Spinner className="h-12 w-12 text-main-400" />
+      </div>
+    );
+  }
+
+  if (!userProfile) {
+    return (
+      <div className="flex justify-center py-12">
+        <Typography variant="body-md" as="p" className="text-gray-500">
+          {t("no-session")}
+        </Typography>
       </div>
     );
   }
@@ -145,10 +197,10 @@ export default function ProfilePage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-3">
-          <TabsTrigger value="personal" type="button">{t("tabs.personal")}</TabsTrigger>
-          <TabsTrigger value="banking" type="button">{t("tabs.banking")}</TabsTrigger>
-          <TabsTrigger value="social" type="button">{t("tabs.social")}</TabsTrigger>
+        <TabsList className="flex w-full max-w-3xl mx-auto rtl:flex-row-reverse">
+          <TabsTrigger value="personal" type="button" className="flex-1">{t("tabs.personal")}</TabsTrigger>
+          <TabsTrigger value="banking" type="button" className="flex-1">{t("tabs.banking")}</TabsTrigger>
+          <TabsTrigger value="social" type="button" className="flex-1">{t("tabs.social")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="personal" className="mt-6">

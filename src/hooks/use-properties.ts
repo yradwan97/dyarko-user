@@ -65,3 +65,18 @@ export function useProperty(id: string) {
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
+
+export function useGetPropertiesByCountry(
+  country: string,
+  page: number = 1,
+  size: number = 30
+) {
+  return useQuery({
+    queryKey: ["properties-by-country", country, page, size],
+    queryFn: () => getProperties({ country, page, size }),
+    enabled: !!country,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: false,
+    gcTime: 0,
+  });
+}

@@ -74,19 +74,20 @@ export default function Navbar() {
                   "border-none shadow-none bg-transparent",
                   isBuyPathActive ? "text-main-600 font-bold dark:text-main-400" : "text-black font-medium dark:text-gray-200",
                   "hover:bg-gray-200 hover:shadow-md dark:hover:bg-gray-700",
-                  "capitalize text-base"
+                  "capitalize text-base",
+                  locale === "ar" && "flex-row-reverse"
                 )}
               >
                 <SelectValue>
                   {t(navLink.text)}
                 </SelectValue>
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent align={locale === "ar" ? "end" : "start"}>
                 {buyLinksArray.map((link, index) => (
                   <SelectItem
                     key={index}
                     value={link.link}
-                    className="capitalize"
+                    className={cn("capitalize", locale === "ar" && "text-right")}
                   >
                     {t(link.name)}
                   </SelectItem>
@@ -97,12 +98,13 @@ export default function Navbar() {
             <Link
               id={navLink.text}
               href={navLink.to}
-              className={
+              className={cn(
                 determinePathName(pathname || "") ===
                 determinePathName(navLink.to)
                   ? activeClass
-                  : linkStyle
-              }
+                  : linkStyle,
+                locale === "ar" && "text-right"
+              )}
             >
               {t(navLink.text)}
             </Link>

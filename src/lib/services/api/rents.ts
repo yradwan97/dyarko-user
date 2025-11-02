@@ -6,6 +6,15 @@ export interface CreateRentPayload {
   startDate: string;
   endDate: string;
   services?: string[];
+  apartments?: Array<{
+    type: string;
+    units: number;
+  }>;
+  tents?: string[];
+  startTime?: string;
+  endTime?: string;
+  lat?: string;
+  long?: string;
 }
 
 export interface PriceDetails {

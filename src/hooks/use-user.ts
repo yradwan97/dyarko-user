@@ -127,7 +127,9 @@ export function useGetRequests(endpoint: string, page: number = 1) {
   return useQuery({
     queryKey: ["requests", endpoint, page],
     queryFn: async () => {
-      const response = await axiosClient.get(`${endpoint}?page=${page}`);
+      // Check if endpoint already has query parameters
+      const separator = endpoint.includes('?') ? '&' : '?';
+      const response = await axiosClient.get(`${endpoint}${separator}page=${page}`);
       return response.data;
     },
     enabled: status === "authenticated" && !!session && !!endpoint,

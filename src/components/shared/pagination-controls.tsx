@@ -23,7 +23,8 @@ export default function PaginationControls({
   onPageChange,
   disabled = false,
 }: PaginationControlsProps) {
-  if (totalPages <= 1) return null;
+  // Uncomment this line to hide pagination when only 1 page
+  // if (totalPages <= 1) return null;
 
   const handlePrevious = () => {
     if (currentPage > 1) {

@@ -121,10 +121,12 @@ export interface PropertiesResponse {
 
   data: {
     data: Property[];
-    total: number;
+    total?: number;
+    itemsCount?: number;
     page: number;
     size: number;
-    totalPages: number;
+    totalPages?: number;
+    pages?: number;
   };
 
 }

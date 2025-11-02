@@ -74,9 +74,21 @@ export default function PropertySlider({ property }: PropertySliderProps) {
 
       {/* Image Gallery */}
       <div className="mt-10 flex gap-3 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm">
-        {/* Vertical Carousel (only show if there are multiple images) */}
+        {/* Main Image - Left Half */}
+        <div className="h-[450px] w-1/2 rounded-lg border-2 border-primary p-3 overflow-hidden group">
+          <Image
+            src={allImages[selectedImageIndex]}
+            height={600}
+            width={800}
+            alt={property.title}
+            className="h-full w-full cursor-pointer object-cover rounded-lg transition-transform group-hover:scale-105"
+            onClick={() => openOverlay(allImages[selectedImageIndex])}
+          />
+        </div>
+
+        {/* Vertical Carousel - Right Half */}
         {hasMultipleImages && (
-          <div className="flex flex-col gap-2">
+          <div className="w-1/2 flex flex-col gap-2">
             {/* Scroll Up Button */}
             {scrollPosition > 0 && (
               <button
@@ -88,7 +100,7 @@ export default function PropertySlider({ property }: PropertySliderProps) {
             )}
 
             {/* Thumbnails */}
-            <div className="flex flex-col gap-2 overflow-hidden">
+            <div className="flex flex-col gap-2 overflow-hidden flex-1">
               {allImages
                 .slice(scrollPosition, scrollPosition + maxVisibleThumbnails)
                 .map((img, index) => {
@@ -97,7 +109,7 @@ export default function PropertySlider({ property }: PropertySliderProps) {
                     <div
                       key={actualIndex}
                       className={cn(
-                        "h-20 w-20 cursor-pointer rounded-lg border-2 p-1 transition-all hover:scale-105",
+                        "w-full h-64 aspect-square cursor-pointer rounded-lg border-2 p-1 transition-all hover:scale-105",
                         selectedImageIndex === actualIndex
                           ? "border-primary shadow-md"
                           : "border-gray-200 dark:border-gray-700 hover:border-primary/50"
@@ -127,18 +139,6 @@ export default function PropertySlider({ property }: PropertySliderProps) {
             )}
           </div>
         )}
-
-        {/* Main Image */}
-        <div className="h-[450px] flex-1 rounded-lg border-2 border-primary p-3 overflow-hidden group">
-          <Image
-            src={allImages[selectedImageIndex]}
-            height={450}
-            width={800}
-            alt={property.title}
-            className="h-full w-full cursor-pointer object-cover rounded-lg transition-transform group-hover:scale-105"
-            onClick={() => openOverlay(allImages[selectedImageIndex])}
-          />
-        </div>
       </div>
     </>
   );

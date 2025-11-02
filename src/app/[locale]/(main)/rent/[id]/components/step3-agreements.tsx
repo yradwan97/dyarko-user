@@ -124,9 +124,9 @@ export default function Step3Agreements({
               className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer flex-1"
             >
               {t("ownerRoles")}
-              {/* <span className="block text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {t("familyOnly")}
-              </span> */}
+              <span className="block text-xs text-gray-500 dark:text-gray-400 mt-1">
+                {property.rules}
+              </span>
             </Label>
           </div>}
         </div>

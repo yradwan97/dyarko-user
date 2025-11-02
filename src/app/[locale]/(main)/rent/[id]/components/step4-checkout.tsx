@@ -16,12 +16,16 @@ interface Step4CheckoutProps {
   selectedRentType: string;
   selectedServices: PropertyService[];
   selectedDates: Date[];
+  selectedTents: any[];
+  selectedApartments?: any[];
+  timeRange?: { from: string; to: string };
   agreedToTerms: {
     termsAndConditions: boolean;
     refundPolicy: boolean;
     contract: boolean;
     ownerRoles: boolean;
   };
+  pickupLocation: { lat: number; lng: number } | null;
 }
 
 export default function Step4Checkout({
@@ -29,6 +33,10 @@ export default function Step4Checkout({
   selectedRentType,
   selectedServices,
   selectedDates,
+  selectedTents,
+  selectedApartments = [],
+  timeRange,
+  pickupLocation,
 }: Step4CheckoutProps) {
   const t = useTranslations("Rent.Step4");
   const tCommon = useTranslations("General");
@@ -61,13 +69,54 @@ export default function Step4Checkout({
     ];
   }, [selectedDates]);
 
-  // Placeholder calculations (to be filled in later)
-  const rentAmountPerDay = selectedRentType === "daily" ? property?.dailyPrice : selectedRentType === "weekly" ? property.weeklyPrice : property?.monthlyPrice; // Placeholder
-  const rentAmount = Number(rentAmountPerDay) * selectedDates.length;
-  const insurance = property?.insurancePrice; // Placeholder
-  const servicesTotal = selectedServices.reduce(((a, b) => a + Number(b.price)), 0); // Placeholder
-  // const commission = 5; // Placeholder
-  // const tax = 2.5; // Placeholder
+  // Calculate rent amount based on property category
+  const isTentBased = property.category === "camp" || property.category === "booth";
+  const isHotelApartment = property.category === "hotelapartment";
+
+  const rentAmount = useMemo(() => {
+    if (isTentBased && selectedTents.length > 0) {
+      // For camp/booth: sum all selected tents' prices * number of days
+      const totalTentPrice = selectedTents.reduce((sum, tent) => sum + Number(tent.price || 0), 0);
+      return totalTentPrice * selectedDates.length;
+    } else if (isHotelApartment && selectedApartments.length > 0) {
+      // For hotel apartments: sum all selected apartments' prices based on rent type
+      const totalApartmentPrice = selectedApartments.reduce((sum, apartment) => {
+        let price = 0;
+        if (selectedRentType === "daily") {
+          price = Number(apartment.dailyPrice || 0);
+        } else if (selectedRentType === "weekly") {
+          price = Number(apartment.weeklyPrice || 0);
+        } else if (selectedRentType === "monthly") {
+          price = Number(apartment.monthlyPrice || 0);
+        }
+        return sum + (price * (apartment.quantity || 1));
+      }, 0);
+      return totalApartmentPrice * selectedDates.length;
+    } else {
+      // For other properties: use property's daily/weekly/monthly price
+      const rentAmountPerDay = selectedRentType === "daily"
+        ? property?.dailyPrice
+        : selectedRentType === "weekly"
+        ? property.weeklyPrice
+        : property?.monthlyPrice;
+      return Number(rentAmountPerDay || 0) * selectedDates.length;
+    }
+  }, [isTentBased, isHotelApartment, selectedTents, selectedApartments, selectedDates.length, selectedRentType, property]);
+
+  const insurance = useMemo(() => {
+    if (isTentBased && selectedTents.length > 0) {
+      // For camp/booth: sum all selected tents' insurance
+      return selectedTents.reduce((sum, tent) => sum + Number(tent.insurance || 0), 0);
+    } else if (isHotelApartment) {
+      // For hotel apartments: use property's insurance price or 0
+      return property?.insurancePrice || 0;
+    } else {
+      // For other properties: use property's insurance price
+      return property?.insurancePrice || 0;
+    }
+  }, [isTentBased, isHotelApartment, selectedTents, property?.insurancePrice]);
+
+  const servicesTotal = selectedServices.reduce(((a, b) => a + Number(b.price)), 0);
   const total = (rentAmount || 0) + (insurance || 0) + servicesTotal;
 
   const handleSubmit = async () => {
@@ -95,13 +144,42 @@ export default function Step4Checkout({
       const formattedEndDate = format(checkOutDate, "MM/dd/yyyy");
 
       // Prepare payload
-      const payload = {
+      const payload: any = {
         property: property._id,
         rentType: selectedRentType,
         startDate: formattedStartDate,
         endDate: formattedEndDate,
-        services: selectedServices.map((service) => service._id),
       };
+
+      // Add services only if there are any selected
+      if (selectedServices.length > 0) {
+        payload.services = selectedServices.map((service) => service._id);
+      }
+
+      // Add pickup location for camper/movable properties
+      if (property.category === "camper" && (property as any).type === "movable" && pickupLocation) {
+        payload.lat = pickupLocation.lat.toString();
+        payload.long = pickupLocation.lng.toString();
+      }
+
+      // Add selected tents for camp/booth properties
+      if ((property.category === "camp" || property.category === "booth") && selectedTents.length > 0) {
+        payload.tents = selectedTents.map((tent) => tent._id);
+      }
+
+      // Add selected apartments for hotel apartment properties
+      if (property.category === "hotelapartment" && selectedApartments.length > 0) {
+        payload.apartments = selectedApartments.map((apartment) => ({
+          type: apartment.type || "apartment",
+          units: apartment.quantity || 1,
+        }));
+      }
+
+      // Add time range for court properties
+      if (property.category === "court" && timeRange && timeRange.from && timeRange.to) {
+        payload.startTime = timeRange.from;
+        payload.endTime = timeRange.to;
+      }
 
       // Submit the rent request
       const response = await createRent(payload);
@@ -203,6 +281,21 @@ export default function Step4Checkout({
             </div>
           </div>
 
+          {/* Time Range - Court only */}
+          {property.category === "court" && timeRange && timeRange.from && timeRange.to && (
+            <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+              <Clock className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+              <div className="flex-1">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {t("timeRange")}
+                </p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  {timeRange.from} - {timeRange.to}
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Rent Amount */}
           <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
             <Wallet className="h-5 w-5 text-gray-600 dark:text-gray-400" />
@@ -215,6 +308,27 @@ export default function Step4Checkout({
               </p>
             </div>
           </div>
+
+          {/* Selected Apartments - Hotel Apartment only */}
+          {isHotelApartment && selectedApartments.length > 0 && (
+            <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                {t("selectedApartments")}
+              </p>
+              <div className="space-y-1">
+                {selectedApartments.map((apartment, index) => (
+                  <div key={index} className="flex justify-between items-center text-sm">
+                    <span className="text-gray-700 dark:text-gray-300">
+                      {apartment.title || `${apartment.type || 'Apartment'}`}
+                    </span>
+                    <span className="text-gray-600 dark:text-gray-400">
+                      x{apartment.quantity}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

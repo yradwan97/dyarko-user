@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useLocale } from "next-intl";
 import AuthNavbar from "@/components/auth/auth-navbar";
 import AuthCarousel from "@/components/auth/auth-carousel";
@@ -11,10 +12,18 @@ export default function AuthLayout({
 }) {
   const locale = useLocale();
 
+  // Prevent body scroll on auth pages
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, []);
+
   return (
-    <div className="mx-auto">
-      <div className={`flex ${locale === "ar" && "flex-row-reverse"}`}>
-        <div className="flex-1">
+    <div className="fixed inset-0 overflow-hidden">
+      <div className={`flex h-full ${locale === "ar" && "flex-row-reverse"}`}>
+        <div className="flex flex-1 flex-col overflow-y-auto">
           <AuthNavbar />
           {children}
         </div>

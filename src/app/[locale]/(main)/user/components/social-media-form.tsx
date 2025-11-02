@@ -23,73 +23,73 @@ export default function SocialMediaForm({ formMethods }: SocialMediaFormProps) {
     <div className="space-y-6">
       {/* Facebook */}
       <div className="space-y-2">
-        <Label htmlFor="facebook" className="flex items-center gap-2">
+        <div className="flex items-center gap-2 rtl:flex-row-reverse rtl:justify-start">
           <Facebook className="h-4 w-4 text-blue-600" />
-          {t("facebook")}
-        </Label>
+          <Label htmlFor="facebook">{t("facebook")}</Label>
+        </div>
         <Input
           id="facebook"
           type="text"
           placeholder={t("facebook-placeholder")}
           {...register("facebook")}
-          className="h-12"
+          className="h-12 rtl:text-right rtl:placeholder:text-right"
         />
         {errors.facebook?.message && (
-          <p className="text-sm text-red-600">{errors.facebook.message as string}</p>
+          <p className="text-sm text-red-600 rtl:text-right">{errors.facebook.message as string}</p>
         )}
       </div>
 
       {/* X (Twitter) */}
       <div className="space-y-2">
-        <Label htmlFor="X" className="flex items-center gap-2">
+        <div className="flex items-center gap-2 rtl:flex-row-reverse rtl:justify-start">
           <Twitter className="h-4 w-4 text-sky-500" />
-          {t("twitter")}
-        </Label>
+          <Label htmlFor="X">{t("twitter")}</Label>
+        </div>
         <Input
           id="X"
           type="text"
           placeholder={t("twitter-placeholder")}
           {...register("X")}
-          className="h-12"
+          className="h-12 rtl:text-right rtl:placeholder:text-right"
         />
         {errors.X?.message && (
-          <p className="text-sm text-red-600">{errors.X.message as string}</p>
+          <p className="text-sm text-red-600 rtl:text-right">{errors.X.message as string}</p>
         )}
       </div>
 
       {/* LinkedIn */}
       <div className="space-y-2">
-        <Label htmlFor="linkedin" className="flex items-center gap-2">
+        <div className="flex items-center gap-2 rtl:flex-row-reverse rtl:justify-start">
           <Linkedin className="h-4 w-4 text-blue-700" />
-          {t("linkedin")}
-        </Label>
+          <Label htmlFor="linkedin">{t("linkedin")}</Label>
+        </div>
         <Input
           id="linkedin"
           type="text"
           placeholder={t("linkedin-placeholder")}
           {...register("linkedin")}
-          className="h-12"
+          className="h-12 rtl:text-right rtl:placeholder:text-right"
         />
         {errors.linkedin?.message && (
-          <p className="text-sm text-red-600">{errors.linkedin.message as string}</p>
+          <p className="text-sm text-red-600 rtl:text-right">{errors.linkedin.message as string}</p>
         )}
       </div>
 
       {/* Snapchat */}
       <div className="space-y-2">
-        <Label htmlFor="snapchat" className="flex items-center gap-2">
+        <div className="flex items-center gap-2 rtl:flex-row-reverse rtl:justify-start">
           <Snapchat className="h-4 w-4 text-yellow-400" />
-          {t("snapchat")}
-        </Label>
+          <Label htmlFor="snapchat">{t("snapchat")}</Label>
+        </div>
         <Input
           id="snapchat"
           type="text"
           placeholder={t("snapchat-placeholder")}
           {...register("snapchat")}
-          className="h-12"
+          className="h-12 rtl:text-right rtl:placeholder:text-right"
         />
         {errors.snapchat?.message && (
-          <p className="text-sm text-red-600">{errors.snapchat.message as string}</p>
+          <p className="text-sm text-red-600 rtl:text-right">{errors.snapchat.message as string}</p>
         )}
       </div>
     </div>

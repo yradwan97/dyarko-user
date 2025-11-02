@@ -87,29 +87,14 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
       return;
     }
 
-    if (property.offerType === "sale") {
-      // Request purchase/installment
-      const body = {
-        property: property._id,
-      };
-
-      try {
-        const response = await axiosClient.post("/installments", body);
-
-        if (response.status === 200) {
-          toast.success("Purchase request submitted successfully, pending owner confirmation.");
-        }
-      } catch (e: any) {
-        toast.error(e.response?.data?.errors?.[0]?.msg || "Failed to submit request");
-      }
-    } else if (property.offerType === "rent") {
-      // Navigate to application page
+    if (property.offerType === "rent") {
+      // Navigate to rent application page
       const href = decideSubmitButtonLinkHref();
       if (href) {
         router.push(href);
       }
     } else {
-      // Show contact owner modal
+      // Show contact owner modal for all non-rent types
       setIsContactOwnerOpen(true);
     }
   };
@@ -204,14 +189,19 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
         <p className="my-6 text-center text-lg font-bold text-gray-800 dark:text-gray-200">{t("request-home-tour")}</p>
 
         <Button
-          className="my-6 flex w-full items-center justify-center gap-2 h-12 bg-main-500/90 hover:bg-main-500/50 font-semibold shadow-sm hover:shadow-md transition-all"
+          className="my-6 flex w-full items-center justify-center gap-2 h-12 bg-main-500/90 hover:bg-main-500/50 font-semibold shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={() => setIsScheduleTourOpen(true)}
+          disabled={!session}
         >
           <MapPin className="h-5 w-5" />
           <span className="font-bold text-white">{t("request-tour")}</span>
         </Button>
 
-        <p className="text-center text-xs text-gray-500 dark:text-gray-400">{t("tour-text")}</p>
+        {!session ? (
+          <p className="text-center text-xs text-gray-500 dark:text-gray-400">{t("login-to-schedule")}</p>
+        ) : (
+          <p className="text-center text-xs text-gray-500 dark:text-gray-400">{t("tour-text")}</p>
+        )}
       </div>
     </>
   );

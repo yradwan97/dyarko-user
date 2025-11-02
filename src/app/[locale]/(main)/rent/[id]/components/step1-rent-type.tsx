@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { type Property, type PropertyService } from "@/lib/services/api/properties";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import PickupLocationMap from "@/components/ui/pickup-location-map";
 
 interface Step1RentTypeProps {
   property: Property;
@@ -12,6 +14,8 @@ interface Step1RentTypeProps {
   setSelectedRentType: (type: string) => void;
   selectedServices: PropertyService[];
   setSelectedServices: (services: PropertyService[]) => void;
+  pickupLocation: { lat: number; lng: number } | null;
+  setPickupLocation: (location: { lat: number; lng: number } | null) => void;
   onNext: () => void;
 }
 
@@ -21,17 +25,41 @@ export default function Step1RentType({
   setSelectedRentType,
   selectedServices,
   setSelectedServices,
+  pickupLocation,
+  setPickupLocation,
   onNext,
 }: Step1RentTypeProps) {
   const locale = useLocale();
   const t = useTranslations("Rent.Step1");
 
+  // Check if property is camper with movable type
+  const isCamperMovable = property.category === "camper" && (property as any).type === "movable";
+
+  // For camp/booth, only daily rent type is available
+  const isCampOrBooth = property.category === "camp" || property.category === "booth";
+
+  // For hotel apartments, check if at least one apartment has each rent type
+  const isHotelApartment = property.category === "hotelapartment";
+
   const rentTypes = [];
-  if (property.isDaily) rentTypes.push({ key: "daily", label: t("daily") });
-  if (property.isWeekly) rentTypes.push({ key: "weekly", label: t("weekly") });
-  if (property.isMonthly) rentTypes.push({ key: "monthly", label: t("monthly") });
-  if (property.isWeekdays) rentTypes.push({ key: "weekdays", label: t("weekdays") });
-  if (property.isHolidays) rentTypes.push({ key: "holidays", label: t("holidays") });
+  if (isCampOrBooth) {
+    rentTypes.push({ key: "daily", label: t("daily") });
+  } else if (isHotelApartment && property.apartments && property.apartments.length > 0) {
+    // Check if any apartment has each rent type
+    const hasDaily = property.apartments.some((apt: any) => apt.isDaily);
+    const hasWeekly = property.apartments.some((apt: any) => apt.isWeekly);
+    const hasMonthly = property.apartments.some((apt: any) => apt.isMonthly);
+
+    if (hasDaily) rentTypes.push({ key: "daily", label: t("daily") });
+    if (hasWeekly) rentTypes.push({ key: "weekly", label: t("weekly") });
+    if (hasMonthly) rentTypes.push({ key: "monthly", label: t("monthly") });
+  } else {
+    if (property.isDaily) rentTypes.push({ key: "daily", label: t("daily") });
+    if (property.isWeekly) rentTypes.push({ key: "weekly", label: t("weekly") });
+    if (property.isMonthly) rentTypes.push({ key: "monthly", label: t("monthly") });
+    if (property.isWeekdays) rentTypes.push({ key: "weekdays", label: t("weekdays") });
+    if (property.isHolidays) rentTypes.push({ key: "holidays", label: t("holidays") });
+  }
 
   const toggleService = (service: PropertyService) => {
     if (selectedServices.includes(service)) {
@@ -147,11 +175,28 @@ export default function Step1RentType({
         </div>
       )}
 
+      {/* Pickup Location Map for Camper/Movable */}
+      {isCamperMovable && (
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            {t("pickup-location-title") || "Pickup Location"}
+          </h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            {t("pickup-location-description") || "Click on the map to select your desired pickup location"}
+          </p>
+          <PickupLocationMap
+            onLocationSelect={(lat, lng) => setPickupLocation({ lat, lng })}
+            initialLat={pickupLocation?.lat}
+            initialLng={pickupLocation?.lng}
+          />
+        </div>
+      )}
+
       {/* Next Button */}
       <Button
         onClick={onNext}
-        disabled={!selectedRentType}
-        className="w-full h-12 bg-gray-900 hover:bg-gray-800 dark:bg-gray-100 dark:hover:bg-gray-200 text-white dark:text-gray-900 font-semibold rounded-xl"
+        disabled={!selectedRentType || (isCamperMovable && !pickupLocation)}
+        className="w-full h-12 bg-gray-900 hover:bg-gray-800 dark:bg-gray-100 dark:hover:bg-gray-200 text-white dark:text-gray-900 font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {t("next")}
       </Button>

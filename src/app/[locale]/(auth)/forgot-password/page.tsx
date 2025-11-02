@@ -1,81 +1,137 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import { useTranslations, useLocale } from "next-intl";
+import { Loader2 } from "lucide-react";
 import * as z from "zod";
 
-import { FormInput } from "@/components/shared/form-input";
-import Typography from "@/components/shared/typography";
 import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { noAuthAxios } from "@/lib/services/axios-client";
+import { toast } from "sonner";
+import { getLocalizedPath } from "@/lib/utils";
 
 export default function ForgotPasswordPage() {
   const t = useTranslations("ForgotPassword");
+  const router = useRouter();
+  const locale = useLocale();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const forgotPasswordSchema = useMemo(() => z.object({
-    email: z.string().email(t("Email.valid")),
-  }), [t]);
+  const forgotPasswordSchema = useMemo(
+    () =>
+      z.object({
+        email: z
+          .string()
+          .min(1, t("Email.required"))
+          .email(t("Email.valid")),
+      }),
+    [t]
+  );
 
   type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<ForgotPasswordFormData>({
+  const form = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: {
+      email: "",
+    },
   });
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
-    // TODO: Implement forgot password logic
-    console.warn("Forgot password:", data);
+    setIsLoading(true);
+    try {
+      const response = await noAuthAxios.post("/auth/forget_password", {
+        email: data.email,
+      });
+
+      if (response.status === 200) {
+        toast.success(response.data.message || t("success"));
+        form.reset();
+        // Redirect to login after successful request
+        setTimeout(() => {
+          router.push(getLocalizedPath("/login", locale));
+        }, 1500);
+      }
+    } catch (error: any) {
+      console.error(error);
+      toast.error(
+        error.response?.data?.message || t("error")
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="mx-auto w-5/6 py-16 md:w-4/6 md:py-24 lg:w-4/6">
-      {/* Header */}
-      <Typography variant="h3" as="h3" className="mb-3 text-center capitalize">
-        {t("title")}
-      </Typography>
-      <Typography
-        variant="body-md-medium"
-        as="p"
-        className="mb-2 text-center opacity-50"
-      >
-        {t("sub")}
-      </Typography>
+    <div className="mx-auto w-full max-w-md px-4 py-16 md:py-24">
+      <div className="mb-8 text-center">
+        <h1 className="text-3xl font-bold text-gray-900">{t("title")}</h1>
+        <p className="mt-2 text-gray-600">{t("header")}</p>
+      </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <FormInput
-            id="email"
-            label={t("emailLabel")}
-            placeholder={t("emailPlaceholder")}
-            type="email"
-            error={errors.email}
-            {...register("email")}
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-gray-700">
+                  {t("Email.label")}
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    type="email"
+                    placeholder={t("Email.placeholder")}
+                    className="h-12"
+                    disabled={isLoading}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
 
-          <Button
-            type="submit"
-            className="w-full bg-main-600 hover:bg-main-500"
-            size="lg"
-          >
-            {t("submitButton")}
-          </Button>
+          <div className="flex gap-4">
+            <Button
+              type="submit"
+              className="h-12 flex-1 bg-main-500 text-white transition-colors hover:bg-main-600"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {t("loading")}
+                </>
+              ) : (
+                t("request-button")
+              )}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="h-12 flex-1 border-main-500 text-main-500 hover:bg-main-50"
+              disabled={isLoading}
+              asChild
+            >
+              <Link href="/login">{t("cancel")}</Link>
+            </Button>
+          </div>
         </form>
-
-      {/* Footer Links */}
-      <div className="pt-6 text-center text-sm">
-        <Link
-          href="/login"
-          className="font-medium text-main-600 hover:text-main-500"
-        >
-          {t("back-to-login")}
-        </Link>
-      </div>
+      </Form>
     </div>
   );
 }

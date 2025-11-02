@@ -1,0 +1,52 @@
+"use client";
+
+import { useTranslations, useLocale } from "next-intl";
+import Link from "next/link";
+import AuthNavbar from "@/components/auth/auth-navbar";
+import { Button } from "@/components/ui/button";
+import { getLocalizedPath } from "@/lib/utils";
+
+export default function ConfirmEmailPage() {
+  const t = useTranslations("Login.Confirm");
+  const locale = useLocale();
+
+  return (
+    <>
+      <AuthNavbar />
+      <div className="mx-auto w-full max-w-2xl px-4 py-16 md:py-24">
+        <div className="flex flex-col items-center justify-center space-y-6 rounded-lg border border-gray-300 px-8 py-16 shadow-sm">
+          <svg
+            width="82"
+            height="82"
+            viewBox="0 0 82 82"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect width="82" height="82" rx="41" fill="#20B2AA" />
+            <path
+              d="M36.5477 51C36.1133 51.0008 35.6829 50.9191 35.2816 50.7597C34.8803 50.6002 34.5161 50.3662 34.2099 50.0711L25.3879 41.6267C24.8035 41.0264 24.4854 40.2324 24.5005 39.412C24.5156 38.5916 24.8628 37.8089 25.469 37.2287C26.0751 36.6485 26.8928 36.3162 27.7499 36.3017C28.607 36.2872 29.4364 36.5918 30.0636 37.1511L36.8565 43.6533L52.2068 32.6333C52.9087 32.1294 53.791 31.9131 54.6596 32.0318C55.5282 32.1506 56.3119 32.5948 56.8383 33.2667C57.3648 33.9386 57.5908 34.7831 57.4667 35.6145C57.3427 36.4459 56.8786 37.1961 56.1767 37.7L38.5327 50.3667C37.9599 50.7775 37.2635 50.9997 36.5477 51Z"
+              fill="white"
+            />
+          </svg>
+
+          <h2 className="text-center text-3xl font-bold text-gray-900">
+            {t("header")}
+          </h2>
+
+          <p className="text-center text-base font-medium text-gray-600">
+            {t("subheader")}
+          </p>
+
+          <Button
+            asChild
+            className="mt-4 h-12 bg-main-500 px-8 text-white transition-colors hover:bg-main-600"
+          >
+            <Link href={getLocalizedPath("/login", locale)}>
+              {t("go-to-login")}
+            </Link>
+          </Button>
+        </div>
+      </div>
+    </>
+  );
+}

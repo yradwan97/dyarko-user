@@ -2,26 +2,21 @@ import { cn } from "@/lib/utils";
 
 interface VerifiedCheckProps {
   className?: string;
+  size?: number;
 }
 
-export function VerifiedCheck({ className }: VerifiedCheckProps) {
+export function VerifiedCheck({ className, size = 54 }: VerifiedCheckProps) {
   return (
     <svg
-      className={cn("h-4 w-4", className)}
-      viewBox="0 0 24 24"
-      fill="currentColor"
       xmlns="http://www.w3.org/2000/svg"
+      height={size}
+      viewBox="0 -960 960 960"
+      width={size}
+      className={cn("text-main-500", className)}
     >
       <path
-        d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
-        fill="#3B82F6"
-      />
-      <path
-        d="M9 12L11 14L15 10"
-        stroke="white"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        fill="currentColor"
+        d="m344-60-76-128-144-32 14-148-98-112 98-112-14-148 144-32 76-128 136 58 136-58 76 128 144 32-14 148 98 112-98 112 14 148-144 32-76 128-136-58-136 58Zm34-102 102-44 104 44 56-96 110-26-10-112 74-84-74-86 10-112-110-24-58-96-102 44-104-44-56 96-110 24 10 112-74 86 74 84-10 114 110 24 58 96Zm102-318Zm-42 142 226-226-56-58-170 170-86-84-56 56 142 142Z"
       />
     </svg>
   );

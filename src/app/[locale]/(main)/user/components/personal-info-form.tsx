@@ -70,7 +70,7 @@ export default function PersonalInfoForm({
 
         <div className="flex flex-col gap-2 sm:flex-row">
           <label className="relative cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 px-4 py-2 bg-main-500 text-white hover:bg-main-600">
-            <Camera className="mr-2 h-4 w-4" />
+            <Camera className="mr-2 h-4 w-4 rtl:mr-0 rtl:ml-2" />
             {t("upload")}
             <input
               type="file"
@@ -86,7 +86,7 @@ export default function PersonalInfoForm({
             disabled={!imageFile && !userProfile.image}
             className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 px-4 py-2 border border-main-500 text-main-500 hover:bg-main-50 disabled:opacity-50 disabled:pointer-events-none"
           >
-            <Trash2 className="mr-2 h-4 w-4" />
+            <Trash2 className="mr-2 h-4 w-4 rtl:mr-0 rtl:ml-2" />
             {t("remove")}
           </button>
         </div>
@@ -94,37 +94,37 @@ export default function PersonalInfoForm({
 
       {/* Name */}
       <div className="space-y-2">
-        <Label htmlFor="name">{t("name")}</Label>
+        <Label htmlFor="name" className="rtl:text-right block">{t("name")}</Label>
         <Input
           id="name"
           type="text"
           placeholder={t("name-placeholder")}
           {...register("name", { required: t("name-required") })}
-          className="h-12"
+          className="h-12 rtl:text-right rtl:placeholder:text-right"
         />
         {errors.name?.message && (
-          <p className="text-sm text-red-600">{errors.name.message as string}</p>
+          <p className="text-sm text-red-600 rtl:text-right">{errors.name.message as string}</p>
         )}
       </div>
 
       {/* Phone */}
       <div className="space-y-2">
-        <Label htmlFor="phone">{t("phone")}</Label>
+        <Label htmlFor="phone" className="rtl:text-right block">{t("phone")}</Label>
         <Input
           id="phone"
           type="tel"
           placeholder={t("phone-placeholder")}
           {...register("phone", { required: t("phone-required") })}
-          className="h-12"
+          className="h-12 rtl:text-right rtl:placeholder:text-right"
         />
         {errors.phone?.message && (
-          <p className="text-sm text-red-600">{errors.phone.message as string}</p>
+          <p className="text-sm text-red-600 rtl:text-right">{errors.phone.message as string}</p>
         )}
       </div>
 
       {/* Email */}
       <div className="space-y-2">
-        <Label htmlFor="email">{t("email")}</Label>
+        <Label htmlFor="email" className="rtl:text-right block">{t("email")}</Label>
         <Input
           id="email"
           type="email"
@@ -136,10 +136,10 @@ export default function PersonalInfoForm({
               message: t("email-invalid"),
             },
           })}
-          className="h-12"
+          className="h-12 rtl:text-right rtl:placeholder:text-right"
         />
         {errors.email?.message && (
-          <p className="text-sm text-red-600">{errors.email.message as string}</p>
+          <p className="text-sm text-red-600 rtl:text-right">{errors.email.message as string}</p>
         )}
       </div>
     </div>

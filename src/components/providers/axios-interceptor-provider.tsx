@@ -1,7 +1,7 @@
 'use client';
 
 import { useSession } from "next-auth/react";
-import { axiosClient } from "@/lib/services/axios-client";
+import { axiosClient, noAuthAxios } from "@/lib/services/axios-client";
 import { useEffect, type PropsWithChildren } from "react";
 import { jwtDecode } from "jwt-decode";
 import dayjs from "dayjs";
@@ -46,24 +46,44 @@ export function AxiosInterceptorProvider({ children }: PropsWithChildren) {
           return config;
         }
 
-        if (session && currentAccessToken && !isExpired(currentAccessToken)) {
+        // If unauthenticated or no session, proceed without auth header
+        if (status === "unauthenticated" || !session) {
+          return config;
+        }
+
+        // If access token is missing, don't try to refresh - user needs to login
+        if (!currentAccessToken) {
+          return config;
+        }
+
+        // If we have a valid (non-expired) access token, use it
+        if (!isExpired(currentAccessToken)) {
           config.headers["auth-token"] = `Bearer ${currentAccessToken}`;
           return config;
         }
 
-        if (!session) {
-          return config;
-        }
-
+        // Token is expired, attempt to refresh
         const refreshToken = session?.user?.refreshToken;
         try {
-          const response = await axiosClient.post(`/refresh_token`, {
-            refresh_token: refreshToken,
-            role: session?.user?.role
+          // Use noAuthAxios to avoid infinite loop in interceptor
+          const response = await noAuthAxios.post(`/auth/token`, {
+            refreshToken: refreshToken
           });
 
-          config.headers["auth-token"] = `Bearer ${response.data.accessToken}`;
-          await update();
+          const newAccessToken = response.data.data?.accessToken || response.data.accessToken;
+
+          if (newAccessToken) {
+            config.headers["auth-token"] = `Bearer ${newAccessToken}`;
+
+            // Update session with new access token
+            await update({
+              ...session,
+              user: {
+                ...session.user,
+                accessToken: newAccessToken,
+              },
+            });
+          }
         } catch (error) {
           if (error && typeof error === 'object' && 'response' in error) {
             const axiosError = error as { response?: { status?: number } };
@@ -72,21 +92,14 @@ export function AxiosInterceptorProvider({ children }: PropsWithChildren) {
               const encodedPath = currentPath ? encodeURIComponent(currentPath) : '';
               const redirectParam = encodedPath ? `?redirect=${encodedPath}` : '';
               const loginUrl = `/${locale}/login${redirectParam}`;
-              console.log("🔴 AUTH FAILED: Redirecting from:", currentPath);
-              console.log("🔴 AUTH FAILED: Login URL:", loginUrl);
               router.push(loginUrl);
-            } else {
-              console.error("Error refreshing token:", error);
             }
-          } else {
-            console.error("Error refreshing token:", error);
           }
         }
 
         return config;
       },
       (error) => {
-        console.error(error);
         return Promise.reject(error);
       }
     );
@@ -97,7 +110,6 @@ export function AxiosInterceptorProvider({ children }: PropsWithChildren) {
       (error) => {
         // If we get a 401 and session is still loading, don't redirect
         if (status === "loading" && error?.response?.status === 401) {
-          console.log("⚠️ Got 401 while session loading, ignoring...");
           return Promise.reject({ ...error, silent: true });
         }
 
@@ -108,7 +120,6 @@ export function AxiosInterceptorProvider({ children }: PropsWithChildren) {
             const encodedPath = currentPath ? encodeURIComponent(currentPath) : '';
             const redirectParam = encodedPath ? `?redirect=${encodedPath}` : '';
             const loginUrl = `/${locale}/login${redirectParam}`;
-            console.log("🔴 Got 401/403, redirecting to login");
             router.push(loginUrl);
           }
         }

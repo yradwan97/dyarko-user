@@ -43,6 +43,7 @@
       "hall": "قاعات",
       "shop": "محلات",
       "hotelApartment": "شقق فندقية",
+      "hotelapartment": "شقق فندقية",
       "barn": "اسطبل",
       "officeAndStudio": "مكاتب & ستوديوهات",
       "clinic": "عيادة",
@@ -75,7 +76,13 @@
     "navigation-menu": "قائمة التنقل",
     "searchPlaceholder": "ابحث عن عقارات...",
     "previous": "السابق",
-    "next": "التالي"
+    "next": "التالي",
+    "sqm": "م²",
+    "contact-for-price": "تواصل للسعر",
+    "rent": "إيجار",
+    "sale": "بيع",
+    "shared": "مشاركة",
+    "replacement": "استبدال"
   },
   "PropertySearch": {
     "home": "الرئيسية",
@@ -230,6 +237,7 @@
         "request-home-tour": "طلب معاينة للوحدة",
         "request-tour": "طلب معاينة",
         "tour-text": "إنه مجاني، بدون أي التزام مالى - يمكنك الإلغاء في أي وقت.",
+        "login-to-schedule": "سجل الدخول لجدولة المعاينة",
         "price": "السعر",
         "kwd": "د.ك",
         "min-months": "أقل عدد من الشهور :",
@@ -290,6 +298,7 @@
       "pricing": "الأسعار",
       "description": "الوصف",
       "insurance": "التأمين",
+      "capacity": "السعة",
       "daily-price": "السعر اليومي",
       "weekly-price": "السعر الأسبوعي",
       "monthly-price": "السعر الشهري",
@@ -479,7 +488,8 @@
   "Login": {
     "Confirm": {
       "header": "تم التحقق من بريدك الإلكتروني بنجاح",
-      "subheader": "أغلق هذه النافذة وتابع تسجيل الدخول باستخدام بيانات الاعتماد الخاصة بك"
+      "subheader": "أغلق هذه النافذة وتابع تسجيل الدخول باستخدام بيانات الاعتماد الخاصة بك",
+      "go-to-login": "الذهاب إلى تسجيل الدخول"
     },
     "Page": {
       "main": "مرحباً بعودتك!",
@@ -519,6 +529,8 @@
     }
   },
   "SignUp": {
+    "create-account": "إنشاء حساب",
+    "sub": "سجل للبدء",
     "title": "تسجيل حسابك",
     "subtitle": "أنشاء حسابك , وأبداء معنا الأن!",
     "sign-up": "تسجيل",
@@ -539,28 +551,36 @@
       "label": "الإسم",
       "placeholder": "ادخل الإسم",
       "required": "الإسم مطلوب",
-      "valid": "من فضلك أدخل إسم صحيح"
+      "valid": "من فضلك أدخل إسم صحيح",
+      "letters-only": "يجب أن يحتوي الاسم على حروف فقط"
     },
-    "CivilianId": {
-      "label": "رقم الهوية المدنية",
-      "placeholder": "Ex. 813843478293",
-      "required": "رقم الهوية المدنية مطلوب",
-      "valid": "من فضلك أدخل رقم هوية صالح (12 رقم)"
+    "Country": {
+      "label": "الدولة",
+      "placeholder": "اختر دولتك",
+      "required": "الدولة مطلوبة"
+    },
+    "Nationality": {
+      "label": "الجنسية",
+      "placeholder": "اختر جنسيتك",
+      "required": "الجنسية مطلوبة"
     },
     "Phone": {
       "label": "رقم الهاتف",
       "placeholder": "يرجى ادخال رقم الهاتف",
-      "required": "رقم الهاتف مطلوب"
+      "required": "رقم الهاتف مطلوب",
+      "numbers-only": "يجب أن يحتوي رقم الهاتف على أرقام فقط",
+      "length": "يجب أن يكون رقم الهاتف {length} أرقام بالضبط"
     },
     "Password": {
       "label": "كلمة المرور",
       "placeholder": "ادخل كلمة السر",
       "required": "كلمة المرور مطلوبة",
-      "valid": "أقل عدد من الحروف 6"
+      "valid": "أقل عدد من الحروف 8"
     },
-    "got-account": "لديك جساب مستخدم بالفعل ؟",
+    "got-account": "لديك حساب مستخدم بالفعل ؟",
     "login": "تسجيل الدخول",
     "is-owner": "لديك حساب مالك بالفعل ؟",
+    "owner-login": "تسجيل دخول المالك",
     "Modals": {
       "terms": {
         "title": "الشروط و الأحكام"
@@ -1005,14 +1025,14 @@
     "total": "الإجمالي",
     "pay": "دفع"
   },
-  "ForgetPassword": {
+  "ForgotPassword": {
     "title": "نسيت كلمة المرور",
-    "header": "أدخل عنوان البريد الإلكتروني",
+    "header": "أدخل عنوان بريدك الإلكتروني وسنرسل لك رابطًا لإعادة تعيين كلمة المرور",
     "request-button": "طلب كلمة مرور جديدة",
     "cancel": "إلغاء",
-    "emailLabel": "عنوان البريد الإلكتروني",
-    "emailPlaceholder": "أدخل بريدك الإلكتروني",
-    "submitButton": "إرسال رابط إعادة التعيين",
+    "loading": "جارٍ الإرسال...",
+    "success": "تم إرسال بريد إلكتروني لإعادة تعيين كلمة المرور بنجاح",
+    "error": "فشل إرسال بريد إلكتروني لإعادة تعيين كلمة المرور",
     "Email": {
       "label": "البريد الإلكتروني",
       "placeholder": "hi@example.com",
@@ -1083,6 +1103,38 @@
     "login": "الذهاب لتسجيل الدخول",
     "cancel": "إلغاء"
   },
+  "Map": {
+    "view-details": "عرض التفاصيل",
+    "loading-map": "جاري تحميل الخريطة...",
+    "no-properties": "لا توجد عقارات في هذه المنطقة"
+  },
+  "CreateAd": {
+    "title": "إنشاء إعلان",
+    "subtitle": "انشر احتياجاتك ودع الوكلاء يساعدونك في العثور على العقار المناسب",
+    "title-label": "العنوان",
+    "title-placeholder": "مثال: أبحث عن شقة للإيجار في...",
+    "title-required": "العنوان مطلوب",
+    "description-placeholder": "اكتب وصفاً تفصيلياً لما تبحث عنه...",
+    "description-required": "الوصف مطلوب",
+    "description-max": "الوصف يجب ألا يتجاوز 500 حرف",
+    "price-label": "السعر",
+    "price-placeholder": "0.00",
+    "price-required": "السعر مطلوب",
+    "price-type-label": "نوع السعر",
+    "price-type-placeholder": "اختر نوع السعر",
+    "price-type-required": "نوع السعر مطلوب",
+    "daily": "يومي",
+    "weekly": "أسبوعي",
+    "monthly": "شهري",
+    "submit": "متابعة",
+    "payment-title": "الدفع",
+    "pay-with": "الدفع بواسطة",
+    "loading-payments": "جاري تحميل طرق الدفع...",
+    "continue": "متابعة",
+    "submitting": "جاري إنشاء الإعلان...",
+    "success-message": "تم إنشاء الإعلان بنجاح!",
+    "error-message": "فشل إنشاء الإعلان. يرجى المحاولة مرة أخرى."
+  },
   "PropertySearch": {
     "title": "البحث عن العقارات",
     "description": "ابحث عن العقار المثالي باستخدام الفلاتر المتقدمة",
@@ -1104,6 +1156,13 @@
       "apply": "تطبيق الفلاتر"
     }
   },
+  "PaymentMethodDialog": {
+    "title": "اختر طريقة الدفع",
+    "amount": "المبلغ",
+    "cancel": "إلغاء",
+    "confirm": "تأكيد الدفع",
+    "processing": "جارٍ المعالجة..."
+  },
   "User": {
     "currency": "د.ك",
     "Sidebar": {
@@ -1120,6 +1179,7 @@
     "Profile": {
       "title": "ملفي الشخصي",
       "description": "إدارة معلوماتك الشخصية والمصرفية",
+      "no-session": "لا توجد بيانات للجلسة. يرجى تسجيل الدخول.",
       "tabs": {
         "personal": "المعلومات الشخصية",
         "banking": "بيانات حسابك البنكي",
@@ -1236,11 +1296,18 @@
       "no-requests-description": "ستظهر طلبات العقارات الخاصة بك هنا",
       "request-title": "طلب عقار",
       "request-id": "رقم الطلب",
+      "invoice-id": "رقم الفاتورة",
       "type": "نوع الطلب",
       "tour-date": "تاريخ المعاينة",
       "currency": "د.ك",
       "owner": "المالك",
       "user": "المستخدم",
+      "extend-to": "التمديد إلى",
+      "invoice-amount": "مبلغ الفاتورة",
+      "original-date": "التاريخ الأصلي",
+      "pay-now": "ادفع الآن",
+      "payment-failed": "فشل الدفع. يرجى المحاولة مرة أخرى.",
+      "invoice-not-available": "معلومات الفاتورة غير متاحة. يرجى الاتصال بالدعم.",
       "total": "الإجمالي",
       "months": "أشهر",
       "not-available": "غير متاح",
@@ -1255,14 +1322,30 @@
         "service": "الخدمات",
         "installments": "التقسيط",
         "disclaimers": "إخلاء الطرف",
-        "ads": "إعلانات المستخدم"
+        "ads": "إعلانات المستخدم",
+        "extend-invoices": "تمديد الفواتير",
+        "end-contracts": "إنهاء العقود"
       },
       "no-tours": "لا توجد طلبات معاينة بعد",
       "no-rent": "لا توجد طلبات إيجار بعد",
       "no-service": "لا توجد طلبات خدمات بعد",
+      "no-extend-invoices": "لا توجد طلبات تمديد فواتير بعد",
+      "no-end-contracts": "لا توجد طلبات إنهاء عقود بعد",
       "no-installments": "لا توجد طلبات تقسيط بعد",
       "no-disclaimers": "لا توجد طلبات إخلاء طرف بعد",
-      "no-ads": "لا توجد إعلانات بعد"
+      "no-ads": "لا توجد إعلانات بعد",
+      "ad-details": "تفاصيل الإعلان",
+      "price": "السعر",
+      "price-type": "نوع السعر",
+      "price-type-daily": "يومي",
+      "price-type-weekly": "أسبوعي",
+      "price-type-monthly": "شهري",
+      "posted-by": "نشر بواسطة",
+      "ad-id": "رقم الإعلان",
+      "comments": "التعليقات",
+      "no-comments": "لا توجد تعليقات بعد",
+      "ad-not-found": "الإعلان غير موجود",
+      "view-property": "عرض العقار"
     },
     "MyRealEstates": {
       "title": "عقاراتي",
@@ -1279,6 +1362,75 @@
         "amount": "المبلغ",
         "tenant": "المستأجر",
         "dates": "فترة الإيجار"
+      },
+      "InstallmentCard": {
+        "code": "الكود",
+        "owner": "المالك",
+        "user": "المستخدم",
+        "amount": "الدفعة الشهرية",
+        "period": "المدة",
+        "months": "أشهر",
+        "type": "نوع الدفع",
+        "monthly": "شهري",
+        "quarterly": "ربع سنوي",
+        "semi-annual": "نصف سنوي",
+        "annual": "سنوي",
+        "start-date": "تاريخ البدء",
+        "end-date": "تاريخ الانتهاء",
+        "not-available": "غير متاح"
+      },
+      "InstallmentDetailsModal": {
+        "title": "تفاصيل التقسيط",
+        "loading": "جارٍ التحميل...",
+        "code": "الكود",
+        "no-data": "لا توجد تفاصيل تقسيط متاحة",
+        "owner-status": "حالة المالك",
+        "user-status": "حالة المستخدم",
+        "property-details": "تفاصيل العقار",
+        "location": "الموقع",
+        "property-price": "سعر العقار",
+        "installment-details": "تفاصيل التقسيط",
+        "monthly-payment": "الدفعة الشهرية",
+        "period": "المدة",
+        "months": "أشهر",
+        "payment-type": "نوع الدفع",
+        "plan": "الخطة",
+        "dates": "التواريخ",
+        "start-date": "تاريخ البدء",
+        "end-date": "تاريخ الانتهاء",
+        "owner-details": "بيانات المالك",
+        "name": "الاسم",
+        "phone": "الهاتف",
+        "download-contract": "تحميل العقد",
+        "download-invoices": "تحميل الفواتير",
+        "invoices-downloaded": "تم تحميل الفواتير بنجاح",
+        "download-error": "فشل تحميل الفواتير. يرجى المحاولة مرة أخرى.",
+        "not-available": "غير متاح",
+        "monthly": "شهري",
+        "quarterly": "ربع سنوي",
+        "semi-annual": "نصف سنوي",
+        "annual": "سنوي",
+        "tabs": {
+          "details": "تفاصيل التقسيط",
+          "invoices": "الفواتير"
+        }
+      },
+      "InstallmentInvoicesTab": {
+        "no-invoices": "لا توجد فواتير",
+        "invoice-number": "فاتورة رقم {number}",
+        "property-code": "كود العقار",
+        "amount": "المبلغ",
+        "due-date": "تاريخ الاستحقاق",
+        "tax": "الضريبة",
+        "commission": "العمولة",
+        "pay-now": "ادفع الآن",
+        "view-invoice": "عرض الفاتورة",
+        "popup-blocked": "تم حظر النافذة المنبثقة. إعادة التوجيه إلى صفحة الدفع...",
+        "payment-error": "فشلت عملية الدفع. يرجى المحاولة مرة أخرى.",
+        "status": {
+          "paid": "مدفوعة",
+          "unpaid": "غير مدفوعة"
+        }
       },
       "RentDetailsModal": {
         "title": "تفاصيل الإيجار",
@@ -1300,6 +1452,24 @@
         "phone": "الهاتف",
         "national-id": "الرقم الوطني",
         "code": "الكود",
+        "pickup-location": "موقع الاستلام",
+        "tabs": {
+          "details": "تفاصيل الإيجار",
+          "invoices": "الفواتير"
+        },
+        "actions": {
+          "download-contract": "تحميل العقد",
+          "download-invoices": "تحميل الفواتير",
+          "request-end-contract": "طلب إنهاء العقد",
+          "request-services": "طلب خدمات",
+          "add-claims": "إضافة مطالبات",
+          "disclaimer-request": "طلب إخلاء مسؤولية",
+          "services-placeholder": "ميزة طلب الخدمات قريباً",
+          "claims-placeholder": "ميزة إضافة المطالبات قريباً",
+          "disclaimer-placeholder": "ميزة طلب إخلاء المسؤولية قريباً"
+        },
+        "invoices-downloaded": "تم تحميل الفواتير بنجاح",
+        "download-error": "فشل تحميل الفواتير. يرجى المحاولة مرة أخرى.",
         "status": {
           "active": "نشط",
           "pending": "قيد الانتظار",
@@ -1310,7 +1480,92 @@
           "daily": "يومي",
           "weekly": "أسبوعي",
           "monthly": "شهري"
+        },
+        "confirmation": {
+          "confirm": "تأكيد",
+          "cancel": "إلغاء",
+          "end-contract": {
+            "title": "طلب إنهاء العقد",
+            "description": "هل أنت متأكد من رغبتك في طلب إنهاء عقد الإيجار هذا؟ سيتم إخطار مالك العقار بهذا الإجراء."
+          },
+          "services": {
+            "title": "طلب خدمات",
+            "description": "هل أنت متأكد من رغبتك في طلب خدمات لهذا العقار المستأجر؟ سيتم إخطار إدارة العقار."
+          },
+          "claims": {
+            "title": "إضافة مطالبة",
+            "description": "هل أنت متأكد من رغبتك في تقديم مطالبة لهذا العقار المستأجر؟ يرجى التأكد من أن لديك جميع المعلومات اللازمة جاهزة."
+          },
+          "disclaimer": {
+            "title": "طلب إخلاء المسؤولية",
+            "description": "هل أنت متأكد من رغبتك في تقديم طلب إخلاء المسؤولية لهذا العقار المستأجر؟ سيتم مراجعته من قبل مالك العقار."
+          }
         }
+      },
+      "EndContractDialog": {
+        "title": "طلب إنهاء العقد",
+        "description": "يرجى تقديم سبب لإنهاء عقد الإيجار هذا. سيتم مراجعة هذا الطلب من قبل مالك العقار.",
+        "reason": "السبب",
+        "reason-placeholder": "يرجى توضيح سبب رغبتك في إنهاء العقد...",
+        "cancel": "إلغاء",
+        "submit": "إرسال الطلب",
+        "success": "تم إرسال طلب إنهاء العقد بنجاح",
+        "error": "فشل في إرسال الطلب. يرجى المحاولة مرة أخرى.",
+        "fill-reason": "يرجى تقديم سبب لإنهاء العقد"
+      },
+      "ClaimsDialog": {
+        "title": "إضافة مطالبة",
+        "description": "قدم مطالبة بشأن العقار المستأجر. قم بتضمين معلومات مفصلة ووثائق داعمة.",
+        "claims": "وصف المطالبة",
+        "claims-placeholder": "يرجى وصف مطالبتك بالتفصيل...",
+        "attachment": "المرفق (PDF، DOC، DOCX، أو صور - بحد أقصى 10 ميجابايت)",
+        "file-too-large": "يجب أن يكون حجم الملف أقل من 10 ميجابايت",
+        "click-or-drag": "انقر للتحميل أو اسحب وأفلت",
+        "drop-file": "أفلت الملف هنا",
+        "cancel": "إلغاء",
+        "submit": "إرسال المطالبة",
+        "success": "تم إرسال المطالبة بنجاح",
+        "error": "فشل في إرسال المطالبة. يرجى المحاولة مرة أخرى.",
+        "fill-all-fields": "يرجى تقديم وصف المطالبة والمرفق"
+      },
+      "DisclaimerDialog": {
+        "title": "طلب إخلاء مسؤولية",
+        "description": "طلب إخلاء مسؤولية لهذا العقار المستأجر. سيتم مراجعته ومعالجته وفقاً لذلك.",
+        "cancel": "إلغاء",
+        "submit": "إرسال الطلب",
+        "success": "تم إرسال طلب إخلاء المسؤولية بنجاح",
+        "error": "فشل في إرسال طلب إخلاء المسؤولية. يرجى المحاولة مرة أخرى."
+      },
+      "InvoicesTab": {
+        "status": {
+          "pending": "القادمة",
+          "paid": "المدفوعة",
+          "extended": "الممتدة"
+        },
+        "no-invoices": "لا توجد فواتير",
+        "invoice-number": "فاتورة #{number}",
+        "pay-now": "ادفع الآن",
+        "view-invoice": "عرض الفاتورة",
+        "extend-invoice": "تمديد الفاتورة",
+        "view-pdf": "عرض PDF",
+        "download-pdf": "تحميل PDF",
+        "previous": "السابق",
+        "next": "التالي",
+        "page-info": "صفحة {current} من {total}",
+        "popup-blocked": "يرجى السماح بالنوافذ المنبثقة لمتابعة الدفع",
+        "payment-error": "فشل في بدء الدفع. يرجى المحاولة مرة أخرى."
+      },
+      "ExtendInvoiceDialog": {
+        "title": "تمديد الفاتورة",
+        "extend-date": "تاريخ التمديد",
+        "select-date": "اختر تاريخاً",
+        "reason": "السبب",
+        "reason-placeholder": "أدخل سبب تمديد هذه الفاتورة...",
+        "cancel": "إلغاء",
+        "submit": "إرسال",
+        "success": "تم إرسال طلب تمديد الفاتورة بنجاح",
+        "error": "فشل في إرسال طلب التمديد. يرجى المحاولة مرة أخرى.",
+        "fill-all-fields": "يرجى ملء جميع الحقول"
       },
       "no-rents": "لا توجد إيجارات",
       "no-rents-description": "ليس لديك أي عقارات مؤجرة بعد",
@@ -1338,6 +1593,8 @@
     "steps": {
       "rentDetails": "تفاصيل الإيجار",
       "chooseDate": "اختيار التاريخ",
+      "selectTents": "اختيار الخيام",
+      "selectApartments": "اختيار الشقق",
       "agreements": "الاتفاقيات",
       "checkout": "الدفع"
     },
@@ -1350,7 +1607,13 @@
       "holidays": "العطلات",
       "extraService": "خدمات إضافية",
       "kwd": "د.ك",
-      "next": "التالي"
+      "next": "التالي",
+      "pickup-location-title": "موقع الاستلام",
+      "pickup-location-description": "انقر على الخريطة لتحديد موقع الاستلام المطلوب",
+      "selected-location": "الموقع المحدد",
+      "map-api-key-required": "الخريطة تتطلب مفتاح Google Maps API",
+      "map-error": "خطأ في تحميل الخريطة",
+      "map-loading": "جاري تحميل الخريطة..."
     },
     "Step2": {
       "chooseYourDates": "اختر تواريخك",
@@ -1359,6 +1622,44 @@
       "noteAvailableDate": "هذه الوحدة تصبح متاحة للحجز ابتداءً من 12/10/2025",
       "noteUnavailableDate": "من المحتمل أن تكون الوحدات غير المتاحة محجوزة للتواريخ المختارة",
       "selectedDates": "التواريخ المحددة",
+      "selectTimeRange": "اختر نطاق الوقت",
+      "fromTime": "من",
+      "toTime": "إلى",
+      "timeRangeNote": "يرجى تحديد وقت البدء والانتهاء لحجز الملعب",
+      "next": "التالي"
+    },
+    "Step2_5": {
+      "camp-layout": "مخطط المخيم",
+      "no-tents": "لا توجد خيام متاحة في هذا العقار",
+      "layout-note": "انقر على الخيام المتاحة لاختيارها. الخيام غير المتاحة من المحتمل أن تكون محجوزة للتواريخ التي اخترتها.",
+      "choose-tents": "اختر الخيام",
+      "tent-chosen": "الخيام المختارة",
+      "tent": "خيمة",
+      "booth": "كشك",
+      "name": "الاسم",
+      "price": "السعر",
+      "insurance": "التأمين",
+      "camp-note": "ملاحظة: هذا هو مخطط المخيم. الخيام التي تختارها ستطابق نفس الأرقام والمواقع الموضحة هنا",
+      "details-note": "ملاحظة: يمكنك التحقق من جميع تفاصيل الخيام داخل قسم تفاصيل المخيم",
+      "select-type": "اختر النوع",
+      "select-rooms-description": "الآن يمكنك اختيار أنواع الغرف التي تحتاجها وكم عدد كل منها!",
+      "apartment": "شقة",
+      "duplex": "دوبلكس",
+      "suite": "جناح",
+      "studio": "ستوديو",
+      "bedrooms": "غرف النوم",
+      "bathrooms": "الحمامات",
+      "unit-type": "نوع الوحدة",
+      "person": "شخص",
+      "quantity": "الكمية",
+      "select": "اختر",
+      "bed": "غرفة",
+      "bath": "حمام",
+      "day": "يوم",
+      "week": "أسبوع",
+      "month": "شهر",
+      "no-apartments-available": "لا توجد شقق متاحة لنوع الإيجار المحدد",
+      "max": "الحد الأقصى",
       "next": "التالي"
     },
     "Step3": {
@@ -1377,8 +1678,10 @@
       "checkInOutTime": "وقت الدخول والخروج:",
       "timePlaceholder": "2:00 مساءً - 10:00 صباحاً",
       "rentType": "نوع الإيجار:",
+      "timeRange": "نطاق الوقت:",
       "rentAmount": "مبلغ الإيجار:",
       "notSelected": "غير محدد",
+      "selectedApartments": "الشقق المحددة",
       "invoiceDetails": "تفاصيل الفاتورة",
       "rent": "الإيجار",
       "insurance": "التأمين",

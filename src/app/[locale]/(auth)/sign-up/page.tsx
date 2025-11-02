@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import * as z from "zod";
 
@@ -18,56 +18,147 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useSignup } from "@/hooks/use-auth";
+import { useCountries } from "@/hooks/use-countries";
+import { TermsModal } from "./components/terms-modal";
+import { PrivacyModal } from "./components/privacy-modal";
+import { RefundModal } from "./components/refund-modal";
+import { useGetTermsAndConditions } from "./hooks/use-get-terms";
+import { useGetPrivacyPolicy } from "./hooks/use-get-privacy";
+import { useGetRefundPolicy } from "./hooks/use-get-refund";
 
 export default function SignUpPage() {
   const t = useTranslations("SignUp");
+  const locale = useLocale();
   const signupMutation = useSignup();
   const [showPassword, setShowPassword] = useState(false);
+  const [termsOpen, setTermsOpen] = useState(false);
+  const [privacyOpen, setPrivacyOpen] = useState(false);
+  const [refundOpen, setRefundOpen] = useState(false);
 
-  const signupSchema = useMemo(() => z.object({
-    name: z
-      .string()
-      .min(1, t("Name.required"))
-      .regex(/^[a-zA-Z ]+$/, t("Name.letters-only")),
-    email: z.string().min(1, t("Email.required")).email(t("Email.valid")),
-    civilianId: z
-      .string()
-      .min(1, t("CivilianId.required"))
-      .length(12, t("CivilianId.exact-length"))
-      .regex(/^\d{12}$/, t("CivilianId.numbers-only")),
-    phoneNumber: z.string().min(1, t("Phone.required")),
-    password: z.string().min(1, t("Password.required")).min(6, t("Password.valid")),
-  }), [t]);
+  // Fetch countries and policies
+  const { data: countries, isLoading: countriesLoading } = useCountries();
+  const { terms, isSuccess: hasTerms } = useGetTermsAndConditions();
+  const { policies, isSuccess: hasPolicies } = useGetPrivacyPolicy();
+  const { policies: refundPolicies, isSuccess: hasRefund } = useGetRefundPolicy();
+
+  const signupSchema = useMemo(() => {
+    // Check if policies actually have items
+    const hasTermsItems = hasTerms && terms && terms.length > 0;
+    const hasPoliciesItems = hasPolicies && policies && policies.length > 0;
+    const hasRefundItems = hasRefund && refundPolicies && refundPolicies.length > 0;
+
+    const baseSchema = {
+      name: z
+        .string()
+        .min(1, t("Name.required"))
+        .regex(/^[a-zA-Z ]+$/, t("Name.letters-only")),
+      email: z.string().min(1, t("Email.required")).email(t("Email.valid")),
+      country: z.string().min(1, t("Country.required")),
+      nationality: z.string().min(1, t("Nationality.required")),
+      phoneNumber: z
+        .string()
+        .min(1, t("Phone.required"))
+        .regex(/^\d+$/, t("Phone.numbers-only")),
+      password: z.string().min(1, t("Password.required")).min(8, t("Password.valid")),
+    };
+
+    // Add policy agreements only if they have items
+    const schemaWithPolicies = {
+      ...baseSchema,
+      ...(hasTermsItems && { termsAgree: z.boolean().refine(val => val === true, { message: t("agree") }) }),
+      ...(hasPoliciesItems && { privacyAgree: z.boolean().refine(val => val === true, { message: t("agree") }) }),
+      ...(hasRefundItems && { refundAgree: z.boolean().refine(val => val === true, { message: t("agree") }) }),
+    };
+
+    return z.object(schemaWithPolicies).superRefine((data, ctx) => {
+      // Validate phone number length based on selected country
+      if (data.country && data.phoneNumber && countries) {
+        const country = countries.find((c) => c.code === data.country);
+        if (country && country.mobileLength) {
+          const phoneNumberLength = data.phoneNumber.length;
+          if (phoneNumberLength !== country.mobileLength) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: t("Phone.length", { length: country.mobileLength }),
+              path: ["phoneNumber"],
+            });
+          }
+        }
+      }
+    });
+  }, [t, hasTerms, hasPolicies, hasRefund, terms, policies, refundPolicies, countries]);
 
   type SignupFormData = z.infer<typeof signupSchema>;
+
+  // Check if policies actually have items
+  const hasTermsItems = hasTerms && terms && terms.length > 0;
+  const hasPoliciesItems = hasPolicies && policies && policies.length > 0;
+  const hasRefundItems = hasRefund && refundPolicies && refundPolicies.length > 0;
 
   const form = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
       name: "",
       email: "",
-      civilianId: "",
+      country: "",
+      nationality: "",
       phoneNumber: "",
       password: "",
+      // If policies exist with items, set to false (user must check), otherwise set to true (auto-checked)
+      ...(hasTermsItems ? { termsAgree: false } : { termsAgree: true }),
+      ...(hasPoliciesItems ? { privacyAgree: false } : { privacyAgree: true }),
+      ...(hasRefundItems ? { refundAgree: false } : { refundAgree: true }),
     },
   });
 
+  // Get selected country for dynamic phone placeholder
+  const selectedCountryCode = form.watch("country");
+  const selectedCountry = countries?.find((c) => c.code === selectedCountryCode);
+  const phoneNumberPlaceholder = useMemo(() => {
+    if (!selectedCountry) return t("Phone.placeholder");
+    return "X".repeat(selectedCountry.mobileLength);
+  }, [selectedCountry, t]);
+
+  // Re-validate phone number when country changes
+  useEffect(() => {
+    const phoneValue = form.getValues("phoneNumber");
+    if (selectedCountryCode && phoneValue) {
+      form.trigger("phoneNumber");
+    }
+  }, [selectedCountryCode, form]);
+
   const onSubmit = (data: SignupFormData) => {
+    console.log("🔵 FORM: Form submitted with data:", {
+      name: data.name,
+      email: data.email,
+      country: data.country,
+      nationality: data.nationality,
+      phoneNumber: data.phoneNumber,
+      passwordLength: data.password.length,
+    });
+
     signupMutation.mutate({
       name: data.name,
       email: data.email,
-      civilianId: data.civilianId,
+      country: data.country,
+      nationality: data.nationality,
       phoneNumber: data.phoneNumber,
       password: data.password,
-      type: "consumer",
-      role: "user",
     });
   };
 
   return (
-    <div className="mx-auto w-full max-w-md px-4 py-16 md:py-24">
-      <div className="mb-8 text-center">
+    <div className="mx-auto w-full max-w-md px-4 py-8">
+      <div className="mb-6 text-center">
         <h1 className="text-3xl font-bold text-gray-900">{t("create-account")}</h1>
         <p className="mt-2 text-gray-600">{t("sub")}</p>
       </div>
@@ -115,19 +206,57 @@ export default function SignUpPage() {
 
           <FormField
             control={form.control}
-            name="civilianId"
+            name="nationality"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-700">{t("CivilianId.label")}</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder={t("CivilianId.placeholder")}
-                    className="h-12"
-                    maxLength={12}
-                    disabled={signupMutation.isPending}
-                    {...field}
-                  />
-                </FormControl>
+                <FormLabel className="text-gray-700">{t("Nationality.label")}</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  disabled={signupMutation.isPending || countriesLoading}
+                >
+                  <FormControl>
+                    <SelectTrigger className="h-12 w-full">
+                      <SelectValue placeholder={t("Nationality.placeholder")} />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {countries?.map((country) => (
+                      <SelectItem key={country.code} value={country.code}>
+                        {locale === "ar" ? country.countryAr : country.countryEn}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="country"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-gray-700">{t("Country.label")}</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  disabled={signupMutation.isPending || countriesLoading}
+                >
+                  <FormControl>
+                    <SelectTrigger className="h-12 w-full">
+                      <SelectValue placeholder={t("Country.placeholder")} />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {countries?.map((country) => (
+                      <SelectItem key={country.code} value={country.code}>
+                        {locale === "ar" ? country.countryAr : country.countryEn}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
@@ -140,13 +269,21 @@ export default function SignUpPage() {
               <FormItem>
                 <FormLabel className="text-gray-700">{t("Phone.label")}</FormLabel>
                 <FormControl>
-                  <Input
-                    type="tel"
-                    placeholder={t("Phone.placeholder")}
-                    className="h-12"
-                    disabled={signupMutation.isPending}
-                    {...field}
-                  />
+                  <div className="flex gap-2">
+                    {selectedCountry && (
+                      <div className="flex h-12 min-w-[80px] items-center justify-center rounded-md border border-input bg-gray-50 px-3 text-sm font-medium text-gray-700">
+                        {selectedCountry.countryCode}
+                      </div>
+                    )}
+                    <Input
+                      type="tel"
+                      placeholder={phoneNumberPlaceholder}
+                      className="h-12 flex-1"
+                      maxLength={selectedCountry?.mobileLength || 15}
+                      disabled={signupMutation.isPending}
+                      {...field}
+                    />
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -189,6 +326,99 @@ export default function SignUpPage() {
             )}
           />
 
+          {/* Terms and Conditions */}
+          {hasTermsItems && (
+            <FormField
+              control={form.control}
+              name="termsAgree"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rtl:space-x-reverse">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value as boolean}
+                      onCheckedChange={field.onChange}
+                      disabled={signupMutation.isPending}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel className="cursor-pointer font-normal">
+                      <button
+                        type="button"
+                        onClick={() => setTermsOpen(true)}
+                        className="text-main-500 hover:text-main-600 hover:underline"
+                      >
+                        {t("agree-terms")}
+                      </button>
+                    </FormLabel>
+                    <FormMessage />
+                  </div>
+                </FormItem>
+              )}
+            />
+          )}
+
+          {/* Privacy Policy */}
+          {hasPoliciesItems && (
+            <FormField
+              control={form.control}
+              name="privacyAgree"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rtl:space-x-reverse">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value as boolean}
+                      onCheckedChange={field.onChange}
+                      disabled={signupMutation.isPending}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel className="cursor-pointer font-normal">
+                      <button
+                        type="button"
+                        onClick={() => setPrivacyOpen(true)}
+                        className="text-main-500 hover:text-main-600 hover:underline"
+                      >
+                        {t("agree-privacy")}
+                      </button>
+                    </FormLabel>
+                    <FormMessage />
+                  </div>
+                </FormItem>
+              )}
+            />
+          )}
+
+          {/* Refund Policy */}
+          {hasRefundItems && (
+            <FormField
+              control={form.control}
+              name="refundAgree"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rtl:space-x-reverse">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value as boolean}
+                      onCheckedChange={field.onChange}
+                      disabled={signupMutation.isPending}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel className="cursor-pointer font-normal">
+                      <button
+                        type="button"
+                        onClick={() => setRefundOpen(true)}
+                        className="text-main-500 hover:text-main-600 hover:underline"
+                      >
+                        {t("agree-refund")}
+                      </button>
+                    </FormLabel>
+                    <FormMessage />
+                  </div>
+                </FormItem>
+              )}
+            />
+          )}
+
           <Button
             type="submit"
             className="h-12 w-full bg-main-500 text-white transition-colors hover:bg-main-600"
@@ -226,6 +456,11 @@ export default function SignUpPage() {
           </Link>
         </p>
       </div>
+
+      {/* Modals */}
+      {hasTermsItems && <TermsModal isOpen={termsOpen} onClose={() => setTermsOpen(false)} terms={terms} />}
+      {hasPoliciesItems && <PrivacyModal isOpen={privacyOpen} onClose={() => setPrivacyOpen(false)} policies={policies} />}
+      {hasRefundItems && <RefundModal isOpen={refundOpen} onClose={() => setRefundOpen(false)} policies={refundPolicies} />}
     </div>
   );
 }

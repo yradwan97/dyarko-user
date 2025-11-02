@@ -97,7 +97,7 @@ export default function PropertyListingContent({ slug }: PropertyListingContentP
   };
 
   const properties = propertiesData?.data?.data || [];
-  const totalPages = propertiesData?.data?.totalPages || 1;
+  const totalPages = propertiesData?.data?.totalPages || propertiesData?.data?.pages || 1;
 
   // Get page title based on slug
   const getPageTitle = () => {
@@ -118,7 +118,7 @@ export default function PropertyListingContent({ slug }: PropertyListingContentP
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-main-100 to-white py-8">
+    <div className="min-h-screen bg-linear-to-b from-main-100 to-white py-8">
       <div className="container px-4 md:px-6">
         {/* Header */}
         <div className="mb-8">
@@ -143,14 +143,14 @@ export default function PropertyListingContent({ slug }: PropertyListingContentP
             <Button
               variant={viewType === "grid" ? "primary" : "primary-outline"}
               onClick={() => setViewType("grid")}
-              className="!p-3"
+              className="p-3!"
             >
               <Grid3x3 className="h-4 w-4" />
             </Button>
             <Button
               variant={viewType === "list" ? "primary" : "primary-outline"}
               onClick={() => setViewType("list")}
-              className="!p-3"
+              className="p-3!"
             >
               <List className="h-4 w-4" />
             </Button>

@@ -22,8 +22,8 @@ export default function AuthCarousel() {
   const tCarousel = useTranslations("Auth.AuthCarousel");
 
   return (
-    <section className="hidden flex-1 bg-gradient-to-b from-main-100 lg:block">
-      <div className="container flex h-full flex-col items-center justify-center gap-y-20 px-14 py-10">
+    <section className="hidden h-screen flex-1 bg-linear-to-b from-main-100 lg:block">
+      <div className="container flex h-full flex-col items-center justify-center gap-y-12 px-12 py-8">
         <Carousel
           opts={{
             align: "start",
@@ -34,16 +34,16 @@ export default function AuthCarousel() {
               delay: 2000,
             }),
           ]}
-          className="w-full max-w-md"
+          className="w-full max-w-sm"
         >
           <CarouselContent>
             {loginImages.map((image, index) => (
               <CarouselItem key={index}>
-                <div className="flex items-center justify-center p-6">
+                <div className="flex items-center justify-center p-4">
                   <Image
                     src={image}
-                    width={500}
-                    height={500}
+                    width={400}
+                    height={400}
                     alt={tCarousel("imageAlt", { number: index + 1 })}
                     priority
                     className="rounded-lg"
@@ -53,8 +53,8 @@ export default function AuthCarousel() {
             ))}
           </CarouselContent>
         </Carousel>
-        <div>
-          <Typography variant="body-sm-medium" as="p" className="mb-6">
+        <div className="px-4">
+          <Typography variant="body-sm-medium" as="p" className="mb-4">
             {t("main")}
           </Typography>
           <Typography variant="body-xs" as="p" className="text-gray-500">
