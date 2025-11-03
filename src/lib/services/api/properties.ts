@@ -58,6 +58,7 @@ export interface Property {
   area?: number;
   // Rent-specific fields
   hasTenant?: boolean;
+  price?: number; // Used for court hourly pricing and other categories
   isDaily?: boolean;
   dailyPrice?: number;
   isWeekly?: boolean;
@@ -73,6 +74,8 @@ export interface Property {
   availableDate?: string;
   checkInTime?: string;
   checkOutTime?: string;
+  openingTime?: string; // Court opening time (e.g., "06:00" or "06:00 AM")
+  closingTime?: string; // Court closing time (e.g., "23:00" or "11:00 PM")
   rentManagement?: string;
   paciNumber?: number[];
   isFinished?: boolean;

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Clock, Home, Wallet, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { useCountries } from "@/hooks/use-countries";
+import { useManagementConfig } from "@/hooks/use-management-config";
 import { createRent } from "@/lib/services/api/rents";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -45,6 +46,7 @@ export default function Step4Checkout({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { data: countries } = useCountries();
+  const { data: managementConfig } = useManagementConfig(property.country);
 
   const currency = useMemo(() => {
     if (!property || !countries) return "KWD";
@@ -72,9 +74,18 @@ export default function Step4Checkout({
   // Calculate rent amount based on property category
   const isTentBased = property.category === "camp" || property.category === "booth";
   const isHotelApartment = property.category === "hotelapartment";
+  const isCourt = property.category === "court";
 
   const rentAmount = useMemo(() => {
-    if (isTentBased && selectedTents.length > 0) {
+    if (isCourt && selectedRentType === "hourly" && timeRange && timeRange.from && timeRange.to) {
+      // For courts: calculate based on number of hours
+      // Hourly price comes from property.price field
+      const startTime = new Date(timeRange.from);
+      const endTime = new Date(timeRange.to);
+      const hours = Math.ceil((endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60));
+      const hourlyPrice = Number(property.price || 0);
+      return hourlyPrice * hours;
+    } else if (isTentBased && selectedTents.length > 0) {
       // For camp/booth: sum all selected tents' prices * number of days
       const totalTentPrice = selectedTents.reduce((sum, tent) => sum + Number(tent.price || 0), 0);
       return totalTentPrice * selectedDates.length;
@@ -101,7 +112,7 @@ export default function Step4Checkout({
         : property?.monthlyPrice;
       return Number(rentAmountPerDay || 0) * selectedDates.length;
     }
-  }, [isTentBased, isHotelApartment, selectedTents, selectedApartments, selectedDates.length, selectedRentType, property]);
+  }, [isCourt, isTentBased, isHotelApartment, selectedTents, selectedApartments, selectedDates.length, selectedRentType, property, timeRange]);
 
   const insurance = useMemo(() => {
     if (isTentBased && selectedTents.length > 0) {
@@ -117,7 +128,14 @@ export default function Step4Checkout({
   }, [isTentBased, isHotelApartment, selectedTents, property?.insurancePrice]);
 
   const servicesTotal = selectedServices.reduce(((a, b) => a + Number(b.price)), 0);
-  const total = (rentAmount || 0) + (insurance || 0) + servicesTotal;
+
+  // Get tax from management config
+  const tax = useMemo(() => {
+    if (!managementConfig?.data || managementConfig.data.length === 0) return 0;
+    return managementConfig.data[0].tax || 0;
+  }, [managementConfig]);
+
+  const total = (rentAmount || 0) + (insurance || 0) + servicesTotal + tax;
 
   const handleSubmit = async () => {
     try {
@@ -139,17 +157,27 @@ export default function Step4Checkout({
         return;
       }
 
-      // Format dates as MM/DD/YYYY
-      const formattedStartDate = format(checkInDate, "MM/dd/yyyy");
-      const formattedEndDate = format(checkOutDate, "MM/dd/yyyy");
-
       // Prepare payload
       const payload: any = {
         property: property._id,
         rentType: selectedRentType,
-        startDate: formattedStartDate,
-        endDate: formattedEndDate,
       };
+
+      // For courts, use MM/DD/YYYY HH:mm format with start of first slot and end of last slot
+      // For other properties, use formatted dates (MM/DD/YYYY)
+      if (property.category === "court" && timeRange && timeRange.from && timeRange.to) {
+        // Format: "MM/DD/YYYY HH:mm"
+        const startDateTime = new Date(timeRange.from);
+        const endDateTime = new Date(timeRange.to);
+
+        payload.startDate = format(startDateTime, "MM/dd/yyyy HH:mm");
+        payload.endDate = format(endDateTime, "MM/dd/yyyy HH:mm");
+      } else {
+        const formattedStartDate = format(checkInDate, "MM/dd/yyyy");
+        const formattedEndDate = format(checkOutDate, "MM/dd/yyyy");
+        payload.startDate = formattedStartDate;
+        payload.endDate = formattedEndDate;
+      }
 
       // Add services only if there are any selected
       if (selectedServices.length > 0) {
@@ -173,12 +201,6 @@ export default function Step4Checkout({
           type: apartment.type || "apartment",
           units: apartment.quantity || 1,
         }));
-      }
-
-      // Add time range for court properties
-      if (property.category === "court" && timeRange && timeRange.from && timeRange.to) {
-        payload.startTime = timeRange.from;
-        payload.endTime = timeRange.to;
       }
 
       // Submit the rent request
@@ -233,15 +255,17 @@ export default function Step4Checkout({
         </h2>
 
         <div className="space-y-4">
-          {/* Check-in & Check-out */}
+          {/* Check-in & Check-out / Date for Court */}
           <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
             <Calendar className="h-5 w-5 text-gray-600 dark:text-gray-400" />
             <div className="flex-1">
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                {t("checkInOut")}
+                {isCourt ? t("date") || "Date" : t("checkInOut")}
               </p>
               <p className="text-sm font-medium text-gray-900 dark:text-white">
-                {checkInDate && checkOutDate
+                {isCourt && checkInDate
+                  ? format(checkInDate, "dd MMM yyyy")
+                  : checkInDate && checkOutDate
                   ? `${format(checkInDate, "dd MMM yyyy")} - ${format(
                     checkOutDate,
                     "dd MMM yyyy"
@@ -287,10 +311,18 @@ export default function Step4Checkout({
               <Clock className="h-5 w-5 text-gray-600 dark:text-gray-400" />
               <div className="flex-1">
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {t("timeRange")}
+                  {t("timeRange") || "Time Range"}
                 </p>
                 <p className="text-sm font-medium text-gray-900 dark:text-white">
-                  {timeRange.from} - {timeRange.to}
+                  {new Date(timeRange.from).toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                  })} - {new Date(timeRange.to).toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                  })}
                 </p>
               </div>
             </div>
@@ -343,6 +375,9 @@ export default function Step4Checkout({
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600 dark:text-gray-400">
               {t("rent")} ({selectedRentType})
+              {isCourt && timeRange && timeRange.from && timeRange.to && (
+                <> - {Math.ceil((new Date(timeRange.to).getTime() - new Date(timeRange.from).getTime()) / (1000 * 60 * 60))} {t("hours") || "hours"}</>
+              )}
             </span>
             <span className="text-sm font-medium text-gray-900 dark:text-white">
               {rentAmount} {currency}
@@ -385,25 +420,15 @@ export default function Step4Checkout({
             ))
           )}
 
-          {/* Commission */}
-          {/* <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              {t("commission")}
-            </span>
-            <span className="text-sm font-medium text-gray-900 dark:text-white">
-              {commission} {tCommon("kwd")}
-            </span>
-          </div> */}
-
           {/* Tax */}
-          {/* <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600 dark:text-gray-400">
               {t("tax")}
             </span>
             <span className="text-sm font-medium text-gray-900 dark:text-white">
-              {tax} {tCommon("kwd")}
+              {tax} {currency}
             </span>
-          </div> */}
+          </div>
 
           {/* Divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 my-4" />

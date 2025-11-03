@@ -58,6 +58,12 @@ export const getPropertyPrice = (
   // Get price based on rental period
   let basePrice: number | null = null;
 
+  // Court category uses property.price field for hourly pricing
+  if (property.category === "court" && property.price) {
+    basePrice = property.price;
+    return applyDiscount(basePrice);
+  }
+
   if (property.isDaily && property.dailyPrice) {
     basePrice = property.dailyPrice;
   } else if (property.isWeekly && property.weeklyPrice) {

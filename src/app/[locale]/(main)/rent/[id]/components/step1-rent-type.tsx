@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { type Property, type PropertyService } from "@/lib/services/api/properties";
 import { Button } from "@/components/ui/button";
@@ -38,11 +38,16 @@ export default function Step1RentType({
   // For camp/booth, only daily rent type is available
   const isCampOrBooth = property.category === "camp" || property.category === "booth";
 
+  // For court, only hourly rent type is available
+  const isCourt = property.category === "court";
+
   // For hotel apartments, check if at least one apartment has each rent type
   const isHotelApartment = property.category === "hotelapartment";
 
   const rentTypes = [];
-  if (isCampOrBooth) {
+  if (isCourt) {
+    rentTypes.push({ key: "hourly", label: t("hourly") });
+  } else if (isCampOrBooth) {
     rentTypes.push({ key: "daily", label: t("daily") });
   } else if (isHotelApartment && property.apartments && property.apartments.length > 0) {
     // Check if any apartment has each rent type
@@ -60,6 +65,13 @@ export default function Step1RentType({
     if (property.isWeekdays) rentTypes.push({ key: "weekdays", label: t("weekdays") });
     if (property.isHolidays) rentTypes.push({ key: "holidays", label: t("holidays") });
   }
+
+  // Auto-select hourly for courts
+  useEffect(() => {
+    if (isCourt && !selectedRentType) {
+      setSelectedRentType("hourly");
+    }
+  }, [isCourt, selectedRentType, setSelectedRentType]);
 
   const toggleService = (service: PropertyService) => {
     if (selectedServices.includes(service)) {

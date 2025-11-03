@@ -34,6 +34,7 @@ export default function RentApplication({ propertyId }: RentApplicationProps) {
   const [selectedTents, setSelectedTents] = useState<any[]>([]);
   const [selectedApartments, setSelectedApartments] = useState<any[]>([]);
   const [timeRange, setTimeRange] = useState<{ from: string; to: string }>({ from: "", to: "" });
+  const [selectedTimeSlotIndices, setSelectedTimeSlotIndices] = useState<number[]>([]);
   const [pickupLocation, setPickupLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [agreedToTerms, setAgreedToTerms] = useState({
     termsAndConditions: false,
@@ -154,6 +155,8 @@ export default function RentApplication({ propertyId }: RentApplicationProps) {
             setSelectedDates={setSelectedDates}
             timeRange={timeRange}
             setTimeRange={setTimeRange}
+            selectedTimeSlotIndices={selectedTimeSlotIndices}
+            setSelectedTimeSlotIndices={setSelectedTimeSlotIndices}
             onNext={handleNext}
           />
         )}

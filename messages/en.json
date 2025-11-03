@@ -166,6 +166,7 @@
       "for-rent": "For Rent"
     },
     "Price": {
+      "hour": "Hour",
       "day": "Day",
       "week": "Week",
       "month": "Month",
@@ -1576,6 +1577,7 @@
     },
     "Step1": {
       "rentType": "Rent Type",
+      "hourly": "Hourly",
       "daily": "Daily",
       "weekly": "Weekly",
       "monthly": "Monthly",
@@ -1597,8 +1599,11 @@
       "note": "Note",
       "noteAvailableDate": "This unit becomes available for booking starting {date}",
       "noteUnavailableDate": "Unavailable units are likely booked for your chosen dates",
+      "noteUnavailableSlots": "Unavailable slots are likely booked for your chosen date",
       "selectedDates": "Selected dates",
       "selectTimeRange": "Select Time Range",
+      "selectTimeSlots": "Select Time Slots",
+      "selectTimeSlotDescription": "Select consecutive time slots for your booking. Available times are shown in white, booked times are disabled.",
       "fromTime": "From",
       "toTime": "To",
       "timeRangeNote": "Please select the start and end time for your court booking",
@@ -1650,11 +1655,13 @@
     },
     "Step4": {
       "rentDetails": "Rent Details",
+      "date": "Date:",
       "checkInOut": "Check-In & Out Date:",
       "checkInOutTime": "Check-In & Out time:",
       "timePlaceholder": "2:00 PM - 10:00 AM",
       "rentType": "Rent type:",
       "timeRange": "Time Range:",
+      "hours": "hours",
       "rentAmount": "Rent Amount:",
       "notSelected": "Not selected",
       "selectedApartments": "Selected Apartments",
