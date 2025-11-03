@@ -13,6 +13,15 @@
 # testing
 /coverage
 
+# lighthouse reports
+.unlighthouse
+lighthouse-reports
+lighthouserc.json
+unlighthouse.config.ts
+unlighthouse.config.js
+scripts/lighthouse*.js
+LIGHTHOUSE.md
+
 # next.js
 /.next/
 /out/

@@ -1,104 +1,112 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
-
-import CompanyBanner from "@/components/sections/companies/company-banner";
-import CompanyProperties from "@/components/sections/companies/company-properties";
-import CompanyVideos from "@/components/sections/companies/company-videos";
-import CompanyReviews from "@/components/sections/companies/company-reviews";
-import PropertyTypeTabs from "@/components/sections/companies/property-type-tabs";
+import { Suspense } from "react";
+import { Metadata } from "next";
+import CompanyDetails from "./company-details";
 import { getOwnerById } from "@/lib/services/api/companies";
-import { getProperties } from "@/lib/services/api/properties";
-import { getVideos } from "@/lib/services/api/reels";
-import { Spinner } from "@/components/ui/spinner";
 
-export default function CompanyDetailsPage() {
-  const params = useParams();
-  const id = params.id as string;
-  const [activeTab, setActiveTab] = useState<"all" | "rent" | "installment">("all");
-  const [propertyPage, setPropertyPage] = useState(1);
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://dyarko.com';
 
-  // Fetch owner details
-  const { data: owner, isLoading: ownerLoading } = useQuery({
-    queryKey: ["owner", id],
-    queryFn: () => getOwnerById(id),
-    enabled: !!id,
-  });
+interface PageProps {
+  params: Promise<{ id: string; locale: string }>;
+}
 
-  // Reset to page 1 when tab changes
-  useEffect(() => {
-    setPropertyPage(1);
-  }, [activeTab]);
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { id, locale } = await params;
+  const isArabic = locale === 'ar';
 
-  // Fetch owner properties
-  const { data: propertiesData, isLoading: propertiesLoading } = useQuery({
-    queryKey: ["owner-properties", id, activeTab, propertyPage],
-    queryFn: () =>
-      getProperties({
-        owner: id,
-        offerType: activeTab === "all" ? undefined : activeTab.toUpperCase() as "RENT" | "INSTALLMENT",
-        page: propertyPage,
-        size: 8,
-      }),
-    enabled: !!id,
-  });
+  try {
+    const owner = await getOwnerById(id);
 
-  // Scroll to top when page changes
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [propertyPage]);
+    // Localized text
+    const text = {
+      professionalServices: isArabic ? 'خدمات عقارية احترافية في' : 'Professional real estate services in',
+      rated: isArabic ? 'تقييم' : 'Rated',
+      qualityProperties: isArabic ? 'عقارات عالية الجودة' : 'Quality properties',
+      on: isArabic ? 'على' : 'on',
+      realEstateCompany: isArabic ? 'شركة عقارية' : 'Real Estate Company',
+      companyDetails: isArabic ? 'تفاصيل الشركة' : 'Company Details',
+      findCompanies: isArabic ? 'ابحث عن شركات عقارية محترفة على ديركو' : 'Find professional real estate companies on Dyarko',
+      propertyManagement: isArabic ? 'إدارة عقارات' : 'property management',
+    };
 
-  // Fetch owner videos
-  const { data: videosData, isLoading: videosLoading } = useQuery({
-    queryKey: ["owner-videos", id],
-    queryFn: () => getVideos({ owner: id, page: 1, size: 6 }),
-    enabled: !!id,
-  });
+    const ownerName = owner.name || owner.organizationName;
 
-  if (ownerLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Spinner className="h-12 w-12 text-main-400" />
-      </div>
-    );
+    // Create description
+    const ratingText = owner.averageRating
+      ? `${text.rated} ${owner.averageRating.toFixed(1)}/5`
+      : text.qualityProperties;
+
+    const description = owner.about
+      ? owner.about.substring(0, 160)
+      : `${ownerName} - ${text.professionalServices} ${owner.country}. ${ratingText} ${text.on} ${isArabic ? 'ديركو' : 'Dyarko'}.`;
+
+    const title = isArabic
+      ? `${ownerName} | ${text.realEstateCompany} | ديركو`
+      : `${ownerName} | ${text.realEstateCompany} | Dyarko`;
+
+    const imageUrl = owner.image || `${BASE_URL}/logo.png`;
+
+    return {
+      title,
+      description,
+      keywords: [
+        ownerName || '',
+        text.realEstateCompany,
+        text.propertyManagement,
+        owner.country,
+        'dyarko',
+        'ديركو',
+        isArabic ? 'عقارات' : 'real estate',
+      ],
+      openGraph: {
+        title,
+        description,
+        url: `${BASE_URL}/${locale}/companies/${id}`,
+        siteName: isArabic ? 'ديركو' : 'Dyarko',
+        images: [
+          {
+            url: imageUrl,
+            width: 1200,
+            height: 630,
+            alt: ownerName,
+          },
+        ],
+        locale: isArabic ? 'ar_AR' : 'en_US',
+        type: 'profile',
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: [imageUrl],
+      },
+      alternates: {
+        canonical: `${BASE_URL}/${locale}/companies/${id}`,
+        languages: {
+          en: `${BASE_URL}/en/companies/${id}`,
+          ar: `${BASE_URL}/ar/companies/${id}`,
+        },
+      },
+      other: {
+        'profile:username': ownerName || '',
+        ...(owner.averageRating && { 'rating:average': owner.averageRating.toString() }),
+        ...(owner.numberOfReviewers && { 'rating:count': owner.numberOfReviewers.toString() }),
+      },
+    };
+  } catch (error) {
+    console.error('Error generating company metadata:', error);
+    return {
+      title: isArabic ? 'تفاصيل الشركة | ديركو' : 'Company Details | Dyarko',
+      description: isArabic ? 'ابحث عن شركات عقارية محترفة على ديركو' : 'Find professional real estate companies on Dyarko',
+    };
   }
+}
 
-  if (!owner) {
-    return (
-      <div className="container py-20 text-center">
-        <p className="text-xl text-gray-600">Company not found</p>
-      </div>
-    );
-  }
+export default async function CompanyDetailsPage({ params }: PageProps) {
+  const { id } = await params;
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <CompanyBanner owner={owner} />
-
-      <div className="container px-4 md:px-6">
-        <PropertyTypeTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-
-        <CompanyProperties
-          properties={propertiesData?.data.data || []}
-          total={propertiesData?.data.total || propertiesData?.data.data?.length || 0}
-          totalPages={propertiesData?.data.totalPages || 1}
-          currentPage={propertyPage}
-          onPageChange={setPropertyPage}
-          isLoading={propertiesLoading}
-          activeTab={activeTab}
-        />
-
-        <CompanyReviews ownerId={id} />
-
-        {videosData && videosData.data.data.length > 0 && (
-          <CompanyVideos
-            videos={videosData.data.data}
-            isLoading={videosLoading}
-          />
-        )}
-      </div>
-    </div>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center">Loading...</div>}>
+      <CompanyDetails id={id} />
+    </Suspense>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useSession } from "next-auth/react";
@@ -13,10 +14,16 @@ import { useCountryContext } from "@/components/providers/country-provider";
 import { getProperties } from "@/lib/services/api/properties";
 import { useQuery } from "@tanstack/react-query";
 import type { Governorate } from "@/types/property";
-import FilterSection from "./filter-section";
-import PropertyGrid from "./property-grid";
 import { Spinner } from "@/components/ui/spinner";
 import PaginationControls from "@/components/shared/pagination-controls";
+
+const FilterSection = dynamic(() => import("./filter-section"), {
+  loading: () => <div className="h-24 animate-pulse bg-gray-100 rounded-lg" />,
+});
+
+const PropertyGrid = dynamic(() => import("./property-grid"), {
+  loading: () => <div className="h-96 animate-pulse bg-gray-100 rounded-lg" />,
+});
 
 export default function SearchPageContent() {
   const t = useTranslations("PropertySearch");

@@ -38,7 +38,8 @@
       "Bash(del C:UsersYoussefprojectsdyarko-usersrccomponentsprovidersauth-token-sync.tsx)",
       "Bash(node -e:*)",
       "Bash(nul)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(move \"C:\\Users\\Youssef\\projects\\dyarko-user\\src\\app\\[locale]\\(main)\\companies\\[id]\\page.tsx\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\src\\app\\[locale]\\(main)\\companies\\[id]\\company-details.tsx\")"
     ],
     "deny": [],
     "ask": []

@@ -50,9 +50,8 @@ export default function PropertyCard({
             src={imageSrc}
             alt={name}
             fill
-            sizes="220px"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
             priority={priority}
-            unoptimized={imageSrc.startsWith('/api/proxy-image')}
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
           {badge && (
@@ -111,7 +110,6 @@ export default function PropertyCard({
             fill
             sizes="112px"
             priority={priority}
-            unoptimized={imageSrc.startsWith('/api/proxy-image')}
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
           {badge && (

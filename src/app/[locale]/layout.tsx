@@ -37,6 +37,10 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'} suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://new.dyarko.com" />
+        <link rel="dns-prefetch" href="https://new.dyarko.com" />
+      </head>
       <body className={`${plusJakartaSans.variable} antialiased`}>
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider
