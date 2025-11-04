@@ -38,7 +38,7 @@ export default function CountryDropdown() {
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2" suppressHydrationWarning>
       <MapPinIcon className="h-4 w-4 text-gray-700 dark:text-gray-300" />
       <Select value={selectedCountry} onValueChange={handleCountryChange}>
         <SelectTrigger className="h-auto w-auto border-0 bg-transparent p-0 hover:text-gray-900 px-2 dark:hover:text-gray-100">

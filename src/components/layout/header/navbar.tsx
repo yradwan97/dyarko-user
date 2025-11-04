@@ -63,7 +63,7 @@ export default function Navbar() {
   return (
     <>
       {displayLinks.map((navLink, i) => (
-        <div key={i} className="m-2 flex w-auto justify-center">
+        <div key={i} className="m-2 flex w-auto justify-center" suppressHydrationWarning>
           {navLink.hasSubMenu ? (
             <Select
               value={getCurrentBuyValue()}

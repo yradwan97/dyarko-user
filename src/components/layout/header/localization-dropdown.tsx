@@ -51,6 +51,7 @@ export default function LocalizationDropdown({
   return (
     <Select value={locale} onValueChange={handleLocaleChange}>
       <SelectTrigger
+        suppressHydrationWarning
         className={cn(
           "h-9 w-auto gap-2",
           showLanguage ? "min-w-32" : "min-w-fit"

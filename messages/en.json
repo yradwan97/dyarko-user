@@ -417,7 +417,9 @@
     },
     "Videos": {
       "title": "Related videos",
-      "view-all": "View All"
+      "view-all": "View All",
+      "error": "Failed to load videos",
+      "noVideos": "No videos available"
     },
     "AboutUs": {
       "Tour": {
