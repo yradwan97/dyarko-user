@@ -33,20 +33,17 @@ interface RequestServicesDialogProps {
   rentId: string | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  // propertyCountry?: string;
 }
 
 export default function RequestServicesDialog({
   rentId,
   open,
   onOpenChange,
-  // propertyCountry,
 }: RequestServicesDialogProps) {
   const t = useTranslations("User.MyRealEstates.RequestServicesDialog");
   const locale = useLocale();
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [showConfirmation, setShowConfirmation] = useState(false);
-  // const currency = useCountryCurrency(propertyCountry);
 
   const { data: services, isLoading } = useQuery({
     queryKey: ["public-services"],

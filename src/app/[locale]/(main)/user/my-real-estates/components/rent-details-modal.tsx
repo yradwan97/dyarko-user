@@ -461,7 +461,6 @@ export default function RentDetailsModal({
           rentId={rentId}
           open={showServicesDialog}
           onOpenChange={setShowServicesDialog}
-          propertyCountry={rent?.property?.country}
         />
 
         {/* Request End Contract Dialog */}
