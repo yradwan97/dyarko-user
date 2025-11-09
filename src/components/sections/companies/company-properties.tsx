@@ -100,6 +100,7 @@ export default function CompanyProperties({
                 badge={property.offerType || undefined}
                 isVerified={property.isVerified}
                 secondaryBadge={property?.category}
+                propertyId={property._id}
               />
             </Link>
           );

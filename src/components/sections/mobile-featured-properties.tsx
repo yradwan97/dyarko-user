@@ -83,6 +83,7 @@ export default function MobileFeaturedProperties() {
                     price={getPriceDisplay()}
                     badge={property.offerType}
                     propertyType={property.category}
+                    propertyId={property._id}
                     isVerified={property.isVerified}
                     priority={index < 2}
                   />

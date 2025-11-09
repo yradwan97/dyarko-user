@@ -188,7 +188,8 @@
         "saved": "Property saved",
         "unsaved": "Property unsaved",
         "favorite": "Favorite",
-        "unfavorite": "Unfavorite"
+        "unfavorite": "Unfavorite",
+        "error": "Failed to update favorite status. Please try again."
       },
       "Features": {
         "title": "Unit Features",
@@ -1570,6 +1571,26 @@
             "title": "Disclaimer Request",
             "description": "Are you sure you want to submit a disclaimer request for this rental property? This will be reviewed by the property owner."
           }
+        }
+      },
+      "RequestServicesDialog": {
+        "title": "Request Services",
+        "description": "Select the services you would like to request for your rental property.",
+        "no-services": "No services available at the moment",
+        "no-services-selected": "Please select at least one service",
+        "selected-count": "{count} service(s) selected",
+        "total": "Total",
+        "cancel": "Cancel",
+        "submit": "Continue",
+        "success": "Services requested successfully",
+        "error": "Failed to request services. Please try again.",
+        "confirmation": {
+          "title": "Confirm Service Request",
+          "description": "Please review and confirm your service request. The total cost will be added to your next invoice.",
+          "total": "Total Cost",
+          "cancel": "Back",
+          "confirm": "Confirm Request",
+          "submitting": "Submitting..."
         }
       },
       "EndContractDialog": {

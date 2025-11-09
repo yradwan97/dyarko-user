@@ -46,6 +46,7 @@ export default function PropertyGrid({ properties, viewType }: PropertyGridProps
               badge={property.offerType || undefined}
               isVerified={property.isVerified}
               secondaryBadge={property?.category}
+              propertyId={property._id}
             />
           </Link>
         );

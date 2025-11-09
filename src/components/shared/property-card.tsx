@@ -1,13 +1,16 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { useQueryClient } from "@tanstack/react-query";
 import { HeartIcon, CheckCircle2Icon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { checkFavourite, addFavourite, removeFavourite } from "@/lib/services/api/favourites";
+import { toast } from "sonner";
 
 interface PropertyCardProps {
   variant?: "featured" | "list";
@@ -39,8 +42,57 @@ export default function PropertyCard({
   priority = false,
 }: PropertyCardProps) {
   const locale = useLocale();
+  const t = useTranslations("Properties.Details.Save");
+  const queryClient = useQueryClient();
   const isRTL = locale === "ar";
   const imageSrc = image || "/no-apartment.png";
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isCheckingFavorite, setIsCheckingFavorite] = useState(false);
+
+  useEffect(() => {
+    if (propertyId) {
+      checkFavoriteStatus();
+    }
+  }, [propertyId]);
+
+  const checkFavoriteStatus = async () => {
+    if (!propertyId) return;
+
+    try {
+      setIsCheckingFavorite(true);
+      const isFavorited = await checkFavourite(propertyId);
+      setIsFavorite(isFavorited);
+    } catch (error) {
+      console.error("Failed to check favorite status:", error);
+    } finally {
+      setIsCheckingFavorite(false);
+    }
+  };
+
+  const handleFavoriteClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!propertyId) return;
+
+    try {
+      if (isFavorite) {
+        await removeFavourite(propertyId);
+        setIsFavorite(false);
+        toast.error(t("unsaved"));
+      } else {
+        await addFavourite(propertyId);
+        setIsFavorite(true);
+        toast.success(t("saved"));
+      }
+
+      // Invalidate favourites query to refresh the saved properties list
+      queryClient.invalidateQueries({ queryKey: ["favourites"] });
+    } catch (error) {
+      console.error("Failed to toggle favorite:", error);
+      toast.error(t("error"));
+    }
+  };
 
   if (variant === "featured") {
     return (
@@ -78,7 +130,30 @@ export default function PropertyCard({
             </Badge>
           )}
         </div>
-        <CardContent className="p-4">
+        <CardContent className="p-4 relative">
+          {/* Favorite Button */}
+          {propertyId && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleFavoriteClick}
+              disabled={isCheckingFavorite}
+              className={cn(
+                "absolute top-3 h-8 w-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700",
+                isRTL ? "left-3" : "right-3"
+              )}
+            >
+              <HeartIcon
+                className={cn(
+                  "h-5 w-5 transition-all",
+                  isFavorite
+                    ? "fill-red-500 text-red-500"
+                    : "text-gray-400 hover:text-red-500 dark:text-gray-500"
+                )}
+              />
+            </Button>
+          )}
+
           <div className="mb-2 flex items-center gap-1.5">
             <h3 className="text-sm font-semibold text-main-500 dark:text-main-400">{name}</h3>
             {isVerified && (
@@ -138,9 +213,24 @@ export default function PropertyCard({
             )}
           </div>
         </div>
-        <Button variant="ghost" size="icon-sm" className="self-start hover:bg-gray-100 dark:hover:bg-gray-700">
-          <HeartIcon className="h-4 w-4 text-gray-400 transition-colors hover:text-secondary-500 dark:text-gray-500 dark:hover:text-secondary-400" />
-        </Button>
+        {propertyId && (
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={handleFavoriteClick}
+            disabled={isCheckingFavorite}
+            className="self-start hover:bg-gray-100 dark:hover:bg-gray-700"
+          >
+            <HeartIcon
+              className={cn(
+                "h-4 w-4 transition-all",
+                isFavorite
+                  ? "fill-red-500 text-red-500"
+                  : "text-gray-400 hover:text-red-500 dark:text-gray-500"
+              )}
+            />
+          </Button>
+        )}
       </CardContent>
     </Card>
   );

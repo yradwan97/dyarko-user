@@ -120,7 +120,7 @@ export default function PropertiesSection() {
                   price={getPriceDisplay()}
                   badge={property.offerType}
                   propertyType={property.category}
-                  propertyId={property.code}
+                  propertyId={property._id}
                   isVerified={property.isVerified}
                 />
               </Link>

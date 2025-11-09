@@ -84,7 +84,7 @@ export function useGetSavedProperties(page: number = 1) {
   return useQuery({
     queryKey: ["saved-properties", page],
     queryFn: async () => {
-      const response = await axiosClient.get(`/save_properties?page=${page}`);
+      const response = await axiosClient.get(`/favourites?type="PROPERTY"&page=${page}`);
       return response.data as {
         data: SavedProperty[];
         pages: number;

@@ -3,10 +3,12 @@
 import { useEffect, useState, useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { useProperty } from "@/hooks/use-properties";
 import { useCountries } from "@/hooks/use-countries";
 import { toast } from "sonner";
 import { axiosClient } from "@/lib/services/axios-client";
+import { checkFavourite, addFavourite, removeFavourite } from "@/lib/services/api/favourites";
 import { ChevronLeft, Share2, Heart, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { getLocalizedPath, cn } from "@/lib/utils";
@@ -23,6 +25,7 @@ export default function PropertyDetails({ id }: PropertyDetailsProps) {
   const locale = useLocale();
   const t = useTranslations("Properties.Details");
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [liked, setLiked] = useState(false);
 
   const { data: property, isLoading, error, refetch } = useProperty(id);
@@ -43,8 +46,19 @@ export default function PropertyDetails({ id }: PropertyDetailsProps) {
     if (property) {
       // Create property view
       createPropertyView(id);
+      // Check favorite status
+      checkFavoriteStatus();
     }
   }, [property, id]);
+
+  const checkFavoriteStatus = async () => {
+    try {
+      const isFavorited = await checkFavourite(id);
+      setLiked(isFavorited);
+    } catch (error) {
+      console.error("Failed to check favorite status:", error);
+    }
+  };
 
   const createPropertyView = async (propertyId: string) => {
     try {
@@ -73,20 +87,21 @@ export default function PropertyDetails({ id }: PropertyDetailsProps) {
 
   const handleLikePressed = async () => {
     try {
-      const response = liked
-        ? await axiosClient.delete(`/save_properties/${id}`)
-        : await axiosClient.post(`/save_properties/${id}`);
-
-      if (response.data.success) {
-        setLiked(!liked);
-        if (liked) {
-          toast.error(t("Save.unsaved"));
-        } else {
-          toast.success(t("Save.saved"));
-        }
+      if (liked) {
+        await removeFavourite(id);
+        setLiked(false);
+        toast.error(t("Save.unsaved"));
+      } else {
+        await addFavourite(id);
+        setLiked(true);
+        toast.success(t("Save.saved"));
       }
-    } catch (e) {
-      console.error(e);
+
+      // Invalidate favourites query to refresh the saved properties list
+      queryClient.invalidateQueries({ queryKey: ["favourites"] });
+    } catch (error) {
+      console.error("Failed to toggle favorite:", error);
+      toast.error(t("Save.error"));
     }
   };
 
@@ -160,7 +175,7 @@ export default function PropertyDetails({ id }: PropertyDetailsProps) {
             <Button
               variant="outline"
               onClick={handleShareClicked}
-              className="hover:bg-primary hover:text-white hover:border-primary transition-all"
+              className="hover:bg-main-500 hover:text-white hover:border-primary transition-all"
             >
               <Share2 className="h-4 w-4" />
               {t("Share.title")}
@@ -171,7 +186,7 @@ export default function PropertyDetails({ id }: PropertyDetailsProps) {
               variant="outline"
               onClick={handleLikePressed}
               className={cn(
-                "hover:bg-primary hover:text-white hover:border-primary transition-all",
+                "hover:bg-main-500 hover:text-white hover:border-primary transition-all",
                 liked && "bg-red-50 border-red-300 text-red-600 hover:bg-red-600 hover:text-white"
               )}
             >

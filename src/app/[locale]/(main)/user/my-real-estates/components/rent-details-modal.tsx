@@ -28,16 +28,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -57,6 +47,7 @@ import RentInvoicesTab from "./rent-invoices-tab";
 import RequestEndContractDialog from "./request-end-contract-dialog";
 import AddClaimsDialog from "./add-claims-dialog";
 import DisclaimerRequestDialog from "./disclaimer-request-dialog";
+import RequestServicesDialog from "./request-services-dialog";
 import { toast } from "sonner";
 
 interface RentDetailsModalProps {
@@ -75,7 +66,7 @@ export default function RentDetailsModal({
   const [showEndContractDialog, setShowEndContractDialog] = useState(false);
   const [showClaimsDialog, setShowClaimsDialog] = useState(false);
   const [showDisclaimerDialog, setShowDisclaimerDialog] = useState(false);
-  const [showServicesConfirmation, setShowServicesConfirmation] = useState(false);
+  const [showServicesDialog, setShowServicesDialog] = useState(false);
 
   const { data: rent, isLoading } = useQuery({
     queryKey: ["rent-details", rentId],
@@ -115,7 +106,7 @@ export default function RentDetailsModal({
   };
 
   const handleRequestServices = () => {
-    setShowServicesConfirmation(true);
+    setShowServicesDialog(true);
   };
 
   const handleAddClaims = () => {
@@ -124,12 +115,6 @@ export default function RentDetailsModal({
 
   const handleDisclaimerRequest = () => {
     setShowDisclaimerDialog(true);
-  };
-
-  const handleConfirmServices = () => {
-    // TODO: Implement request services
-    toast.info(t("actions.services-placeholder"));
-    setShowServicesConfirmation(false);
   };
 
   const handleDownloadInvoices = async () => {
@@ -471,27 +456,13 @@ export default function RentDetailsModal({
           </div>
         )}
 
-        {/* Services Confirmation Alert Dialog */}
-        <AlertDialog open={showServicesConfirmation} onOpenChange={setShowServicesConfirmation}>
-          <AlertDialogContent className="bg-white dark:bg-gray-950">
-            <AlertDialogHeader>
-              <AlertDialogTitle className="text-gray-900 dark:text-white">
-                {t("confirmation.services.title")}
-              </AlertDialogTitle>
-              <AlertDialogDescription className="text-gray-600 dark:text-gray-400">
-                {t("confirmation.services.description")}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel className="text-gray-900 dark:text-white">
-                {t("confirmation.cancel")}
-              </AlertDialogCancel>
-              <AlertDialogAction onClick={handleConfirmServices}>
-                {t("confirmation.confirm")}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        {/* Request Services Dialog */}
+        <RequestServicesDialog
+          rentId={rentId}
+          open={showServicesDialog}
+          onOpenChange={setShowServicesDialog}
+          propertyCountry={rent?.property?.country}
+        />
 
         {/* Request End Contract Dialog */}
         <RequestEndContractDialog

@@ -70,6 +70,10 @@ export default function InstallmentDetailsModal({
     }
   };
 
+  const normalizeStatus = (status: string) => {
+    return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+  };
+
   const getInstallmentTypeLabel = (type?: string) => {
     if (!type) return t("not-available");
     const typeMap: Record<string, string> = {
@@ -117,10 +121,10 @@ export default function InstallmentDetailsModal({
               {installment && (
                 <>
                   <Badge className={getStatusColor(installment.ownerStatus)}>
-                    {t("owner-status")}: {installment.ownerStatus}
+                    {t("owner-status")}: {normalizeStatus(installment.ownerStatus)}
                   </Badge>
                   <Badge className={getStatusColor(installment.userStatus)}>
-                    {t("user-status")}: {installment.userStatus}
+                    {t("user-status")}: {normalizeStatus(installment.userStatus)}
                   </Badge>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

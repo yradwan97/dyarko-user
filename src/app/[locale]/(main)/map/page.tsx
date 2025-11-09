@@ -42,7 +42,7 @@ export default function MapPage() {
   const { data: propertiesData, isLoading } = useGetPropertiesByCountry(
     selectedCountry || "KW",
     1,
-    30
+    100
   );
 
   const properties = propertiesData?.data?.data || [];

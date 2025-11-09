@@ -33,8 +33,6 @@ export default function CustomSelect({
 
   const handleChange = (value: string) => {
     const selectedItem = values.find((v) => v.id === value);
-    console.log(selectedItem, "selectedItem");
-    console.log(selected, "selected");
     if (selectedItem) {
       setSelected(selectedItem);
     }

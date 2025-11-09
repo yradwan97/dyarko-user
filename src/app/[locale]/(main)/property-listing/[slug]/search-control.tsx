@@ -117,7 +117,7 @@ export default function SearchControl({ slug, onSearch, onReset }: SearchControl
               {t("location")}
             </Typography>
             <CustomSelect
-              containerClass="w-full rounded-lg px-4"
+              containerClass="w-full rounded-lg px-4 py-[23px]"
               values={cityOptions}
               selected={selectedCity}
               setSelected={setSelectedCity}

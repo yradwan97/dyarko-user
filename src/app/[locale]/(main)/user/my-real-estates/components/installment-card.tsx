@@ -30,6 +30,10 @@ export default function InstallmentCard({
     }
   };
 
+  const normalizeStatus = (status: string) => {
+    return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+  };
+
   const formatDate = (dateString?: string) => {
     if (!dateString) return t("not-available");
     return format(new Date(dateString), "MMM dd, yyyy");
@@ -80,10 +84,10 @@ export default function InstallmentCard({
       {/* Status Badges */}
       <div className="flex gap-2 mb-4">
         <Badge className={getStatusColor(installment.ownerStatus)} variant="outline">
-          {t("owner")}: {installment.ownerStatus}
+          {t("owner")}: {normalizeStatus(installment.ownerStatus)}
         </Badge>
         <Badge className={getStatusColor(installment.userStatus)} variant="outline">
-          {t("user")}: {installment.userStatus}
+          {t("user")}: {normalizeStatus(installment.userStatus)}
         </Badge>
       </div>
 
