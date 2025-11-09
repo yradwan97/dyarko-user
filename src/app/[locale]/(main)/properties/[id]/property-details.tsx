@@ -57,18 +57,18 @@ export default function PropertyDetails({ id }: PropertyDetailsProps) {
     }
   };
 
-  const handleShareClicked = () => {
-    const textToCopy = window?.location.href;
-
-    navigator.clipboard
-      .writeText(textToCopy)
-      .then(() => {
-        toast.success(t("Share.success"));
-      })
-      .catch((err) => {
-        console.error("Could not copy URL: ", err);
-        toast.error(t("Share.error"));
-      });
+  const handleShareClicked = async () => {
+    if (navigator.share && property) {
+      try {
+        await navigator.share({
+          title: property.title,
+          text: property.description,
+          url: window.location.href,
+        });
+      } catch (error) {
+        console.error("Error sharing:", error);
+      }
+    }
   };
 
   const handleLikePressed = async () => {
@@ -100,7 +100,7 @@ export default function PropertyDetails({ id }: PropertyDetailsProps) {
 
   if (error || !property) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto py-8">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-red-600 dark:text-red-400">{t("error.title")}</h1>
           <p className="mt-2 text-gray-600 dark:text-gray-400">{t("error.message")}</p>
@@ -112,7 +112,7 @@ export default function PropertyDetails({ id }: PropertyDetailsProps) {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Back Button */}
-      <div className="container mx-auto px-4 pt-6">
+      <div className="container mx-auto pt-6">
         <Link
           href={getLocalizedPath("/properties", locale)}
           className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-all hover:gap-3"
@@ -122,7 +122,7 @@ export default function PropertyDetails({ id }: PropertyDetailsProps) {
         </Link>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto py-8">
         {/* Title */}
         <div className="flex items-start gap-3 mt-4">
           <h1

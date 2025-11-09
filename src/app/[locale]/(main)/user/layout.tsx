@@ -69,7 +69,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <div className="min-h-screen bg-linear-to-b from-main-100 to-white py-8">
-      <div className="container px-4 md:px-6">
+      <div className="container">
         <div className="flex flex-col gap-6 lg:flex-row">
           {/* Mobile Sidebar Trigger */}
           <div className="lg:hidden">

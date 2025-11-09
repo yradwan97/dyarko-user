@@ -5,10 +5,10 @@ import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
-import { Rating } from "@mui/material";
 
 import Typography from "@/components/shared/typography";
 import Button from "@/components/shared/button";
+import { Rating } from "@/components/ui/rating";
 import { Owner, followOwner, unfollowOwner, isOwnerFollowed } from "@/lib/services/api/companies";
 
 interface CompanyBannerProps {
@@ -76,24 +76,11 @@ export default function CompanyBanner({ owner }: CompanyBannerProps) {
             <Typography variant="h3" as="h1" className="capitalize text-gray-900">
               {owner.name}
             </Typography>
-            <div className="flex items-center gap-2">
-              <Rating
-                name="owner-rating"
-                value={owner.averageRating || owner.average_rating || 0}
-                readOnly
-                size="small"
-                sx={{
-                  ".MuiRating-iconFilled": {
-                    color: "#F15A29",
-                  },
-                }}
-              />
-              <Typography variant="body-md-medium" as="span" className="text-gray-700">
-                {(owner.averageRating || owner.average_rating)
-                  ? parseFloat((owner.averageRating || owner.average_rating || 0).toString()).toFixed(1)
-                  : "0.0"}
-              </Typography>
-            </div>
+            <Rating
+              value={owner.averageRating || owner.average_rating || 0}
+              size="md"
+              showValue
+            />
           </div>
           <div className="mt-2 md:mt-0">
             <Button

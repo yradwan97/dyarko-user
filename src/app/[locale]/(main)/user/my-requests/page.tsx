@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { FileText, Calendar, MapPin, Home, Wrench, DollarSign, FileCheck, Megaphone, Clock, FileX } from "lucide-react";
+import { FileText, Calendar, MapPin, Home, Wrench, DollarSign, FileCheck, Megaphone, Clock, FileX, Wallet, Check, X } from "lucide-react";
 import { useSession } from "next-auth/react";
 
 import Typography from "@/components/shared/typography";
@@ -11,13 +11,27 @@ import { useGetRequests } from "@/hooks/use-user";
 import { Spinner } from "@/components/ui/spinner";
 import PaginationControls from "@/components/shared/pagination-controls";
 import Image from "next/image";
+import { getProxiedImageUrl } from "@/lib/utils";
 import AdDetailsDialog from "@/components/dialogs/ad-details-dialog";
+import InstallmentDetailsDialog from "@/components/dialogs/installment-details-dialog";
 import PaymentMethodDialog from "@/components/dialogs/payment-method-dialog";
 import { Button } from "@/components/ui/button";
 import { usePayInvoice } from "@/hooks/use-invoices";
 import { toast } from "sonner";
+import { useCountries } from "@/hooks/use-countries";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useUpdatePropertyUserStatus } from "@/hooks/use-properties";
 
-type TabType = "tours" | "rent" | "service" | "installments" | "disclaimers" | "ads" | "extend-invoices" | "end-contracts";
+type TabType = "tours" | "rent" | "service" | "installments" | "disclaimers" | "ads" | "extend-invoices" | "end-contracts" | "rental-collection";
 
 const getTabEndpoints = (userId?: string): Record<TabType, string> => ({
   tours: "/tours",
@@ -28,7 +42,42 @@ const getTabEndpoints = (userId?: string): Record<TabType, string> => ({
   ads: `/ads?user=${userId || ""}`,
   "extend-invoices": "/invoices/extends",
   "end-contracts": "/end-contracts",
+  "rental-collection": "/properties/rental_requests",
 });
+
+// Component for owner image with fallback
+function OwnerImage({ owner }: { owner: { image?: string; name: string } }) {
+  const [imageError, setImageError] = useState(false);
+
+  // Reset error state when owner changes
+  useEffect(() => {
+    setImageError(false);
+  }, [owner.image]);
+
+  const hasValidImage = owner.image && (owner.image.startsWith('/') || owner.image.startsWith('http'));
+
+  if (hasValidImage && !imageError) {
+    return (
+      <Image
+        src={getProxiedImageUrl(owner.image)}
+        alt={owner.name}
+        width={40}
+        height={40}
+        className="h-10 w-10 rounded-full object-cover"
+        onError={() => setImageError(true)}
+      />
+    );
+  }
+
+  // Show initials fallback
+  return (
+    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-main-400 to-main-600 flex items-center justify-center">
+      <Typography variant="body-sm" as="span" className="font-bold text-white">
+        {owner.name?.charAt(0).toUpperCase() || "?"}
+      </Typography>
+    </div>
+  );
+}
 
 export default function MyRequestsPage() {
   const t = useTranslations("User.MyRequests");
@@ -36,12 +85,41 @@ export default function MyRequestsPage() {
   const [activeTab, setActiveTab] = useState<TabType>("tours");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedAdId, setSelectedAdId] = useState<string | null>(null);
+  const [selectedInstallmentId, setSelectedInstallmentId] = useState<string | null>(null);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
   const [selectedInvoiceAmount, setSelectedInvoiceAmount] = useState<number | null>(null);
+  const [confirmationDialog, setConfirmationDialog] = useState<{
+    open: boolean;
+    action: "approve" | "reject" | null;
+    propertyId: string | null;
+    propertyTitle: string | null;
+  }>({
+    open: false,
+    action: null,
+    propertyId: null,
+    propertyTitle: null,
+  });
 
   // Payment mutation for extend invoices
   const payInvoiceMutation = usePayInvoice();
+
+  // Update property user status mutation
+  const updateUserStatusMutation = useUpdatePropertyUserStatus();
+
+  // Get countries data for currency lookup
+  const { data: countries } = useCountries();
+
+  // Helper function to get currency from country code
+  const getCurrency = (countryCode?: string): string => {
+    if (!countries || !countryCode) {
+      return "KWD"; // Default currency
+    }
+    const country = countries.find(
+      (c) => c.code.toUpperCase() === countryCode.toUpperCase()
+    );
+    return country?.currency || "KWD";
+  };
 
   // Get user ID from session
   const userId = session?.user?.id;
@@ -50,8 +128,6 @@ export default function MyRequestsPage() {
   // Single query that refetches when endpoint or page changes
   const currentEndpoint = tabEndpoints[activeTab];
   const { data, isLoading } = useGetRequests(currentEndpoint, currentPage);
-
-  console.log(data)
 
   // Reset to page 1 when tab changes
   const handleTabChange = (value: string) => {
@@ -64,6 +140,42 @@ export default function MyRequestsPage() {
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Handle approve/reject rental collection property
+  const handleApproveReject = (action: "approve" | "reject", propertyId: string, propertyTitle: string) => {
+    setConfirmationDialog({
+      open: true,
+      action,
+      propertyId,
+      propertyTitle,
+    });
+  };
+
+  const handleConfirmAction = async () => {
+    if (!confirmationDialog.propertyId || !confirmationDialog.action) return;
+
+    try {
+      await updateUserStatusMutation.mutateAsync({
+        propertyId: confirmationDialog.propertyId,
+        status: confirmationDialog.action === "approve" ? "APPROVED" : "REFUSED",
+      });
+
+      toast.success(
+        confirmationDialog.action === "approve"
+          ? t("rental-collection-approved")
+          : t("rental-collection-rejected")
+      );
+
+      setConfirmationDialog({
+        open: false,
+        action: null,
+        propertyId: null,
+        propertyTitle: null,
+      });
+    } catch (error) {
+      toast.error(t("action-failed"));
+    }
   };
 
   // Handle payment for rejected extend invoices
@@ -116,6 +228,16 @@ export default function MyRequestsPage() {
     });
   };
 
+  const formatStatus = (status: string) => {
+    if (!status) return "";
+    // Convert to lowercase then capitalize first letter of each word
+    return status
+      .toLowerCase()
+      .split("_")
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
   const getStatusColor = (status: string) => {
     const normalizedStatus = status?.toLowerCase() || "";
     switch (normalizedStatus) {
@@ -140,16 +262,23 @@ export default function MyRequestsPage() {
     const isExtendInvoice = activeTab === "extend-invoices";
     // Handle end contracts which have nested rent.property structure
     const isEndContract = activeTab === "end-contracts";
+    // Handle rental collection which shows properties with rentDetails
+    const isRentalCollection = activeTab === "rental-collection";
     const property = isExtendInvoice
       ? request.invoice?.property
       : isEndContract
         ? request.rent?.property
-        : request.property;
+        : isRentalCollection
+          ? request
+          : request.property;
 
     const propertyTitle = property?.title || request.name || request.title || t("request-title");
     const propertyLocation = property
       ? `${property.city || ""}, ${property.region || ""}`.trim().replace(/^,|,$/g, "")
       : null;
+
+    // Get currency based on property country
+    const currency = getCurrency(property?.country);
 
     // Check if this is an ad with a comment (for green border)
     const hasAdComment = activeTab === "ads" && request.comment;
@@ -191,24 +320,34 @@ export default function MyRequestsPage() {
           </div>
 
           <div className="flex flex-col gap-2 items-end">
-            {request.status && (
+            {!isRentalCollection && request.status && (
               <span
                 className={`inline-block rounded-full border px-4 py-1 text-sm font-medium whitespace-nowrap ${getStatusColor(
                   request.status
                 )}`}
               >
-                {request.status}
+                {formatStatus(request.status)}
+              </span>
+            )}
+            {/* Rental Collection: show tenantStatus */}
+            {isRentalCollection && request.tenantStatus && (
+              <span
+                className={`inline-block rounded-full border px-4 py-1 text-sm font-medium whitespace-nowrap ${getStatusColor(
+                  request.tenantStatus
+                )}`}
+              >
+                {formatStatus(request.tenantStatus)}
               </span>
             )}
             {request.ownerStatus && request.userStatus && (
               <div className="flex flex-col gap-1 text-xs">
                 <span className={`inline-block rounded-full border px-3 py-1 font-medium whitespace-nowrap ${getStatusColor(request.ownerStatus)}`}>
-                  {t("owner")}: {request.ownerStatus}
+                  {t("owner")}: {formatStatus(request.ownerStatus)}
                 </span>
                 {/* Hide user status if owner status is rejected in installments */}
                 {!(activeTab === "installments" && request.ownerStatus?.toLowerCase() === "rejected") && (
                   <span className={`inline-block rounded-full border px-3 py-1 font-medium whitespace-nowrap ${getStatusColor(request.userStatus)}`}>
-                    {t("user")}: {request.userStatus}
+                    {t("user")}: {formatStatus(request.userStatus)}
                   </span>
                 )}
               </div>
@@ -245,6 +384,25 @@ export default function MyRequestsPage() {
             </div>
           )}
 
+          {/* Rental Collection specific fields */}
+          {isRentalCollection && request.rentDetails && (
+            <>
+              <div className="flex items-center gap-2 text-gray-600">
+                <Calendar className="h-4 w-4 shrink-0" />
+                <Typography variant="body-sm" as="span">
+                  {formatDate(request.rentDetails.startDate)} - {formatDate(request.rentDetails.endDate)}
+                  {request.rentDetails.rentType && ` (${request.rentDetails.rentType})`}
+                </Typography>
+              </div>
+              <div className="flex items-center gap-2 text-gray-600">
+                <DollarSign className="h-4 w-4 shrink-0" />
+                <Typography variant="body-sm" as="span">
+                  {request.rentDetails.amount} {currency}
+                </Typography>
+              </div>
+            </>
+          )}
+
           {request.mobileNumber && (
             <div className="flex items-center gap-2 text-gray-600">
               <FileText className="h-4 w-4 shrink-0" />
@@ -254,11 +412,11 @@ export default function MyRequestsPage() {
             </div>
           )}
 
-          {request.amount && !isAd && (
+          {request.amount && !isAd && activeTab !== "installments" && (
             <div className="flex items-center gap-2 text-gray-600">
               <DollarSign className="h-4 w-4 shrink-0" />
               <Typography variant="body-sm" as="span">
-                {request.amount} {t("currency")}
+                {request.amount} {currency}
               </Typography>
             </div>
           )}
@@ -268,37 +426,11 @@ export default function MyRequestsPage() {
             <div className="flex items-center gap-2 text-gray-600">
               <DollarSign className="h-4 w-4 shrink-0" />
               <Typography variant="body-sm" as="span">
-                {request.price} {t("currency")} / {request.priceType}
+                {request.price} {currency} / {request.priceType}
               </Typography>
             </div>
           )}
 
-          {request.property?.price && (
-            <div className="flex items-center gap-2 text-gray-600">
-              <DollarSign className="h-4 w-4 shrink-0" />
-              <Typography variant="body-sm" as="span">
-                {t("total")}: {request.property.price} {t("currency")}
-              </Typography>
-            </div>
-          )}
-
-          {request.installmentPeriod && (
-            <div className="flex items-center gap-2 text-gray-600">
-              <Calendar className="h-4 w-4 shrink-0" />
-              <Typography variant="body-sm" as="span">
-                {request.installmentPeriod} {t("months")} ({request.installmentType || t("not-available")})
-              </Typography>
-            </div>
-          )}
-
-          {request.startDate && request.endDate && (
-            <div className="flex items-center gap-2 text-gray-600">
-              <Calendar className="h-4 w-4 shrink-0" />
-              <Typography variant="body-sm" as="span">
-                {formatDate(request.startDate)} - {formatDate(request.endDate)}
-              </Typography>
-            </div>
-          )}
 
           {/* Extend Invoice specific fields */}
           {isExtendInvoice && request.extendTo && (
@@ -314,7 +446,7 @@ export default function MyRequestsPage() {
             <div className="flex items-center gap-2 text-gray-600">
               <DollarSign className="h-4 w-4 shrink-0" />
               <Typography variant="body-sm" as="span">
-                {t("invoice-amount")}: {request.invoice.userAmount} {t("currency")}
+                {t("invoice-amount")}: {request.invoice.userAmount} {currency}
               </Typography>
             </div>
           )}
@@ -340,19 +472,7 @@ export default function MyRequestsPage() {
 
         {request.owner && (
           <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg mb-3">
-            {request.owner.image ? (
-              <Image
-                src={request.owner.image}
-                alt={request.owner.name}
-                width={40}
-                height={40}
-                className="h-10 w-10 rounded-full object-cover"
-              />
-            ) : (
-              <div className="h-10 w-10 rounded-full bg-main-100 flex items-center justify-center">
-                <Home className="h-5 w-5 text-main-600" />
-              </div>
-            )}
+            <OwnerImage owner={request.owner} />
             <div>
               <Typography variant="body-sm" as="p" className="font-medium">
                 {request.owner.name}
@@ -407,6 +527,54 @@ export default function MyRequestsPage() {
                 {t("invoice-not-available")}
               </Typography>
             )}
+          </div>
+        )}
+
+        {/* View Details button for installments where owner is approved and user is pending */}
+        {activeTab === "installments" && request.ownerStatus?.toLowerCase() === "approved" && request.userStatus?.toLowerCase() === "pending" && (
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <Button
+              onClick={() => setSelectedInstallmentId(request._id)}
+              className="w-full bg-main-600 hover:bg-main-700 text-white font-semibold"
+            >
+              {t("view-details")}
+            </Button>
+          </div>
+        )}
+
+        {/* Approve/Reject buttons for rental collection with PENDING status */}
+        {isRentalCollection && request.tenantStatus?.toUpperCase() === "PENDING" && (
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <div className="flex gap-3">
+              <Button
+                onClick={() => handleApproveReject("approve", request._id, propertyTitle)}
+                disabled={updateUserStatusMutation.isPending}
+                className="flex-1 bg-main-600 hover:bg-main-700 text-white font-semibold"
+              >
+                {updateUserStatusMutation.isPending && confirmationDialog.action === "approve" ? (
+                  <Spinner className="h-4 w-4" />
+                ) : (
+                  <>
+                    <Check className="h-4 w-4 mr-2" />
+                    {t("approve")}
+                  </>
+                )}
+              </Button>
+              <Button
+                onClick={() => handleApproveReject("reject", request._id, propertyTitle)}
+                disabled={updateUserStatusMutation.isPending}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold"
+              >
+                {updateUserStatusMutation.isPending && confirmationDialog.action === "reject" ? (
+                  <Spinner className="h-4 w-4" />
+                ) : (
+                  <>
+                    <X className="h-4 w-4 mr-2" />
+                    {t("reject")}
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         )}
       </div>
@@ -478,6 +646,12 @@ export default function MyRequestsPage() {
           emptyIcon: <FileX className="h-8 w-8 text-gray-400" />,
           emptyMessage: t("no-end-contracts"),
         };
+      case "rental-collection":
+        return {
+          icon: <Wallet className="h-6 w-6 text-main-600" />,
+          emptyIcon: <Wallet className="h-8 w-8 text-gray-400" />,
+          emptyMessage: t("no-rental-collection"),
+        };
     }
   };
 
@@ -498,54 +672,60 @@ export default function MyRequestsPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="grid w-full grid-cols-8">
+        <TabsList className="flex w-full flex-wrap gap-2 h-auto p-2">
           <TabsTrigger
             value="tours"
-            className="data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
+            className="px-4 py-2 data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
           >
             {t("tabs.tours")}
           </TabsTrigger>
           <TabsTrigger
             value="rent"
-            className="data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
+            className="px-4 py-2 data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
           >
             {t("tabs.rent")}
           </TabsTrigger>
           <TabsTrigger
             value="service"
-            className="data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
+            className="px-4 py-2 data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
           >
             {t("tabs.service")}
           </TabsTrigger>
           <TabsTrigger
             value="installments"
-            className="data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
+            className="px-4 py-2 data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
           >
             {t("tabs.installments")}
           </TabsTrigger>
           <TabsTrigger
             value="disclaimers"
-            className="data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
+            className="px-4 py-2 data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
           >
             {t("tabs.disclaimers")}
           </TabsTrigger>
           <TabsTrigger
             value="ads"
-            className="data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
+            className="px-4 py-2 data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
           >
             {t("tabs.ads")}
           </TabsTrigger>
           <TabsTrigger
             value="extend-invoices"
-            className="data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
+            className="px-4 py-2 data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
           >
             {t("tabs.extend-invoices")}
           </TabsTrigger>
           <TabsTrigger
             value="end-contracts"
-            className="data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
+            className="px-4 py-2 data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
           >
             {t("tabs.end-contracts")}
+          </TabsTrigger>
+          <TabsTrigger
+            value="rental-collection"
+            className="px-4 py-2 data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
+          >
+            {t("tabs.rental-collection")}
           </TabsTrigger>
         </TabsList>
 
@@ -587,6 +767,13 @@ export default function MyRequestsPage() {
         onOpenChange={(open) => !open && setSelectedAdId(null)}
       />
 
+      {/* Installment Details Dialog */}
+      <InstallmentDetailsDialog
+        installmentId={selectedInstallmentId}
+        open={!!selectedInstallmentId}
+        onOpenChange={(open) => !open && setSelectedInstallmentId(null)}
+      />
+
       {/* Payment Method Dialog */}
       <PaymentMethodDialog
         open={paymentDialogOpen}
@@ -595,6 +782,62 @@ export default function MyRequestsPage() {
         amount={selectedInvoiceAmount || undefined}
         currency="KWD"
       />
+
+      {/* Rental Collection Confirmation Dialog */}
+      <AlertDialog
+        open={confirmationDialog.open}
+        onOpenChange={(open) =>
+          !open &&
+          setConfirmationDialog({
+            open: false,
+            action: null,
+            propertyId: null,
+            propertyTitle: null,
+          })
+        }
+      >
+        <AlertDialogContent className="bg-white dark:bg-gray-950">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-gray-900 dark:text-white">
+              {confirmationDialog.action === "approve"
+                ? t("confirmation-tenant.approve.title")
+                : t("confirmation-tenant.reject.title")}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-600 dark:text-gray-400">
+              {confirmationDialog.action === "approve"
+                ? t("confirmation-tenant.approve.description", {
+                    property: confirmationDialog.propertyTitle,
+                  })
+                : t("confirmation-tenant.reject.description", {
+                    property: confirmationDialog.propertyTitle,
+                  })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              disabled={updateUserStatusMutation.isPending}
+              className="text-gray-900 dark:text-white"
+            >
+              {t("confirmation.cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmAction}
+              disabled={updateUserStatusMutation.isPending}
+              className={
+                confirmationDialog.action === "approve"
+                  ? "bg-main-600 hover:bg-main-700 text-white"
+                  : "bg-red-600 hover:bg-red-700 text-white"
+              }
+            >
+              {updateUserStatusMutation.isPending ? (
+                <Spinner className="h-4 w-4" />
+              ) : (
+                t("confirmation.confirm")
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

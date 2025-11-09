@@ -37,7 +37,7 @@ export default function Footer() {
 
   return (
     <div>
-      <div className="container mx-auto rounded-md bg-main-100 py-20 shadow-sm px-4">
+      <div className="container mx-auto rounded-md bg-main-100 py-20 shadow-sm px-4 md:px-6">
         <div className="grid gap-8 sm:grid-cols-1 md:grid-cols-4">
           {/* Logo */}
           <div className={`${locale === "ar" ? "order-4 ml-auto" : "order-1"}`}>

@@ -131,11 +131,14 @@ export default function ProfilePage() {
       }
 
       // Prepare update payload
-      const updatePayload: any = {};
+      // Always include required fields: name, phoneNumber, and country
+      const updatePayload: any = {
+        name: data.name,
+        phoneNumber: data.phone,
+        country: userProfile?.country || "",
+      };
 
-      // Personal info changes
-      if (data.name !== userProfile?.name) updatePayload.name = data.name;
-      if (data.phone !== userProfile?.phoneNumber) updatePayload.phoneNumber = data.phone;
+      // Add email if changed
       if (data.email !== userProfile?.email) updatePayload.email = data.email;
 
       // Banking info changes
@@ -170,8 +173,14 @@ export default function ProfilePage() {
         };
       }
 
-      // Update profile if there are changes
-      if (Object.keys(updatePayload).length > 0) {
+      // Check if there are any actual changes
+      const hasPersonalChanges =
+        data.name !== userProfile?.name ||
+        data.phone !== userProfile?.phoneNumber ||
+        data.email !== userProfile?.email;
+
+      // Update profile if there are any changes
+      if (hasPersonalChanges || bankingChanged || socialChanged) {
         await updateUserMutation.mutateAsync(updatePayload);
         toast.success(t("Personal.profile-success"));
       }

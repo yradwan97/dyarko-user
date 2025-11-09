@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { X } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 import {
   Sheet,
@@ -30,6 +31,8 @@ import { useCurrency } from "@/hooks/use-currency";
 import { useCities } from "@/hooks/use-cities";
 import { useCountryContext } from "@/components/providers/country-provider";
 import type { Governorate } from "@/types/property";
+import { getCategories, type Category } from "@/lib/services/api/categories";
+import { Badge } from "@/components/ui/badge";
 
 interface FilterSideProps {
   isOpen: boolean;
@@ -37,6 +40,11 @@ interface FilterSideProps {
   onApplyFilters: (filters: any) => void;
   currentSort?: string;
   onSortChange?: (sort: string) => void;
+  initialCity?: string;
+  initialSearch?: string;
+  initialPriceRange?: [number, number];
+  initialOfferType?: string;
+  initialCategory?: string;
 }
 
 type OfferType = "RENT" | "INSTALLMENT" | "CASH";
@@ -54,23 +62,58 @@ const SORT_OPTIONS = [
   { id: "recentlyAdded", name: "Recently Added" },
 ];
 
-export default function FilterSide({ isOpen, onClose, onApplyFilters, currentSort = "recentlyAdded", onSortChange }: FilterSideProps) {
+export default function FilterSide({
+  isOpen,
+  onClose,
+  onApplyFilters,
+  currentSort = "recentlyAdded",
+  onSortChange,
+  initialCity,
+  initialSearch = "",
+  initialPriceRange = [0, 1000000],
+  initialOfferType = "RENT",
+  initialCategory = "",
+}: FilterSideProps) {
   const t = useTranslations("PropertySearch.filters");
+  const tGeneral = useTranslations("General.Categories");
+  const locale = useLocale();
   const currency = useCurrency();
   const { selectedCountry } = useCountryContext();
   const { data: cities, isLoading: citiesLoading } = useCities(selectedCountry);
 
+  // Fetch categories
+  const { data: categories } = useQuery({
+    queryKey: ["categories"],
+    queryFn: getCategories,
+  });
+
   // Filter states
-  const [offerType, setOfferType] = useState<OfferType>("RENT");
-  const [priceRange, setPriceRange] = useState([0, 1000000]);
+  const [offerType, setOfferType] = useState<OfferType>(initialOfferType as OfferType);
+  const [priceRange, setPriceRange] = useState(initialPriceRange);
   const [selectedSort, setSelectedSort] = useState(currentSort);
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
+  const [selectedCity, setSelectedCity] = useState(initialCity || "");
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
+
+  // Track if this is the first time opening the sidebar
+  const [hasInitialized, setHasInitialized] = useState(false);
 
   // Sync with parent's sort when it changes
   useEffect(() => {
     setSelectedSort(currentSort);
   }, [currentSort]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCity, setSelectedCity] = useState("");
+
+  // Initialize filters only once when sidebar first opens
+  useEffect(() => {
+    if (isOpen && !hasInitialized) {
+      if (initialCity) setSelectedCity(initialCity);
+      if (initialSearch !== undefined) setSearchQuery(initialSearch);
+      if (initialPriceRange) setPriceRange(initialPriceRange);
+      if (initialOfferType) setOfferType(initialOfferType as OfferType);
+      if (initialCategory !== undefined) setSelectedCategory(initialCategory);
+      setHasInitialized(true);
+    }
+  }, [isOpen, hasInitialized, initialCity, initialSearch, initialPriceRange, initialOfferType, initialCategory]);
   const [bedrooms, setBedrooms] = useState("");
   const [bathrooms, setBathrooms] = useState("");
 
@@ -104,11 +147,22 @@ export default function FilterSide({ isOpen, onClose, onApplyFilters, currentSor
   }, [searchQuery]);
 
   const handleReset = () => {
+    // Reset all filters: offerType to RENT, remove city, clear everything else
+    const resetFilters: any = {
+      offerType: "RENT",
+      priceFrom: 0,
+      priceTo: 1000000,
+      search: "",
+      city: "", // Remove city
+    };
+
+    // Reset local state
     setOfferType("RENT");
     setPriceRange([0, 1000000]);
-    setSelectedSort(SORT_OPTIONS[0].id);
+    setSelectedSort("recentlyAdded");
     setSearchQuery("");
     setSelectedCity("");
+    setSelectedCategory("");
     setBedrooms("");
     setBathrooms("");
     setIsDaily(false);
@@ -116,21 +170,22 @@ export default function FilterSide({ isOpen, onClose, onApplyFilters, currentSor
     setIsMonthly(false);
     setIsWeekdays(false);
     setIsHolidays(false);
+
+    // Notify parent
+    onApplyFilters(resetFilters);
+
+    // Update parent's sort state
+    if (onSortChange) {
+      onSortChange("recentlyAdded");
+    }
   };
 
   const handleApply = () => {
     const filters: any = {
       offerType,
+      priceFrom: priceRange[0],
+      priceTo: priceRange[1],
     };
-
-    // Add priceFrom only if it's not 0
-    if (priceRange[0] > 0) {
-      filters.priceFrom = priceRange[0];
-    }
-
-    if (priceRange[1] < 1000000) {
-      filters.priceTo = priceRange[1];
-    }
 
     // Add sort only if it's not "recentlyAdded"
     if (selectedSort !== "recentlyAdded") {
@@ -142,14 +197,17 @@ export default function FilterSide({ isOpen, onClose, onApplyFilters, currentSor
       onSortChange(selectedSort);
     }
 
-    // Add search if provided
-    if (searchQuery.trim()) {
-      filters.search = searchQuery.trim();
-    }
+    // Add search (always send it, even if empty, to clear it)
+    filters.search = searchQuery.trim();
 
     // Add city if selected
     if (selectedCity) {
       filters.city = selectedCity;
+    }
+
+    // Add category if selected
+    if (selectedCategory) {
+      filters.category = selectedCategory;
     }
 
     // Add bedrooms/bathrooms if provided
@@ -270,6 +328,31 @@ export default function FilterSide({ isOpen, onClose, onApplyFilters, currentSor
               </Select>
             </div>
 
+            {/* Categories */}
+            <div className="px-1">
+              <Typography variant="body-md-bold" as="p" className="mb-3 block">
+                Categories
+              </Typography>
+              <div className="flex flex-wrap gap-2">
+                {categories?.map((category) => (
+                  <Badge
+                    key={category.key}
+                    variant={selectedCategory === category.key ? "default" : "outline"}
+                    className={`cursor-pointer transition-colors ${
+                      selectedCategory === category.key
+                        ? "bg-main-500 text-white hover:bg-main-600"
+                        : "hover:bg-gray-100 dark:hover:bg-gray-800"
+                    }`}
+                    onClick={() =>
+                      setSelectedCategory(selectedCategory === category.key ? "" : category.key)
+                    }
+                  >
+                    {tGeneral(category.key)}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
             {/* Bedrooms & Bathrooms */}
             <div className="grid grid-cols-2 gap-4 px-1">
               <div>
@@ -315,7 +398,7 @@ export default function FilterSide({ isOpen, onClose, onApplyFilters, currentSor
                 max={currentRange.max}
                 step={1000}
                 value={priceRange}
-                onValueChange={setPriceRange}
+                onValueChange={(value) => setPriceRange(value as [number, number])}
                 className="mt-6"
               />
               <div className="mt-3 flex justify-between text-xs text-gray-500">

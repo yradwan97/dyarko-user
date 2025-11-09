@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { type Property } from "@/lib/services/api/properties";
 import { Button } from "@/components/ui/button";
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useGetAvailableTents } from "@/hooks/use-tents";
 import { format } from "date-fns";
@@ -16,6 +16,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
+import Image from "next/image";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface Step25SelectTentsProps {
   property: Property;
@@ -36,6 +43,7 @@ export default function Step25SelectTents({
   const t = useTranslations("Rent.Step2_5");
   const tCommon = useTranslations("General");
   const [expandedTents, setExpandedTents] = useState<Set<number | string>>(new Set());
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
 
   // Get dates for API call
   const startDate = useMemo(() => {
@@ -138,10 +146,47 @@ export default function Step25SelectTents({
 
   return (
     <div className="space-y-6">
-      {/* Camp Layout */}
+      {/* Visual Layout Section */}
       <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           {t("camp-layout") || "Camp Layout"}
+        </h2>
+
+        {property.interiorDesign ? (
+          <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-900">
+            <div className="flex flex-col items-center gap-2">
+              <button
+                onClick={() => setIsImageModalOpen(true)}
+                className="relative group cursor-pointer transition-all hover:scale-105"
+              >
+                <Image
+                  width={400}
+                  height={300}
+                  src={property.interiorDesign}
+                  alt={t("camp-layout") || "Camp Layout"}
+                  className="max-w-full h-auto rounded-lg"
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-lg transition-all flex items-center justify-center">
+                  <span className="opacity-0 group-hover:opacity-100 text-white bg-black/50 px-3 py-1 rounded-lg text-sm font-medium transition-opacity">
+                    Click to enlarge
+                  </span>
+                </div>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-8 bg-gray-50 dark:bg-gray-900 text-center">
+            <p className="text-gray-500 dark:text-gray-400">
+              {t("no-layout-image") || "No layout image available"}
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Choose Tents Section */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          {t("choose-tents") || "Choose Tents"}
         </h2>
 
         {allTents.length === 0 ? (
@@ -152,7 +197,7 @@ export default function Step25SelectTents({
           </div>
         ) : (
           <>
-            {/* Camp visual layout */}
+            {/* Interactive tent selection */}
             <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-4 bg-gray-50 dark:bg-gray-900">
               <div className="flex flex-wrap gap-2 justify-center">
                 {allTents.map((tent) => {
@@ -205,7 +250,7 @@ export default function Step25SelectTents({
             </div>
 
             {/* Availability info */}
-            <div className="flex items-center gap-4 text-sm">
+            <div className="flex items-center gap-4 text-sm mb-4">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded border-2 border-green-500 bg-green-100" />
                 <span className="text-gray-600 dark:text-gray-400">
@@ -220,104 +265,68 @@ export default function Step25SelectTents({
               </div>
             </div>
 
+            {/* Tent Chosen Dropdown */}
+            {selectedTents.length > 0 && (
+              <div className="space-y-3 mb-4">
+                <h3 className="font-medium text-gray-900 dark:text-white">
+                  {t("tent-chosen") || "Tent Chosen"}:
+                </h3>
+                {selectedTents.map((tent, index) => {
+                  const isExpanded = expandedTents.has(tent._id);
+                  return (
+                    <div key={tent._id} className="border border-gray-200 dark:border-gray-700 rounded-lg">
+                      <button
+                        className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors"
+                        onClick={() => toggleTentExpansion(tent._id)}
+                      >
+                        <span className="font-medium text-gray-900 dark:text-white">
+                          {property.category === "camp" ? t("tent") : t("booth")} {tent.number || tent._id}
+                        </span>
+                        <ChevronDown
+                          className={cn(
+                            "h-5 w-5 text-gray-500 transition-transform",
+                            isExpanded && "rotate-180"
+                          )}
+                        />
+                      </button>
+                      {isExpanded && (
+                        <div className="px-4 pb-4 space-y-2 border-t border-gray-100 dark:border-gray-700 pt-3">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-600 dark:text-gray-400">{t("name") || "Name"}:</span>
+                            <span className="font-medium text-gray-900 dark:text-white">{tent.groupName}</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-600 dark:text-gray-400">{t("price") || "Price"}:</span>
+                            <span className="font-medium text-gray-900 dark:text-white">
+                              {tent.price || property.groups?.[tent.groupIndex]?.price || 0} {tCommon("kwd")}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-600 dark:text-gray-400">{t("insurance") || "Insurance"}:</span>
+                            <span className="font-medium text-gray-900 dark:text-white">
+                              {tent.insurance || property.insurancePrice || 0} {tCommon("kwd")}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
             {/* Note */}
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               {t("layout-note") || "Click on available tents to select them. Unavailable tents are likely booked for your chosen dates."}
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+              {t("camp-note") || "Note: This is the camp's layout. The tents you select will match the same numbers and locations shown here"}
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+              {t("details-note") || "Note: You can check all tent details inside the camp details section"}
             </p>
           </>
         )}
-      </div>
-
-      {/* Choose Tents Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          {t("choose-tents") || "Choose Tents"}
-        </h2>
-
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-6">
-          {allTents
-            .filter((tent) => isTentAvailable(tent._id))
-            .slice(0, 10)
-            .map((tent) => {
-              const isSelected = isTentSelected(tent);
-
-              return (
-                <button
-                  key={tent._id}
-                  onClick={() => toggleTentSelection(tent)}
-                  className={cn(
-                    "aspect-square rounded-lg border-2 flex items-center justify-center font-semibold transition-all",
-                    isSelected && "ring-2 ring-main-500"
-                  )}
-                  style={{
-                    backgroundColor: tent.color || "#e5e7eb",
-                    borderColor: isSelected ? "#8b5cf6" : tent.color || "#9ca3af",
-                    color: tent.color ? getContrastColor(tent.color) : "#1f2937",
-                  }}
-                >
-                  {tent.number || tent._id}
-                </button>
-              );
-            })}
-        </div>
-
-        {/* Tent Chosen Dropdown */}
-        {selectedTents.length > 0 && (
-          <div className="space-y-3">
-            <h3 className="font-medium text-gray-900 dark:text-white">
-              {t("tent-chosen") || "Tent Chosen"}:
-            </h3>
-            {selectedTents.map((tent, index) => {
-              const isExpanded = expandedTents.has(tent._id);
-              return (
-                <div key={tent._id} className="border border-gray-200 dark:border-gray-700 rounded-lg">
-                  <button
-                    className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors"
-                    onClick={() => toggleTentExpansion(tent._id)}
-                  >
-                    <span className="font-medium text-gray-900 dark:text-white">
-                      {property.category === "camp" ? t("tent") : t("booth")} {tent.number || tent._id}
-                    </span>
-                    <ChevronDown
-                      className={cn(
-                        "h-5 w-5 text-gray-500 transition-transform",
-                        isExpanded && "rotate-180"
-                      )}
-                    />
-                  </button>
-                  {isExpanded && (
-                    <div className="px-4 pb-4 space-y-2 border-t border-gray-100 dark:border-gray-700 pt-3">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600 dark:text-gray-400">{t("name") || "Name"}:</span>
-                        <span className="font-medium text-gray-900 dark:text-white">{tent.groupName}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600 dark:text-gray-400">{t("price") || "Price"}:</span>
-                        <span className="font-medium text-gray-900 dark:text-white">
-                          {tent.price || property.groups?.[tent.groupIndex]?.price || 0} {tCommon("kwd")}
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600 dark:text-gray-400">{t("insurance") || "Insurance"}:</span>
-                        <span className="font-medium text-gray-900 dark:text-white">
-                          {tent.insurance || property.insurancePrice || 0} {tCommon("kwd")}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Note */}
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
-          {t("camp-note") || "Note: This is the camp's layout. The tents you select will match the same numbers and locations shown here"}
-        </p>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-          {t("details-note") || "Note: You can check all tent details inside the camp details section"}
-        </p>
       </div>
 
       {/* Next Button */}
@@ -328,6 +337,28 @@ export default function Step25SelectTents({
       >
         {t("next") || "Next"}
       </Button>
+
+      {/* Image Modal */}
+      <Dialog open={isImageModalOpen} onOpenChange={setIsImageModalOpen}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0">
+          <DialogHeader className="p-4 pb-0">
+            <DialogTitle>{t("camp-layout") || "Camp Layout"}</DialogTitle>
+          </DialogHeader>
+          <div className="relative w-full h-full p-4 overflow-auto">
+            {property.interiorDesign && (
+              <div className="flex items-center justify-center">
+                <Image
+                  width={1200}
+                  height={900}
+                  src={property.interiorDesign}
+                  alt={t("camp-layout") || "Camp Layout"}
+                  className="max-w-full h-auto rounded-lg"
+                />
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

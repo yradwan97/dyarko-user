@@ -270,7 +270,7 @@ export default function Step2ChooseDate({
           {t("selectDates")}
         </p>
 
-        <div className="flex justify-center">
+        <div className="flex justify-center p-8">
           {isCourt ? (
             // Single day calendar for courts
             <Calendar
@@ -288,7 +288,7 @@ export default function Step2ChooseDate({
                 setSelectedTimeSlotIndices([]);
               }}
               disabled={isDateDisabled}
-              className="rounded-lg border border-gray-200 dark:border-gray-700 w-fit p-3"
+              className="rounded-lg border border-gray-200 dark:border-gray-700 w-fit p-6 scale-125"
             />
           ) : (
             // Range calendar for other categories
@@ -317,7 +317,7 @@ export default function Step2ChooseDate({
                 setSelectedDates(dates);
               }}
               disabled={isDateDisabled}
-              className="rounded-lg border border-gray-200 dark:border-gray-700 w-fit p-3"
+              className="rounded-lg border border-gray-200 dark:border-gray-700 w-fit p-6 scale-125"
             />
           )}
         </div>

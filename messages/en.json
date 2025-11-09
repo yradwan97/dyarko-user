@@ -282,6 +282,7 @@
       "finishing": "Finishing",
       "about-this": "About this",
       "documents": "Attached Documents",
+      "property-video": "Property Video",
       "listed-by": "Listed by property owner",
       "more-info": "Get more info",
       "rental-amenities": "Unit Amenities",
@@ -339,7 +340,7 @@
       "noProperties": "No properties available"
     },
     "VideosSection": {
-      "title": "Related Videos",
+      "title": "All Videos",
       "error": "Failed to load videos",
       "noVideos": "No videos available"
     },
@@ -691,7 +692,23 @@
     "share": "Share",
     "anonymous": "Anonymous",
     "relatedVideos": "Related Videos",
-    "noRelatedVideos": "No related videos available"
+    "noRelatedVideos": "No related videos available",
+    "report": {
+      "title": "Report",
+      "modalTitle": "Report Video",
+      "modalDescription": "Please describe the issue with this video. Your report will be reviewed by our team.",
+      "placeholder": "Enter your report here...",
+      "cancel": "Cancel",
+      "submit": "Submit",
+      "confirmTitle": "Confirm Report",
+      "confirmDescription": "Are you sure you want to submit this report? This action cannot be undone.",
+      "confirmCancel": "Cancel",
+      "confirmSubmit": "Submit Report",
+      "submitting": "Submitting...",
+      "emptyReport": "Please enter a report description",
+      "success": "Report submitted successfully. Thank you for your feedback.",
+      "error": "Failed to submit report. Please try again."
+    }
   },
   "VideoCommentsSection": {
     "title": "Comments",
@@ -704,6 +721,12 @@
     "commentDeleted": "Comment deleted successfully",
     "deleteError": "Failed to delete comment",
     "confirmDelete": "Are you sure you want to delete this comment?",
+    "deleteConfirmation": {
+      "title": "Delete Comment",
+      "description": "Are you sure you want to delete this comment? This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    },
     "loginToComment": "Please log in to comment",
     "login": "Log in",
     "noComments": "No comments yet. Be the first to comment!",
@@ -1295,6 +1318,23 @@
       "admin-comment": "Admin Comment",
       "reason": "Reason",
       "showing-page": "Showing page {currentPage} of {totalPages} ({itemsCount} total items)",
+      "approve": "Approve",
+      "reject": "Reject",
+      "rental-collection-approved": "Tenant approved successfully",
+      "rental-collection-rejected": "Tenant rejected successfully",
+      "action-failed": "Action failed. Please try again.",
+      "confirmation-tenant": {
+        "approve": {
+          "title": "Approve Rent",
+          "description": "Are you sure you want to approve the rental of \"{property}\"? This action cannot be undone."
+        },
+        "reject": {
+          "title": "Reject Rent",
+          "description": "Are you sure you want to reject the rental of \"{property}\"? This action cannot be undone."
+        },
+        "cancel": "Cancel",
+        "confirm": "Confirm"
+      },
       "tabs": {
         "tours": "Tours",
         "rent": "Rent",
@@ -1303,7 +1343,8 @@
         "disclaimers": "Disclaimers",
         "ads": "User Ads",
         "extend-invoices": "Invoice Extensions",
-        "end-contracts": "End Contracts"
+        "end-contracts": "End Contracts",
+        "rental-collection": "Rental Collection"
       },
       "no-tours": "No tour requests yet",
       "no-rent": "No rent requests yet",
@@ -1313,6 +1354,8 @@
       "no-installments": "No installment requests yet",
       "no-disclaimers": "No disclaimer requests yet",
       "no-ads": "No ads yet",
+      "no-rental-collection": "No rental collection properties yet",
+      "tenant-status": "Tenant Status",
       "ad-details": "Ad Details",
       "price": "Price",
       "price-type": "Price Type",
@@ -1324,7 +1367,52 @@
       "comments": "Comments",
       "no-comments": "No comments yet",
       "ad-not-found": "Ad not found",
-      "view-property": "View Property"
+      "view-property": "View Property",
+      "view-details": "View Details",
+      "installment-details": "Installment Details",
+      "installment-details-tab": "Installment Details",
+      "installment-plan-tab": "Installment Plan",
+      "property-information": "Property Information",
+      "property-title": "Property Title",
+      "property-code": "Property Code",
+      "location": "Location",
+      "property-price": "Property Price",
+      "owner-information": "Owner Information",
+      "user-information": "User Information",
+      "user-name": "Name",
+      "phone-number": "Phone Number",
+      "national-id": "National ID",
+      "status": "Status",
+      "installment-information": "Installment Information",
+      "total-amount": "Total Amount",
+      "installment-period": "Installment Period",
+      "installment-type": "Installment Type",
+      "installment-plan": "Installment Plan",
+      "start-date": "Start Date",
+      "end-date": "End Date",
+      "created-at": "Created At",
+      "payment-schedule": "Payment Schedule",
+      "payment-date": "Payment Date",
+      "amount": "Amount",
+      "number-of-installments": "Number of Installments",
+      "payment-frequency": "Payment Frequency",
+      "no-payment-schedule": "No payment schedule available",
+      "installment-not-found": "Installment not found",
+      "installment-approved-success": "Installment approved successfully",
+      "installment-rejected-success": "Installment rejected successfully",
+      "installment-action-error": "Failed to update installment status. Please try again.",
+      "confirmation": {
+        "approve": {
+          "title": "Approve Installment",
+          "description": "Are you sure you want to approve this installment request? This action cannot be undone."
+        },
+        "reject": {
+          "title": "Reject Installment",
+          "description": "Are you sure you want to reject this installment request? This action cannot be undone."
+        },
+        "cancel": "Cancel",
+        "confirm": "Confirm"
+      }
     },
     "MyRealEstates": {
       "title": "My Real Estate",
@@ -1340,7 +1428,10 @@
         "status": "Status",
         "amount": "Amount",
         "tenant": "Tenant",
-        "dates": "Rental Period"
+        "dates": "Rental Period",
+        "contractTerminated": "Contract Terminated",
+        "rentEnded": "Rent Ended",
+        "upcomingDue": "Upcoming due"
       },
       "InstallmentCard": {
         "code": "Code",

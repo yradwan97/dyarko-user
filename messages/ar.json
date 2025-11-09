@@ -278,6 +278,7 @@
       "finishing": "التشطيب",
       "about-this": "عن",
       "documents": "الوثائق المرفقة",
+      "property-video": "فيديو العقار",
       "listed-by": "مدرجة من قبل مالك العقار",
       "more-info": "الحصول على المزيد من المعلومات",
       "rental-features": "مميزات العقار",
@@ -687,7 +688,23 @@
     "share": "مشاركة",
     "anonymous": "مجهول",
     "relatedVideos": "فيديوهات ذات صلة",
-    "noRelatedVideos": "لا توجد فيديوهات ذات صلة"
+    "noRelatedVideos": "لا توجد فيديوهات ذات صلة",
+    "report": {
+      "title": "إبلاغ",
+      "modalTitle": "الإبلاغ عن الفيديو",
+      "modalDescription": "يرجى وصف المشكلة في هذا الفيديو. سيتم مراجعة بلاغك من قبل فريقنا.",
+      "placeholder": "أدخل البلاغ هنا...",
+      "cancel": "إلغاء",
+      "submit": "إرسال",
+      "confirmTitle": "تأكيد البلاغ",
+      "confirmDescription": "هل أنت متأكد من إرسال هذا البلاغ؟ لا يمكن التراجع عن هذا الإجراء.",
+      "confirmCancel": "إلغاء",
+      "confirmSubmit": "إرسال البلاغ",
+      "submitting": "جارٍ الإرسال...",
+      "emptyReport": "يرجى إدخال وصف البلاغ",
+      "success": "تم إرسال البلاغ بنجاح. شكراً لك على ملاحظاتك.",
+      "error": "فشل إرسال البلاغ. يرجى المحاولة مرة أخرى."
+    }
   },
   "VideoCommentsSection": {
     "title": "التعليقات",
@@ -700,6 +717,12 @@
     "commentDeleted": "تم حذف التعليق بنجاح",
     "deleteError": "فشل في حذف التعليق",
     "confirmDelete": "هل أنت متأكد من حذف هذا التعليق؟",
+    "deleteConfirmation": {
+      "title": "حذف التعليق",
+      "description": "هل أنت متأكد من حذف هذا التعليق؟ لا يمكن التراجع عن هذا الإجراء.",
+      "cancel": "إلغاء",
+      "confirm": "حذف"
+    },
     "loginToComment": "يرجى تسجيل الدخول للتعليق",
     "login": "تسجيل الدخول",
     "noComments": "لا توجد تعليقات بعد. كن أول من يعلق!",
@@ -1319,6 +1342,23 @@
       "admin-comment": "تعليق الإدارة",
       "reason": "السبب",
       "showing-page": "عرض صفحة {currentPage} من {totalPages} ({itemsCount} عنصر إجمالي)",
+      "approve": "قبول",
+      "reject": "رفض",
+      "rental-collection-approved": "تم قبول المستأجر بنجاح",
+      "rental-collection-rejected": "تم رفض المستأجر بنجاح",
+      "action-failed": "فشل الإجراء. يرجى المحاولة مرة أخرى.",
+      "confirmation": {
+        "approve": {
+          "title": "قبول المستأجر",
+          "description": "هل أنت متأكد أنك تريد قبول المستأجر لـ \"{property}\"؟ سيسمح له هذا بالمتابعة مع الإيجار."
+        },
+        "reject": {
+          "title": "رفض المستأجر",
+          "description": "هل أنت متأكد أنك تريد رفض المستأجر لـ \"{property}\"؟ لا يمكن التراجع عن هذا الإجراء."
+        },
+        "cancel": "إلغاء",
+        "confirm": "تأكيد"
+      },
       "tabs": {
         "tours": "المعاينات",
         "rent": "الإيجار",
@@ -1327,7 +1367,8 @@
         "disclaimers": "إخلاء الطرف",
         "ads": "إعلانات المستخدم",
         "extend-invoices": "تمديد الفواتير",
-        "end-contracts": "إنهاء العقود"
+        "end-contracts": "إنهاء العقود",
+        "rental-collection": "تحصيل الإيجارات"
       },
       "no-tours": "لا توجد طلبات معاينة بعد",
       "no-rent": "لا توجد طلبات إيجار بعد",
@@ -1337,6 +1378,8 @@
       "no-installments": "لا توجد طلبات تقسيط بعد",
       "no-disclaimers": "لا توجد طلبات إخلاء طرف بعد",
       "no-ads": "لا توجد إعلانات بعد",
+      "no-rental-collection": "لا توجد عقارات بتحصيل إيجارات بعد",
+      "tenant-status": "حالة المستأجر",
       "ad-details": "تفاصيل الإعلان",
       "price": "السعر",
       "price-type": "نوع السعر",
@@ -1348,7 +1391,54 @@
       "comments": "التعليقات",
       "no-comments": "لا توجد تعليقات بعد",
       "ad-not-found": "الإعلان غير موجود",
-      "view-property": "عرض العقار"
+      "view-property": "عرض العقار",
+      "view-details": "عرض التفاصيل",
+      "installment-details": "تفاصيل التقسيط",
+      "installment-details-tab": "تفاصيل التقسيط",
+      "installment-plan-tab": "خطة الأقساط",
+      "property-information": "معلومات العقار",
+      "property-title": "عنوان العقار",
+      "property-code": "كود العقار",
+      "location": "الموقع",
+      "property-price": "سعر العقار",
+      "owner-information": "معلومات المالك",
+      "user-information": "معلومات المستخدم",
+      "user-name": "الاسم",
+      "phone-number": "رقم الهاتف",
+      "national-id": "الرقم المدني",
+      "status": "الحالة",
+      "installment-information": "معلومات التقسيط",
+      "total-amount": "المبلغ الإجمالي",
+      "installment-period": "فترة التقسيط",
+      "installment-type": "نوع القسط",
+      "installment-plan": "خطة التقسيط",
+      "start-date": "تاريخ البدء",
+      "end-date": "تاريخ الانتهاء",
+      "created-at": "تاريخ الإنشاء",
+      "payment-schedule": "جدول الدفع",
+      "payment-date": "تاريخ الدفع",
+      "amount": "المبلغ",
+      "number-of-installments": "عدد الأقساط",
+      "payment-frequency": "تكرار الدفع",
+      "no-payment-schedule": "لا يوجد جدول دفع متاح",
+      "installment-not-found": "التقسيط غير موجود",
+      "approve": "موافقة",
+      "reject": "رفض",
+      "installment-approved-success": "تمت الموافقة على التقسيط بنجاح",
+      "installment-rejected-success": "تم رفض التقسيط بنجاح",
+      "installment-action-error": "فشل تحديث حالة التقسيط. يرجى المحاولة مرة أخرى.",
+      "confirmation": {
+        "approve": {
+          "title": "الموافقة على التقسيط",
+          "description": "هل أنت متأكد من الموافقة على طلب التقسيط هذا؟ لا يمكن التراجع عن هذا الإجراء."
+        },
+        "reject": {
+          "title": "رفض التقسيط",
+          "description": "هل أنت متأكد من رفض طلب التقسيط هذا؟ لا يمكن التراجع عن هذا الإجراء."
+        },
+        "cancel": "إلغاء",
+        "confirm": "تأكيد"
+      }
     },
     "MyRealEstates": {
       "title": "عقاراتي",
@@ -1364,7 +1454,10 @@
         "status": "الحالة",
         "amount": "المبلغ",
         "tenant": "المستأجر",
-        "dates": "فترة الإيجار"
+        "dates": "فترة الإيجار",
+        "contractTerminated": "تم إنهاء العقد",
+        "rentEnded": "انتهى الإيجار",
+        "upcomingDue": "الاستحقاق القادم"
       },
       "InstallmentCard": {
         "code": "الكود",

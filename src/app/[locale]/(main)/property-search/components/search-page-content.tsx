@@ -36,13 +36,33 @@ export default function SearchPageContent() {
   const [viewType, setViewType] = useState<"grid" | "list">("grid");
   const [page, setPage] = useState(1);
 
-  // Filter states
+  // Filter states - staged (not applied until submit)
   const [selectedCity, setSelectedCity] = useState<Governorate | undefined>();
   const [selectedSort, setSelectedSort] = useState("recentlyAdded");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000000]);
+  const [offerType, setOfferType] = useState("RENT");
   const [advancedFilters, setAdvancedFilters] = useState<any>({});
+
+  // Applied filters - used for API calls
+  const [appliedCity, setAppliedCity] = useState<Governorate | undefined>();
+  const [appliedSort, setAppliedSort] = useState("recentlyAdded");
+  const [appliedSearchQuery, setAppliedSearchQuery] = useState("");
+  const [appliedPriceRange, setAppliedPriceRange] = useState<[number, number]>([0, 1000000]);
+  const [appliedOfferType, setAppliedOfferType] = useState("RENT");
 
   // Get category from URL query params
   const categoryParam = searchParams.get("category");
+
+  // Handle main filter apply
+  const handleApplyMainFilters = () => {
+    setAppliedCity(selectedCity);
+    setAppliedSort(selectedSort);
+    setAppliedSearchQuery(searchQuery);
+    setAppliedPriceRange(priceRange);
+    setAppliedOfferType(offerType);
+    setPage(1);
+  };
 
   // Build search params as object
   const searchParamsObj = useMemo(() => {
@@ -54,24 +74,31 @@ export default function SearchPageContent() {
     // Country filter from provider (always include)
     if (selectedCountry) params.country = selectedCountry;
 
-    // Category filter from URL
-    if (categoryParam) params.category = categoryParam;
+    // Category filter (sidebar takes precedence over URL)
+    const categoryToUse = advancedFilters.category || categoryParam;
+    if (categoryToUse) params.category = categoryToUse;
 
-    // Main filter: city
-    if (selectedCity?.id) params.city = selectedCity.id;
+    // City filter (use applied state)
+    if (appliedCity?.id) params.city = appliedCity.id;
 
-    // Sort filter: Use sidebar sort if available, otherwise use main filter sort
-    const sortToUse = advancedFilters.sort || selectedSort;
-    if (sortToUse !== "recentlyAdded") {
-      params.sort = sortToUse;
+    // Sort filter (use applied state)
+    if (appliedSort !== "recentlyAdded") {
+      params.sort = appliedSort;
     }
 
-    // Advanced filters from side panel
-    if (advancedFilters.priceFrom) params.priceFrom = Number(advancedFilters.priceFrom);
-    if (advancedFilters.priceTo) params.priceTo = Number(advancedFilters.priceTo);
-    if (advancedFilters.offerType) params.offerType = advancedFilters.offerType;
-    if (advancedFilters.search) params.search = advancedFilters.search;
-    if (advancedFilters.city) params.city = advancedFilters.city;
+    // Search query (use applied state)
+    if (appliedSearchQuery && appliedSearchQuery.trim()) {
+      params.search = appliedSearchQuery.trim();
+    }
+
+    // Price range (use applied state)
+    if (appliedPriceRange[0] > 0) params.priceFrom = Number(appliedPriceRange[0]);
+    if (appliedPriceRange[1] < 1000000) params.priceTo = Number(appliedPriceRange[1]);
+
+    // Offer type (use applied state)
+    if (appliedOfferType) params.offerType = appliedOfferType;
+
+    // Advanced filters from side panel only
     if (advancedFilters.bedrooms) params.bedrooms = advancedFilters.bedrooms;
     if (advancedFilters.bathrooms) params.bathrooms = advancedFilters.bathrooms;
 
@@ -83,7 +110,7 @@ export default function SearchPageContent() {
     if (advancedFilters.isHolidays) params.isHolidays = true;
 
     return params;
-  }, [selectedCity, selectedSort, advancedFilters, page, selectedCountry, categoryParam]);
+  }, [appliedCity, appliedSort, appliedSearchQuery, appliedPriceRange, appliedOfferType, advancedFilters, page, selectedCountry, categoryParam]);
 
   // Fetch properties
   const { data: propertiesData, isLoading } = useQuery({
@@ -110,17 +137,54 @@ export default function SearchPageContent() {
     }
   }, [cityOptions]);
 
-  // Reset page to 1 when filters change
+  // Reset page to 1 when applied filters change
   useEffect(() => {
     setPage(1);
-  }, [selectedCity, selectedSort, advancedFilters]);
+  }, [appliedCity, appliedSort, appliedSearchQuery, appliedPriceRange, appliedOfferType, advancedFilters]);
+
+  // Sync filters from advanced filters back to main filters and apply them
+  useEffect(() => {
+    // Sync city (including clearing it if empty string)
+    if (advancedFilters.city !== undefined) {
+      if (advancedFilters.city === "") {
+        setSelectedCity(undefined);
+        setAppliedCity(undefined);
+      } else if (cityOptions.length > 0) {
+        const cityFromFilter = cityOptions.find(c => c.id === advancedFilters.city);
+        if (cityFromFilter) {
+          setSelectedCity(cityFromFilter);
+          setAppliedCity(cityFromFilter);
+        }
+      }
+    }
+
+    // Sync search query
+    if (advancedFilters.search !== undefined) {
+      setSearchQuery(advancedFilters.search);
+      setAppliedSearchQuery(advancedFilters.search);
+    }
+
+    // Sync price range - always sync when filters are applied
+    if (advancedFilters.priceFrom !== undefined && advancedFilters.priceTo !== undefined) {
+      const newFrom = advancedFilters.priceFrom;
+      const newTo = advancedFilters.priceTo;
+      setPriceRange([newFrom, newTo]);
+      setAppliedPriceRange([newFrom, newTo]);
+    }
+
+    // Sync offer type
+    if (advancedFilters.offerType && advancedFilters.offerType !== offerType) {
+      setOfferType(advancedFilters.offerType);
+      setAppliedOfferType(advancedFilters.offerType);
+    }
+  }, [advancedFilters, cityOptions]);
 
   const properties = propertiesData?.data?.data || [];
   const totalPages = propertiesData?.data?.totalPages || 1;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container px-4 md:px-6">
+      <div className="container">
         {/* Header */}
         <div className="mb-8">
           <Typography variant="h1" as="h1" className="mb-4 text-4xl">
@@ -140,6 +204,13 @@ export default function SearchPageContent() {
           selectedSort={selectedSort}
           setSelectedSort={setSelectedSort}
           onApplyAdvancedFilters={setAdvancedFilters}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          priceRange={priceRange}
+          setPriceRange={setPriceRange}
+          offerType={appliedOfferType}
+          categoryParam={categoryParam || undefined}
+          onApplyFilters={handleApplyMainFilters}
         />
 
         {/* View Toggle */}

@@ -28,7 +28,7 @@ export default function PropertiesFilterSection() {
   const [activeTab, setActiveTab] = useState<"rent" | "installment">("rent");
   const [selectedCity, setSelectedCity] = useState<string>("");
 
-  const tabstyle = "flex items-center py-2.5 px-3 sm:px-5 cursor-pointer text-sm md:text-lg";
+  const tabstyle = "flex items-center px-3 sm:px-5 cursor-pointer text-sm md:text-lg";
 
   // Set initial city when cities are loaded or country changes
   useEffect(() => {
@@ -58,7 +58,7 @@ export default function PropertiesFilterSection() {
   };
 
   return (
-    <section className="bg-gradient-to-t from-main-100 to-white px-4">
+    <section className="bg-linear-to-t from-main-100 to-white px-4">
       <div className="container mx-auto py-20">
         <div className="mb-20 flex flex-col space-y-4 text-center">
           <Typography variant="h2" as="h2" className="font-bold text-black">
@@ -73,7 +73,7 @@ export default function PropertiesFilterSection() {
           </Typography>
         </div>
         <div className="flex flex-col items-center gap-5 lg:flex-row lg:justify-between lg:gap-0">
-          <ul className="flex flex-row rounded-lg border-[1.5px] border-main-100 bg-white p-2">
+          <ul className="flex flex-row items-center rounded-lg border-[1.5px] border-main-100 bg-white p-2">
             <li
               className={`${
                 activeTab === "rent"
@@ -103,7 +103,7 @@ export default function PropertiesFilterSection() {
               onValueChange={setSelectedCity}
               disabled={citiesLoading}
             >
-              <SelectTrigger className="w-full justify-between rounded-lg border border-gray-300 bg-white px-5 py-3">
+              <SelectTrigger className="w-full justify-between rounded-lg border border-gray-300 bg-white px-5 py-5">
                 <SelectValue>
                   {citiesLoading
                     ? "Loading..."
@@ -119,7 +119,7 @@ export default function PropertiesFilterSection() {
               </SelectContent>
             </Select>
           </div>
-          <Button variant="primary" onClick={handleBrowse} className="block w-full sm:w-fit">
+          <Button variant="primary" onClick={handleBrowse} className="block w-full py-2 sm:w-fit">
             {tGeneral("browse")}
           </Button>
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { axiosClient } from "@/lib/services";
 import {
   getProperties,
@@ -78,5 +78,30 @@ export function useGetPropertiesByCountry(
     staleTime: 1000 * 60 * 5, // 5 minutes
     retry: false,
     gcTime: 0,
+  });
+}
+
+// Update property user status (approve/reject tenant)
+export function useUpdatePropertyUserStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      propertyId,
+      status,
+    }: {
+      propertyId: string;
+      status: string;
+    }) => {
+      const response = await axiosClient.post("/properties/user_status", {
+        property: propertyId,
+        status,
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      // Invalidate rental collection requests to refetch updated data
+      queryClient.invalidateQueries({ queryKey: ["requests", "/properties/rental_requests"] });
+    },
   });
 }

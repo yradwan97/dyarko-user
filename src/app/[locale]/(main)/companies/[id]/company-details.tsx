@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import CompanyBanner from "@/components/sections/companies/company-banner";
@@ -20,6 +20,8 @@ interface CompanyDetailsProps {
 export default function CompanyDetails({ id }: CompanyDetailsProps) {
   const [activeTab, setActiveTab] = useState<"all" | "rent" | "installment">("all");
   const [propertyPage, setPropertyPage] = useState(1);
+  const [videoPage, setVideoPage] = useState(1);
+  const videosRef = useRef<HTMLDivElement>(null);
 
   // Fetch owner details
   const { data: owner, isLoading: ownerLoading } = useQuery({
@@ -34,7 +36,7 @@ export default function CompanyDetails({ id }: CompanyDetailsProps) {
   }, [activeTab]);
 
   // Fetch owner properties
-  const { data: propertiesData, isLoading: propertiesLoading } = useQuery({
+  const { data: propertiesData, isFetching: propertiesFetching } = useQuery({
     queryKey: ["owner-properties", id, activeTab, propertyPage],
     queryFn: () =>
       getProperties({
@@ -46,15 +48,24 @@ export default function CompanyDetails({ id }: CompanyDetailsProps) {
     enabled: !!id,
   });
 
-  // Scroll to top when page changes
+  // Scroll to top when property page changes (skip initial load)
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (propertyPage > 1) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   }, [propertyPage]);
 
+  // Scroll to videos section when video page changes (skip initial load)
+  useEffect(() => {
+    if (videoPage > 1 && videosRef.current) {
+      videosRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [videoPage]);
+
   // Fetch owner videos
-  const { data: videosData, isLoading: videosLoading } = useQuery({
-    queryKey: ["owner-videos", id],
-    queryFn: () => getVideos({ owner: id, page: 1, size: 6 }),
+  const { data: videosData, isFetching: videosFetching } = useQuery({
+    queryKey: ["owner-videos", id, videoPage],
+    queryFn: () => getVideos({ owner: id, page: videoPage, size: 6 }),
     enabled: !!id,
   });
 
@@ -78,26 +89,32 @@ export default function CompanyDetails({ id }: CompanyDetailsProps) {
     <div className="min-h-screen bg-gray-50 pb-20">
       <CompanyBanner owner={owner} />
 
-      <div className="container px-4 md:px-6">
+      <div className="container">
         <PropertyTypeTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
         <CompanyProperties
           properties={propertiesData?.data.data || []}
-          total={propertiesData?.data.total || propertiesData?.data.data?.length || 0}
-          totalPages={propertiesData?.data.totalPages || 1}
+          total={propertiesData?.data.itemsCount || propertiesData?.data.data?.length || 0}
+          totalPages={propertiesData?.data.pages || 1}
           currentPage={propertyPage}
           onPageChange={setPropertyPage}
-          isLoading={propertiesLoading}
+          isLoading={propertiesFetching}
           activeTab={activeTab}
         />
 
         <CompanyReviews ownerId={id} />
 
-        {videosData && videosData.data.data.length > 0 && (
-          <CompanyVideos
-            videos={videosData.data.data}
-            isLoading={videosLoading}
-          />
+        {((videosData && videosData.data.data.length > 0) || videosFetching) && (
+          <div ref={videosRef}>
+            <CompanyVideos
+              videos={videosData?.data.data || []}
+              total={videosData?.data.itemsCount || videosData?.data.data?.length || 0}
+              totalPages={videosData?.data.pages || 1}
+              currentPage={videoPage}
+              onPageChange={setVideoPage}
+              isLoading={videosFetching}
+            />
+          </div>
         )}
       </div>
     </div>

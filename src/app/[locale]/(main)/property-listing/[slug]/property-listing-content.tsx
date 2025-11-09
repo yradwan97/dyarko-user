@@ -119,7 +119,7 @@ export default function PropertyListingContent({ slug }: PropertyListingContentP
 
   return (
     <div className="min-h-screen bg-linear-to-b from-main-100 to-white py-8">
-      <div className="container px-4 md:px-6">
+      <div className="container">
         {/* Header */}
         <div className="mb-8">
           <Typography variant="h1" as="h1" className="mb-4 text-4xl">

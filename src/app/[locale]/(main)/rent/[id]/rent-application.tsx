@@ -78,7 +78,7 @@ export default function RentApplication({ propertyId }: RentApplicationProps) {
 
   if (error || !property) {
     return (
-      <div className="container mx-auto px-4 py-8 bg-gray-50 dark:bg-gray-900 min-h-screen">
+      <div className="container mx-auto py-8 bg-gray-50 dark:bg-gray-900 min-h-screen">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-red-600 dark:text-red-400">
             {t("error.title")}
@@ -118,7 +118,7 @@ export default function RentApplication({ propertyId }: RentApplicationProps) {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto py-4">
           <div className="flex items-center gap-4">
             <button
               onClick={handleBack}
@@ -134,7 +134,7 @@ export default function RentApplication({ propertyId }: RentApplicationProps) {
       </div>
 
       {/* Content */}
-      <div className="container mx-auto px-4 py-6 max-w-2xl">
+      <div className="container mx-auto py-6 max-w-2xl">
         {currentStep === 1 && (
           <Step1RentType
             property={property}

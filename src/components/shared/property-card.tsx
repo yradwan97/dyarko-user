@@ -40,11 +40,11 @@ export default function PropertyCard({
 }: PropertyCardProps) {
   const locale = useLocale();
   const isRTL = locale === "ar";
-  const imageSrc = image || "/assets/property-1.png";
+  const imageSrc = image || "/no-apartment.png";
 
   if (variant === "featured") {
     return (
-      <Card className="group min-w-[220px] flex-shrink-0 overflow-hidden border-0 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] dark:bg-gray-800 dark:shadow-[0_2px_8px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_8px_16px_rgba(0,0,0,0.3)]">
+      <Card className="group min-w-[220px] flex-shrink-0 overflow-hidden border-0 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] dark:bg-gray-800 dark:shadow-[0_2px_8px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_8px_16px_rgba(0,0,0,0.3)] p-0">
         <div className="relative h-44 w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
           <Image
             src={imageSrc}
@@ -58,7 +58,7 @@ export default function PropertyCard({
             <Badge
               variant="secondary"
               className={cn(
-                "absolute top-3 border-0 font-medium text-main-500 backdrop-blur-sm capitalize",
+                "absolute top-3 border-0 text-[14px] text-main-500 backdrop-blur-sm capitalize px-2 py-0.5",
                 isRTL ? "right-3" : "left-3",
                 badge.toLowerCase() === "rent" ? "bg-white/90 hover:bg-white/90" : "bg-steelBlue-100/90 hover:bg-steelBlue-100/90"
               )}
@@ -70,8 +70,8 @@ export default function PropertyCard({
             <Badge
               variant="secondary"
               className={cn(
-                "absolute top-10 border-0 bg-main-500/90 px-2 py-0.5 text-[10px] text-white backdrop-blur-sm hover:bg-secondary-600 capitalize",
-                isRTL ? "right-3" : "left-3"
+                "absolute top-3 border-0 bg-main-500/90 px-2 py-0.5 text-[14px] text-white backdrop-blur-sm hover:bg-secondary-600 capitalize",
+                isRTL ? "left-3" : "right-3"
               )}
             >
               {secondaryBadge}
@@ -101,7 +101,7 @@ export default function PropertyCard({
 
   // List variant
   return (
-    <Card className="group border-0 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] dark:bg-gray-800 dark:shadow-[0_2px_8px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_8px_16px_rgba(0,0,0,0.3)]">
+    <Card className="group border-0 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] dark:bg-gray-800 dark:shadow-[0_2px_8px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_8px_16px_rgba(0,0,0,0.3)] p-0">
       <CardContent className={cn("flex gap-4 p-4", isRTL && "flex-row-reverse")}>
         <div className="relative h-28 w-28 flex-shrink-0 overflow-hidden rounded-xl bg-gradient-to-br from-gray-50 to-gray-100">
           <Image
@@ -113,12 +113,12 @@ export default function PropertyCard({
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
           {badge && (
-            <Badge className={cn("absolute top-2 border-0 bg-main-500/90 px-2 py-0.5 text-[10px] backdrop-blur-sm hover:bg-main-600 capitalize", isRTL ? "right-2" : "left-2")}>
+            <Badge className={cn("absolute top-2 border-0 bg-main-500/90 px-2.5 py-1 text-xs font-semibold backdrop-blur-sm hover:bg-main-600 capitalize", isRTL ? "right-2" : "left-2")}>
               {badge}
             </Badge>
           )}
           {secondaryBadge && (
-            <Badge className={cn("absolute top-8 border-0 bg-secondary-500/90 px-2 py-0.5 text-[10px] backdrop-blur-sm hover:bg-secondary-600 capitalize", isRTL ? "right-2" : "left-2")}>
+            <Badge className={cn("absolute top-2 border-0 bg-secondary-500/90 px-2.5 py-1 text-xs font-semibold backdrop-blur-sm hover:bg-secondary-600 capitalize", isRTL ? "left-2" : "right-2")}>
               {secondaryBadge}
             </Badge>
           )}

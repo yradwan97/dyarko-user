@@ -10,6 +10,16 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   useVideoComments,
   useAddVideoComment,
   useDeleteVideoComment,
@@ -32,6 +42,7 @@ export default function VideoCommentsSection({
 
   const [commentText, setCommentText] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [commentToDelete, setCommentToDelete] = useState<string | null>(null);
 
   const { data, isLoading, isError } = useVideoComments(videoId, {
     page: currentPage,
@@ -64,13 +75,19 @@ export default function VideoCommentsSection({
   };
 
   const handleDeleteComment = (commentId: string) => {
-    if (confirm(t("confirmDelete"))) {
-      deleteCommentMutation.mutate(commentId, {
+    setCommentToDelete(commentId);
+  };
+
+  const confirmDeleteComment = () => {
+    if (commentToDelete) {
+      deleteCommentMutation.mutate(commentToDelete, {
         onSuccess: () => {
           toast.success(t("commentDeleted"));
+          setCommentToDelete(null);
         },
         onError: () => {
           toast.error(t("deleteError"));
+          setCommentToDelete(null);
         },
       });
     }
@@ -216,7 +233,7 @@ export default function VideoCommentsSection({
                           {formatDate(comment.createdAt)}
                         </p>
                       </div>
-                      {session?.user?.email === comment.user?._id && (
+                      {session?.user?.id === comment.user?._id && (
                         <Button
                           variant="ghost"
                           size="sm"
@@ -263,6 +280,31 @@ export default function VideoCommentsSection({
           )}
         </>
       )}
+
+      {/* Delete Comment Confirmation Dialog */}
+      <AlertDialog open={!!commentToDelete} onOpenChange={() => setCommentToDelete(null)}>
+        <AlertDialogContent className="bg-white dark:bg-gray-950">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-gray-900 dark:text-white">
+              {t("deleteConfirmation.title")}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-600 dark:text-gray-400">
+              {t("deleteConfirmation.description")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="text-gray-900 dark:text-white">
+              {t("deleteConfirmation.cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteComment}
+              className="bg-red-500 hover:bg-red-600 text-white"
+            >
+              {t("deleteConfirmation.confirm")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

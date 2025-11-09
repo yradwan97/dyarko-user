@@ -182,3 +182,24 @@ export const downloadInstallmentInvoices = async (installmentId: string): Promis
   document.body.removeChild(link);
   window.URL.revokeObjectURL(url);
 };
+
+export interface UpdateInstallmentUserStatusPayload {
+  status: "APPROVED" | "REJECTED";
+}
+
+export interface UpdateInstallmentUserStatusResponse {
+  status: string;
+  message: string;
+  data: InstallmentDetails;
+}
+
+export const updateInstallmentUserStatus = async (
+  installmentId: string,
+  payload: UpdateInstallmentUserStatusPayload
+): Promise<UpdateInstallmentUserStatusResponse> => {
+  const response = await axiosClient.put<UpdateInstallmentUserStatusResponse>(
+    `/installments/${installmentId}/user`,
+    payload
+  );
+  return response.data;
+};

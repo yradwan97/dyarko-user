@@ -39,7 +39,9 @@
       "Bash(node -e:*)",
       "Bash(nul)",
       "Bash(cat:*)",
-      "Bash(move \"C:\\Users\\Youssef\\projects\\dyarko-user\\src\\app\\[locale]\\(main)\\companies\\[id]\\page.tsx\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\src\\app\\[locale]\\(main)\\companies\\[id]\\company-details.tsx\")"
+      "Bash(move \"C:\\Users\\Youssef\\projects\\dyarko-user\\src\\app\\[locale]\\(main)\\companies\\[id]\\page.tsx\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\src\\app\\[locale]\\(main)\\companies\\[id]\\company-details.tsx\")",
+      "Bash(find:*)",
+      "Bash($null)"
     ],
     "deny": [],
     "ask": []

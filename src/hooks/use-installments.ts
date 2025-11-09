@@ -1,12 +1,14 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getApprovedInstallments,
   getInstallmentById,
   getInstallmentInvoices,
+  updateInstallmentUserStatus,
   type InstallmentsResponse,
   type InstallmentDetailsResponse,
   type InstallmentInvoicesResponse,
   type InstallmentInvoiceStatus,
+  type UpdateInstallmentUserStatusPayload,
 } from "@/lib/services/api/installments";
 
 export function useApprovedInstallments(page: number = 1) {
@@ -36,5 +38,20 @@ export function useInstallmentInvoices(
     queryFn: () => getInstallmentInvoices(installmentId!, status, page),
     enabled: !!installmentId,
     staleTime: 1000 * 60 * 2, // 2 minutes
+  });
+}
+
+export function useUpdateInstallmentUserStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ installmentId, payload }: { installmentId: string; payload: UpdateInstallmentUserStatusPayload }) =>
+      updateInstallmentUserStatus(installmentId, payload),
+    onSuccess: (data, variables) => {
+      // Invalidate and refetch installment details
+      queryClient.invalidateQueries({ queryKey: ["installment-details", variables.installmentId] });
+      // Invalidate requests list to refresh the status
+      queryClient.invalidateQueries({ queryKey: ["requests"] });
+    },
   });
 }

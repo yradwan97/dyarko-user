@@ -24,7 +24,7 @@ export default function CategoriesPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto py-8">
       <div className="text-center mb-8">
         <Typography variant="h2" as="h2" className="font-bold mb-2">
           {t("title")}

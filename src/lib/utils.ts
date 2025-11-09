@@ -25,7 +25,7 @@ export function getLocalizedPath(path: string, locale: string): string {
  * @returns Proxied URL for authenticated image fetching
  */
 export function getProxiedImageUrl(url: string | null | undefined): string {
-  if (!url) return "/service.png"; // Default fallback
+  if (!url) return "/no-apartment.png"; // Default fallback
 
   // If it's already a local path or relative URL, return as-is
   if (url.startsWith("/") || !url.startsWith("http")) {

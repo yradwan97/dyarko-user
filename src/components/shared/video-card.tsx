@@ -95,13 +95,13 @@ export default function VideoCard({ video, priority = false }: VideoCardProps) {
             <div className={cn("flex items-center gap-1.5", isRTL && "flex-row-reverse")}>
               <HeartIcon className="h-4 w-4 text-gray-400 dark:text-gray-500" />
               <span className="text-xs text-gray-600 dark:text-gray-400">
-                {formatCount(video.like?.count || 0)}
+                {formatCount(video.likes?.count || 0)}
               </span>
             </div>
             <div className={cn("flex items-center gap-1.5", isRTL && "flex-row-reverse")}>
               <MessageCircleIcon className="h-4 w-4 text-gray-400 dark:text-gray-500" />
               <span className="text-xs text-gray-600 dark:text-gray-400">
-                {formatCount(video.comments || 0)}
+                {formatCount(video.commentsCount || 0)}
               </span>
             </div>
           </div>

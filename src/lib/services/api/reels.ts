@@ -11,23 +11,28 @@ export interface VideoUser {
 
 export interface VideoLike {
   count: number;
-  isLiked?: boolean;
+  status?: boolean; // true if liked, false if not
 }
 
 // Interface for reels in list view
 export interface Video {
   _id: string;
   title: string;
-  user: VideoUser;
+  user?: VideoUser;
   thumbnail: string;
-  video: string;
-  comments?: number;
-  like?: VideoLike;
+  video?: string;
+  path?: string;
+  commentsCount?: number;
+  likes?: VideoLike;
   views?: number;
   description?: string;
   createdAt?: string;
   updatedAt?: string;
   expirationDate?: string;
+  status?: string;
+  owner?: string;
+  pinned?: boolean;
+  createdByAdmin?: boolean;
 }
 
 // Interface for detailed reel data from getReelById
@@ -67,10 +72,8 @@ export interface VideosResponse {
   message: string;
   data: {
     data: Video[];
-    total: number;
-    page: number;
-    size: number;
-    totalPages: number;
+    itemsCount: number;
+    pages: number;
   };
 }
 
@@ -136,7 +139,7 @@ export const likeVideo = async (
   if (isLiked) {
     await axiosClient.delete(`/reels/${id}/likes`);
   } else {
-    await axiosClient.post(`/reels/${id}/likes`);
+    await axiosClient.post(`/reels/likes`, { reel: id });
   }
 };
 
@@ -194,7 +197,7 @@ export const addVideoComment = async (
   id: string,
   comment: string
 ): Promise<void> => {
-  await axiosClient.post(`/reels/${id}/comments`, { comment });
+  await axiosClient.post(`/reels/comments`, { reel: id, comment });
 };
 
 export const deleteVideoComment = async (

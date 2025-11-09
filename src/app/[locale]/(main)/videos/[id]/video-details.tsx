@@ -2,10 +2,29 @@
 
 import React, { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { HeartIcon, EyeIcon, MessageCircleIcon, ShareIcon } from "lucide-react";
+import { HeartIcon, EyeIcon, MessageCircleIcon, ShareIcon, FlagIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useVideo, useVideos } from "@/hooks/use-videos";
 import VideoCard from "@/components/shared/video-card";
 import VideoCommentsSection from "@/components/sections/video-comments-section";
@@ -13,6 +32,7 @@ import VideoPlayer from "@/components/shared/video-player";
 import { createVideoView, likeVideo } from "@/lib/services/api/reels";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { axiosClient } from "@/lib/services/axios-client";
 
 interface VideoDetailsProps {
   videoId: string;
@@ -34,19 +54,47 @@ export default function VideoDetails({ videoId }: VideoDetailsProps) {
   const commentsCount = videoData?.commentsCount;
 
   const [isLiked, setIsLiked] = useState(likes?.status || false);
+  const [likeCount, setLikeCount] = useState(likes?.count || 0);
   const [hasTrackedView, setHasTrackedView] = useState(false);
+  const [viewCount, setViewCount] = useState(video?.views || 0);
+  const [commentCountState, setCommentCountState] = useState(commentsCount || 0);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [reportText, setReportText] = useState("");
+  const [showReportConfirmation, setShowReportConfirmation] = useState(false);
+  const [isSubmittingReport, setIsSubmittingReport] = useState(false);
 
-  // Update isLiked when likes data changes
+  // Update isLiked and like count when likes data changes
   React.useEffect(() => {
     if (likes) {
       setIsLiked(likes.status);
+      setLikeCount(likes.count);
     }
   }, [likes]);
+
+  // Update view count when video data changes
+  React.useEffect(() => {
+    if (video?.views !== undefined) {
+      setViewCount(video.views);
+    }
+  }, [video?.views]);
+
+  // Update comment count when commentsCount changes
+  React.useEffect(() => {
+    if (commentsCount !== undefined) {
+      setCommentCountState(commentsCount);
+    }
+  }, [commentsCount]);
 
   const handleVideoPlay = async () => {
     if (!hasTrackedView && videoId) {
       setHasTrackedView(true);
-      await createVideoView(videoId);
+      try {
+        await createVideoView(videoId);
+        // Update view count on success
+        setViewCount(prev => prev + 1);
+      } catch (error) {
+        console.error("Error creating video view:", error);
+      }
     }
   };
 
@@ -54,9 +102,14 @@ export default function VideoDetails({ videoId }: VideoDetailsProps) {
     try {
       await likeVideo(videoId, isLiked);
       setIsLiked(!isLiked);
+      // Update like count optimistically
+      setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
     } catch (error) {
       console.error("Error toggling like:", error);
       toast.error(t("likeError"));
+      // Revert on error
+      setIsLiked(isLiked);
+      setLikeCount(prev => isLiked ? prev + 1 : prev - 1);
     }
   };
 
@@ -87,9 +140,44 @@ export default function VideoDetails({ videoId }: VideoDetailsProps) {
     }
   };
 
+  const handleReportClick = () => {
+    setIsReportModalOpen(true);
+  };
+
+  const handleReportSubmit = () => {
+    if (!reportText.trim()) {
+      toast.error(t("report.emptyReport"));
+      return;
+    }
+    setShowReportConfirmation(true);
+  };
+
+  const confirmReport = async () => {
+    setIsSubmittingReport(true);
+    try {
+      await axiosClient.post("/reels/reports", {
+        reel: videoId,
+        report: reportText,
+      });
+      toast.success(t("report.success"));
+      setReportText("");
+      setIsReportModalOpen(false);
+      setShowReportConfirmation(false);
+    } catch (error) {
+      console.error("Error submitting report:", error);
+      toast.error(t("report.error"));
+    } finally {
+      setIsSubmittingReport(false);
+    }
+  };
+
+  const cancelReport = () => {
+    setShowReportConfirmation(false);
+  };
+
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto py-8">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <Skeleton className="aspect-video w-full rounded-lg" />
@@ -117,7 +205,7 @@ export default function VideoDetails({ videoId }: VideoDetailsProps) {
 
   if (isError || !video) {
     return (
-      <div className="container mx-auto px-4 py-16 text-center">
+      <div className="container mx-auto py-16 text-center">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
           {t("error")}
         </h1>
@@ -129,7 +217,7 @@ export default function VideoDetails({ videoId }: VideoDetailsProps) {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto py-8">
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* Main Video Section */}
         <div className="lg:col-span-2">
@@ -153,13 +241,13 @@ export default function VideoDetails({ videoId }: VideoDetailsProps) {
                 <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
                   <EyeIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {formatCount(video.views)} {t("views")}
+                    {formatCount(viewCount)} {t("views")}
                   </span>
                 </div>
                 <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
                   <MessageCircleIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {formatCount(commentsCount || 0)} {t("comments")}
+                    {formatCount(commentCountState)} {t("comments")}
                   </span>
                 </div>
               </div>
@@ -174,7 +262,7 @@ export default function VideoDetails({ videoId }: VideoDetailsProps) {
                   <HeartIcon
                     className={cn("h-4 w-4", isLiked && "fill-current")}
                   />
-                  {formatCount(likes?.count || 0)}
+                  {formatCount(likeCount)}
                 </Button>
                 <Button
                   variant="outline"
@@ -184,6 +272,15 @@ export default function VideoDetails({ videoId }: VideoDetailsProps) {
                 >
                   <ShareIcon className="h-4 w-4" />
                   {t("share")}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleReportClick}
+                  className={cn("gap-2", isRTL && "flex-row-reverse")}
+                >
+                  <FlagIcon className="h-4 w-4" />
+                  {t("report.title")}
                 </Button>
               </div>
             </div>
@@ -222,6 +319,71 @@ export default function VideoDetails({ videoId }: VideoDetailsProps) {
           </div>
         </div>
       </div>
+
+      {/* Report Modal */}
+      <Dialog open={isReportModalOpen} onOpenChange={setIsReportModalOpen}>
+        <DialogContent className="bg-white dark:bg-gray-950">
+          <DialogHeader>
+            <DialogTitle className="text-gray-900 dark:text-white">
+              {t("report.modalTitle")}
+            </DialogTitle>
+            <DialogDescription className="text-gray-600 dark:text-gray-400">
+              {t("report.modalDescription")}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Textarea
+              value={reportText}
+              onChange={(e) => setReportText(e.target.value)}
+              placeholder={t("report.placeholder")}
+              className="min-h-[120px] resize-none"
+              disabled={isSubmittingReport}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsReportModalOpen(false)}
+              disabled={isSubmittingReport}
+            >
+              {t("report.cancel")}
+            </Button>
+            <Button
+              onClick={handleReportSubmit}
+              variant="default"
+              disabled={!reportText.trim() || isSubmittingReport}
+            >
+              {t("report.submit")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Report Confirmation Dialog */}
+      <AlertDialog open={showReportConfirmation} onOpenChange={setShowReportConfirmation}>
+        <AlertDialogContent className="bg-white dark:bg-gray-950">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-gray-900 dark:text-white">
+              {t("report.confirmTitle")}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-600 dark:text-gray-400">
+              {t("report.confirmDescription")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={cancelReport} disabled={isSubmittingReport} className="text-gray-900 dark:text-white">
+              {t("report.confirmCancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmReport}
+              disabled={isSubmittingReport}
+              className="bg-main-500 hover:bg-main-500 text-white"
+            >
+              {isSubmittingReport ? t("report.submitting") : t("report.confirmSubmit")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

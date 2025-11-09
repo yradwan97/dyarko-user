@@ -1,11 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
 import { Property } from "@/lib/services/api/properties";
 import { getLocalizedPath } from "@/lib/utils";
-import { Bed, Bath, Square, CheckCircle2, XCircle, Paperclip } from "lucide-react";
+import { Bed, Bath, Square, CheckCircle2, XCircle, Paperclip, Play, X } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import FeatureComponent from "./feature-component";
 import AmenetiesComponent from "./ameneties-component";
 import ServicesComponent from "./services-component";
@@ -24,12 +27,43 @@ export default function AboutProperty({ property, currency = "KWD" }: AboutPrope
   const locale = useLocale();
   const tListing = useTranslations("Properties.Listing");
   const t = useTranslations("Properties.Details");
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
+
+  const hasVideo = !!property.video;
 
   const { owner, lat, long, amenities, services, category } = property;
   const { _id: ownerId, name: ownerName, image: ownerImage } = owner;
 
   return (
-    <div className="mt-9 grid grid-cols-3 gap-4">
+    <>
+      {/* Video Modal */}
+      {hasVideo && (
+        <Dialog open={isVideoOpen} onOpenChange={setIsVideoOpen}>
+          <DialogContent className="max-w-4xl p-0">
+            <VisuallyHidden>
+              <DialogTitle>Property Video</DialogTitle>
+            </VisuallyHidden>
+            <div className="relative aspect-video w-full bg-black">
+              <button
+                onClick={() => setIsVideoOpen(false)}
+                className="absolute right-4 top-4 z-50 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <video
+                src={property.video}
+                controls
+                autoPlay
+                className="h-full w-full"
+              >
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      <div className="mt-9 grid grid-cols-3 gap-4">
       <div
         className={`order-2 col-span-3 lg:col-span-2 ${
           locale === "ar" ? "lg:order-2" : "lg:order-1"
@@ -163,6 +197,19 @@ export default function AboutProperty({ property, currency = "KWD" }: AboutPrope
           </Link>
         )}
 
+        {/* Property Video */}
+        {hasVideo && (
+          <button
+            onClick={() => setIsVideoOpen(true)}
+            className="mt-4 flex w-full flex-row items-center space-x-4 p-4 rounded-lg bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors group"
+          >
+            <div className="flex h-11 w-11 flex-row items-center justify-center rounded-2xl bg-primary/10 group-hover:bg-primary/20 transition-colors dark:bg-primary/20 dark:group-hover:bg-primary/30">
+              <Play className="h-6 w-6 text-primary" fill="currentColor" />
+            </div>
+            <p className="font-bold text-gray-800 dark:text-gray-200">{t("property-video")}</p>
+          </button>
+        )}
+
         {/* Listed By */}
         <div className="border-b border-gray-200 pb-12 dark:border-gray-700">
           <div className="mt-8 rounded-md border-[1.5px] border-primary bg-primary/10 p-6 dark:border-primary dark:bg-primary/20">
@@ -197,8 +244,8 @@ export default function AboutProperty({ property, currency = "KWD" }: AboutPrope
                 <p className="text-lg font-bold capitalize">{ownerName || "Company Name"}</p>
               </div>
               <Link
-                href={getLocalizedPath(`/company-details/${ownerId}`, locale)}
-                className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-primary px-4 py-2 text-sm font-medium text-primary transition-all hover:bg-primary hover:text-white hover:shadow-md sm:w-auto"
+                href={getLocalizedPath(`/companies/${ownerId}`, locale)}
+                className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-primary px-4 py-2 text-sm font-medium text-white bg-main-600 transition-all hover:bg-white hover:text-main-600 hover:shadow-md sm:w-auto"
               >
                 <svg
                   className="h-4 w-4"
@@ -261,5 +308,6 @@ export default function AboutProperty({ property, currency = "KWD" }: AboutPrope
         <ReservationBox property={property} currency={currency} />
       </div>
     </div>
+    </>
   );
 }

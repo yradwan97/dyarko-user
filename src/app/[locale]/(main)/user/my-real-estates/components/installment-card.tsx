@@ -1,5 +1,5 @@
 import { useTranslations } from "next-intl";
-import { Building2, Calendar, DollarSign, MapPin, User } from "lucide-react";
+import { Calendar, DollarSign, MapPin, User } from "lucide-react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import Typography from "@/components/shared/typography";
@@ -49,25 +49,23 @@ export default function InstallmentCard({
   return (
     <div
       onClick={onClick}
-      className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-shadow cursor-pointer"
+      className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
     >
-      {/* Header with image and title */}
-      <div className="flex gap-4 mb-4">
-        {installment.property.image ? (
-          <Image
-            src={installment.property.image}
-            alt={installment.property.title}
-            width={80}
-            height={80}
-            className="rounded-lg object-cover w-20 h-20"
-          />
-        ) : (
-          <div className="w-20 h-20 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-            <Building2 className="h-10 w-10 text-gray-400" />
-          </div>
-        )}
-        <div className="flex-1 min-w-0">
-          <Typography variant="body-lg-medium" as="h5" className="font-bold truncate mb-1">
+      {/* Property Image */}
+      <div className="relative h-48 w-full bg-gray-200 dark:bg-gray-800">
+        <Image
+          src={installment.property.image || "/no-apartment.png"}
+          alt={installment.property.title}
+          fill
+          className="object-cover"
+        />
+      </div>
+
+      {/* Content with padding */}
+      <div className="p-6">
+        {/* Title and code */}
+        <div className="mb-4">
+          <Typography variant="body-lg-medium" as="h5" className="font-bold mb-1">
             {installment.property.title}
           </Typography>
           <Typography variant="body-sm" as="p" className="text-gray-500 dark:text-gray-400 mb-2">
@@ -78,7 +76,6 @@ export default function InstallmentCard({
             <span>{installment.property.city}</span>
           </div>
         </div>
-      </div>
 
       {/* Status Badges */}
       <div className="flex gap-2 mb-4">
@@ -183,6 +180,7 @@ export default function InstallmentCard({
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

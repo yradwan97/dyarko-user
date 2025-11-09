@@ -27,7 +27,7 @@ export default function CompaniesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      <div className="container px-4 py-8 md:px-6">
+      <div className="container py-8">
         <div className="mb-8">
           <Typography variant="h1" as="h1" className="mb-4 text-4xl">
             {t("title")}

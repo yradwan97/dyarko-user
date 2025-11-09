@@ -19,7 +19,7 @@ export default function VideosSection() {
   });
 
   const videos = data?.data?.data || [];
-  const totalPages = data?.data?.totalPages || 1;
+  const totalPages = data?.data?.pages || 1;
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);

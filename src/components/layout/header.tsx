@@ -60,7 +60,7 @@ export default function Header() {
         {/* Top row - Location, Navigation, Icons */}
         <div
           className={cn(
-            "mx-auto flex items-center justify-between gap-4 border-b border-gray-200 px-4 py-3 lg:px-10 dark:border-gray-700",
+            "mx-auto flex items-center justify-between gap-4 border-b border-gray-200 px-4 py-3 md:px-6 lg:px-8 xl:px-10 dark:border-gray-700",
             locale === "ar" ? "flex-row-reverse" : "flex-row"
           )}
         >

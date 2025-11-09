@@ -48,7 +48,7 @@ const config: Config = {
       white: "#ffffff",
       black: "#000000",
       transparent: "transparent",
-      success: "#198754",
+      success: "#179134",
       error: "#dc3545",
       warning: "#ffc107",
       info: "#0dcaf0",
@@ -144,7 +144,11 @@ const config: Config = {
       center: true,
       padding: {
         DEFAULT: "1rem",
-        sm: "2rem",
+        sm: "1rem",
+        md: "1.5rem",
+        lg: "2rem",
+        xl: "2rem",
+        "2xl": "2rem",
       },
     },
     extend: {
