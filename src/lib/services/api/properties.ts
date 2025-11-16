@@ -24,6 +24,7 @@ export interface Property {
   category: string; // "house", "villa", etc.
   class: string; // "entertainment", etc.
   offerType: string; // "rent", "sale", etc.
+  adType?: string; // "management", "ad", etc.
   title: string;
   description: string;
   country: string;

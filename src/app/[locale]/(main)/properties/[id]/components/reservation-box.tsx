@@ -101,26 +101,34 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
       return;
     }
 
-    if (property.offerType === "rent") {
-      // Check if it's management type
-      if (property.adType === "management") {
-        // Navigate to rent application page for management properties
-        const href = decideSubmitButtonLinkHref();
-        if (href) {
-          router.push(href);
-        }
-      } else {
-        // Show contact owner modal for non-management rent properties
-        setIsContactOwnerOpen(true);
+    if (property.offerType === "rent" && property.adType === "management") {
+      // Navigate to rent application page for management properties
+      const href = decideSubmitButtonLinkHref();
+      if (href) {
+        router.push(href);
       }
     } else {
-      // Show contact owner modal for all non-rent types
+      // Show contact owner modal for all other cases (rent+ad, installment, sale, etc.)
       setIsContactOwnerOpen(true);
     }
   };
 
   const isTentGroup = property.category === "tent_group";
   const isReplacement = property.offerType === "replacement";
+
+  // Determine button text based on offer type and ad type
+  const getButtonText = () => {
+    if (property.offerType === "rent" && property.adType === "management") {
+      return t("rent");
+    }
+    if (property.offerType === "rent" && property.adType === "ad") {
+      return t("contact-owner");
+    }
+    if (property.offerType === "installment") {
+      return t("request-installment");
+    }
+    return t("contact-owner");
+  };
 
   return (
     <>
@@ -248,7 +256,7 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
           onClick={handleMainSubmitButtonClick}
         >
           <FileText className="h-5 w-5" />
-          <span className="font-bold">{property && t(property.offerType)}</span>
+          <span className="font-bold">{getButtonText()}</span>
         </Button>
 
         <div className="my-6 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent dark:via-gray-600" />

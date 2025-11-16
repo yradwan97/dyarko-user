@@ -22,7 +22,7 @@ export function AdRequestCard({ request, locale, onCardClick, getCurrency }: Req
 
   return (
     <div
-      onClick={onCardClick}
+      onClick={() => onCardClick(request._id)}
       className={`rounded-lg border bg-white p-6 hover:shadow-md transition-shadow cursor-pointer ${hasAdComment ? "border-green-500 border-2" : "border-gray-200"
         }`}
     >

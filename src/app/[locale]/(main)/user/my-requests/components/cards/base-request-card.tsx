@@ -45,10 +45,8 @@ export function BaseRequestCard({
 
   return (
     <div
-      onClick={onCardClick}
-      className={`rounded-lg border bg-white p-6 hover:shadow-md transition-shadow border-gray-200 ${
-        onCardClick ? "cursor-pointer" : ""
-      }`}
+      onClick={() => onCardClick(request._id)}
+      className="rounded-lg border bg-white p-6 hover:shadow-md transition-shadow border-gray-200 cursor-pointer"
     >
       <div className={cn("flex items-start justify-between mb-4", locale === "ar" && "flex-row-reverse")}>
         <div className={cn("flex items-start gap-3", locale === "ar" && "flex-row-reverse")}>

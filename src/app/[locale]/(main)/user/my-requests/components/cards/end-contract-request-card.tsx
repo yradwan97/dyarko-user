@@ -19,7 +19,7 @@ export function EndContractRequestCard({ request, locale, onCardClick, getCurren
 
   return (
     <div
-      onClick={onCardClick}
+      onClick={() => onCardClick(request._id)}
       className="rounded-lg border bg-white p-6 hover:shadow-md transition-shadow border-gray-200 cursor-pointer"
     >
       <div className={cn("flex items-start justify-between mb-4", locale === "ar" && "flex-row-reverse")}>
