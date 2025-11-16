@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Property } from "@/lib/services/api/properties";
+import { type Property } from "@/lib/services/api/properties";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { X, ChevronUp, ChevronDown, Play } from "lucide-react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
@@ -17,8 +17,22 @@ export default function PropertySlider({ property }: PropertySliderProps) {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [currentCarouselIndex, setCurrentCarouselIndex] = useState(0);
 
-  const mainImage = property.image || "/no-apartment.png";
-  const carouselImages = property.images || [];
+  // Validate image URL
+  const isValidImageUrl = (url: string | undefined | null): boolean => {
+    if (!url || typeof url !== "string" || url.trim() === "") return false;
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  // Use property.image if valid, otherwise fallback to "/no-apartment.png"
+  const mainImage = isValidImageUrl(property.image) ? property.image : "/no-apartment.png";
+
+  // Filter out invalid URLs from carousel images
+  const carouselImages = (property.images || []).filter((img) => isValidImageUrl(img));
   const hasCarouselImages = carouselImages.length > 0;
   const hasVideo = !!property.video;
 
@@ -109,12 +123,12 @@ export default function PropertySlider({ property }: PropertySliderProps) {
         {/* Main Image - Left Half (Fixed) */}
         <div className="h-[500px] w-1/2 rounded-lg overflow-hidden relative">
           <Image
-            src={mainImage}
+            src={mainImage!}
             height={600}
             width={800}
             alt={property.title}
             className="h-full w-full cursor-pointer object-cover rounded-lg"
-            onClick={() => openOverlay(mainImage)}
+            onClick={() => openOverlay(mainImage!)}
           />
           {/* Play Video Button */}
           {hasVideo && (

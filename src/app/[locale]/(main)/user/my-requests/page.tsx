@@ -1,21 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useTranslations } from "next-intl";
-import { FileText, Calendar, MapPin, Home, Wrench, DollarSign, FileCheck, Megaphone, Clock, FileX, Wallet, Check, X } from "lucide-react";
+import { useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { useSession } from "next-auth/react";
+import { Calendar, Home, Wrench, DollarSign, FileCheck, Megaphone, Clock, FileX, Wallet } from "lucide-react";
 
 import Typography from "@/components/shared/typography";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useGetRequests } from "@/hooks/use-user";
 import { Spinner } from "@/components/ui/spinner";
 import PaginationControls from "@/components/shared/pagination-controls";
-import Image from "next/image";
-import { getProxiedImageUrl } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import AdDetailsDialog from "@/components/dialogs/ad-details-dialog";
 import InstallmentDetailsDialog from "@/components/dialogs/installment-details-dialog";
 import PaymentMethodDialog from "@/components/dialogs/payment-method-dialog";
-import { Button } from "@/components/ui/button";
+import RequestDetailsModal from "./components/request-details-modal";
 import { usePayInvoice } from "@/hooks/use-invoices";
 import { toast } from "sonner";
 import { useCountries } from "@/hooks/use-countries";
@@ -30,6 +29,17 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useUpdatePropertyUserStatus } from "@/hooks/use-properties";
+import {
+  AdRequestCard,
+  TourRequestCard,
+  RentRequestCard,
+  ServiceRequestCard,
+  DisclaimerRequestCard,
+  InstallmentRequestCard,
+  ExtendInvoiceRequestCard,
+  EndContractRequestCard,
+  RentalCollectionRequestCard,
+} from "./components/cards";
 
 type TabType = "tours" | "rent" | "service" | "installments" | "disclaimers" | "ads" | "extend-invoices" | "end-contracts" | "rental-collection";
 
@@ -45,42 +55,9 @@ const getTabEndpoints = (userId?: string): Record<TabType, string> => ({
   "rental-collection": "/properties/rental_requests",
 });
 
-// Component for owner image with fallback
-function OwnerImage({ owner }: { owner: { image?: string; name: string } }) {
-  const [imageError, setImageError] = useState(false);
-
-  // Reset error state when owner changes
-  useEffect(() => {
-    setImageError(false);
-  }, [owner.image]);
-
-  const hasValidImage = owner.image && (owner.image.startsWith('/') || owner.image.startsWith('http'));
-
-  if (hasValidImage && !imageError) {
-    return (
-      <Image
-        src={getProxiedImageUrl(owner.image)}
-        alt={owner.name}
-        width={40}
-        height={40}
-        className="h-10 w-10 rounded-full object-cover"
-        onError={() => setImageError(true)}
-      />
-    );
-  }
-
-  // Show initials fallback
-  return (
-    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-main-400 to-main-600 flex items-center justify-center">
-      <Typography variant="body-sm" as="span" className="font-bold text-white">
-        {owner.name?.charAt(0).toUpperCase() || "?"}
-      </Typography>
-    </div>
-  );
-}
-
 export default function MyRequestsPage() {
   const t = useTranslations("User.MyRequests");
+  const locale = useLocale();
   const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState<TabType>("tours");
   const [currentPage, setCurrentPage] = useState(1);
@@ -100,6 +77,8 @@ export default function MyRequestsPage() {
     propertyId: null,
     propertyTitle: null,
   });
+  const [requestDetailsId, setRequestDetailsId] = useState<string | null>(null);
+  const [requestDetailsOpen, setRequestDetailsOpen] = useState(false);
 
   // Payment mutation for extend invoices
   const payInvoiceMutation = usePayInvoice();
@@ -220,365 +199,125 @@ export default function MyRequestsPage() {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
+  const renderRequestCard = (request: any) => {
+    const commonProps = {
+      request,
+      locale,
+      getCurrency,
+    };
 
-  const formatStatus = (status: string) => {
-    if (!status) return "";
-    // Convert to lowercase then capitalize first letter of each word
-    return status
-      .toLowerCase()
-      .split("_")
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
-  };
+    switch (activeTab) {
+      case "tours":
+        return (
+          <TourRequestCard
+            key={request._id}
+            {...commonProps}
+            onCardClick={() => {
+              setRequestDetailsId(request._id);
+              setRequestDetailsOpen(true);
+            }}
+          />
+        );
 
-  const getStatusColor = (status: string) => {
-    const normalizedStatus = status?.toLowerCase() || "";
-    switch (normalizedStatus) {
-      case "approved":
-      case "accepted":
-      case "completed":
-      case "confirmed":
-        return "text-green-600 bg-green-50 border-green-200";
-      case "pending":
-      case "under_review":
-        return "text-yellow-600 bg-yellow-50 border-yellow-200";
-      case "rejected":
-      case "cancelled":
-        return "text-red-600 bg-red-50 border-red-200";
+      case "rent":
+        return (
+          <RentRequestCard
+            key={request._id}
+            {...commonProps}
+            onCardClick={() => {
+              setRequestDetailsId(request._id);
+              setRequestDetailsOpen(true);
+            }}
+          />
+        );
+
+      case "service":
+        return (
+          <ServiceRequestCard
+            key={request._id}
+            {...commonProps}
+            onCardClick={() => {
+              setRequestDetailsId(request._id);
+              setRequestDetailsOpen(true);
+            }}
+          />
+        );
+
+      case "ads":
+        return (
+          <AdRequestCard
+            key={request._id}
+            {...commonProps}
+            onCardClick={() => setSelectedAdId(request._id)}
+          />
+        );
+
+      case "installments":
+        return (
+          <InstallmentRequestCard
+            key={request._id}
+            {...commonProps}
+            onCardClick={() => {
+              setSelectedInstallmentId(request._id)
+            }}
+          />
+        );
+
+      case "disclaimers":
+        return (
+          <DisclaimerRequestCard
+            key={request._id}
+            {...commonProps}
+            onCardClick={() => {
+              setRequestDetailsId(request._id);
+              setRequestDetailsOpen(true);
+            }}
+          />
+        );
+
+      case "extend-invoices":
+        return (
+          <ExtendInvoiceRequestCard
+            key={request._id}
+            {...commonProps}
+            onCardClick={() => {
+              setRequestDetailsId(request._id);
+              setRequestDetailsOpen(true);
+            }}
+            onPayInvoice={handlePayInvoice}
+            isPaymentPending={payInvoiceMutation.isPending}
+          />
+        );
+
+      case "end-contracts":
+        return (
+          <EndContractRequestCard
+            key={request._id}
+            {...commonProps}
+            onCardClick={() => {
+              setRequestDetailsId(request._id);
+              setRequestDetailsOpen(true);
+            }}
+          />
+        );
+
+      case "rental-collection":
+        return (
+          <RentalCollectionRequestCard
+            key={request._id}
+            {...commonProps}
+            onApproveReject={(action, propertyId, title) =>
+              handleApproveReject(action, propertyId, title)
+            }
+            isActionPending={updateUserStatusMutation.isPending}
+            pendingAction={confirmationDialog.action}
+            onCardClick={() => console.log(request._id)}
+          />
+        );
+
       default:
-        return "text-gray-600 bg-gray-50 border-gray-200";
+        return null;
     }
-  };
-
-  const renderRequestCard = (request: any, icon: React.ReactNode) => {
-    // Handle extend invoices which have nested invoice.property structure
-    const isExtendInvoice = activeTab === "extend-invoices";
-    // Handle end contracts which have nested rent.property structure
-    const isEndContract = activeTab === "end-contracts";
-    // Handle rental collection which shows properties with rentDetails
-    const isRentalCollection = activeTab === "rental-collection";
-    const property = isExtendInvoice
-      ? request.invoice?.property
-      : isEndContract
-        ? request.rent?.property
-        : isRentalCollection
-          ? request
-          : request.property;
-
-    const propertyTitle = property?.title || request.name || request.title || t("request-title");
-    const propertyLocation = property
-      ? `${property.city || ""}, ${property.region || ""}`.trim().replace(/^,|,$/g, "")
-      : null;
-
-    // Get currency based on property country
-    const currency = getCurrency(property?.country);
-
-    // Check if this is an ad with a comment (for green border)
-    const hasAdComment = activeTab === "ads" && request.comment;
-
-    // Check if this is an ad (make it clickable)
-    const isAd = activeTab === "ads";
-
-    return (
-      <div
-        key={request._id}
-        onClick={() => isAd && setSelectedAdId(request._id)}
-        className={`rounded-lg border bg-white p-6 hover:shadow-md transition-shadow ${
-          hasAdComment ? "border-green-500 border-2" : "border-gray-200"
-        } ${isAd ? "cursor-pointer" : ""}`}
-      >
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-start gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-main-100 shrink-0">
-              {icon}
-            </div>
-            <div>
-              <Typography variant="body-lg-medium" as="h5" className="font-bold mb-1">
-                {propertyTitle}
-              </Typography>
-              {request.name && request.property && (
-                <Typography variant="body-sm" as="p" className="text-gray-600 mb-1">
-                  {request.name}
-                </Typography>
-              )}
-              <Typography variant="body-sm" as="p" className="text-gray-500">
-                {isExtendInvoice && request.invoice?.ID ? `${t("invoice-id")}: ${request.invoice.ID}` : `${t("request-id")}: ${request._id.slice(-8).toUpperCase()}`}
-              </Typography>
-              {property?.code && (
-                <Typography variant="body-sm" as="p" className="text-gray-400">
-                  {property.code}
-                </Typography>
-              )}
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2 items-end">
-            {!isRentalCollection && request.status && (
-              <span
-                className={`inline-block rounded-full border px-4 py-1 text-sm font-medium whitespace-nowrap ${getStatusColor(
-                  request.status
-                )}`}
-              >
-                {formatStatus(request.status)}
-              </span>
-            )}
-            {/* Rental Collection: show tenantStatus */}
-            {isRentalCollection && request.tenantStatus && (
-              <span
-                className={`inline-block rounded-full border px-4 py-1 text-sm font-medium whitespace-nowrap ${getStatusColor(
-                  request.tenantStatus
-                )}`}
-              >
-                {formatStatus(request.tenantStatus)}
-              </span>
-            )}
-            {request.ownerStatus && request.userStatus && (
-              <div className="flex flex-col gap-1 text-xs">
-                <span className={`inline-block rounded-full border px-3 py-1 font-medium whitespace-nowrap ${getStatusColor(request.ownerStatus)}`}>
-                  {t("owner")}: {formatStatus(request.ownerStatus)}
-                </span>
-                {/* Hide user status if owner status is rejected in installments */}
-                {!(activeTab === "installments" && request.ownerStatus?.toLowerCase() === "rejected") && (
-                  <span className={`inline-block rounded-full border px-3 py-1 font-medium whitespace-nowrap ${getStatusColor(request.userStatus)}`}>
-                    {t("user")}: {formatStatus(request.userStatus)}
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          {propertyLocation && (
-            <div className="flex items-center gap-2 text-gray-600">
-              <MapPin className="h-4 w-4 shrink-0" />
-              <Typography variant="body-sm" as="span">
-                {propertyLocation}
-              </Typography>
-            </div>
-          )}
-
-          {request.date && (
-            <div className="flex items-center gap-2 text-gray-600">
-              <Calendar className="h-4 w-4 shrink-0" />
-              <Typography variant="body-sm" as="span">
-                {formatDate(request.date)}
-              </Typography>
-            </div>
-          )}
-
-          {request.rent?.startDate && !request.installmentPeriod && (
-            <div className="flex items-center gap-2 text-gray-600">
-              <Calendar className="h-4 w-4 shrink-0" />
-              <Typography variant="body-sm" as="span">
-                {formatDate(request.rent.startDate)} - {formatDate(request.rent.endDate)}
-                {request.rent.rentType && ` (${request.rent.rentType})`}
-              </Typography>
-            </div>
-          )}
-
-          {/* Rental Collection specific fields */}
-          {isRentalCollection && request.rentDetails && (
-            <>
-              <div className="flex items-center gap-2 text-gray-600">
-                <Calendar className="h-4 w-4 shrink-0" />
-                <Typography variant="body-sm" as="span">
-                  {formatDate(request.rentDetails.startDate)} - {formatDate(request.rentDetails.endDate)}
-                  {request.rentDetails.rentType && ` (${request.rentDetails.rentType})`}
-                </Typography>
-              </div>
-              <div className="flex items-center gap-2 text-gray-600">
-                <DollarSign className="h-4 w-4 shrink-0" />
-                <Typography variant="body-sm" as="span">
-                  {request.rentDetails.amount} {currency}
-                </Typography>
-              </div>
-            </>
-          )}
-
-          {request.mobileNumber && (
-            <div className="flex items-center gap-2 text-gray-600">
-              <FileText className="h-4 w-4 shrink-0" />
-              <Typography variant="body-sm" as="span">
-                {request.mobileNumber}
-              </Typography>
-            </div>
-          )}
-
-          {request.amount && !isAd && activeTab !== "installments" && (
-            <div className="flex items-center gap-2 text-gray-600">
-              <DollarSign className="h-4 w-4 shrink-0" />
-              <Typography variant="body-sm" as="span">
-                {request.amount} {currency}
-              </Typography>
-            </div>
-          )}
-
-          {/* Ad specific fields */}
-          {isAd && request.price && (
-            <div className="flex items-center gap-2 text-gray-600">
-              <DollarSign className="h-4 w-4 shrink-0" />
-              <Typography variant="body-sm" as="span">
-                {request.price} {currency} / {request.priceType}
-              </Typography>
-            </div>
-          )}
-
-
-          {/* Extend Invoice specific fields */}
-          {isExtendInvoice && request.extendTo && (
-            <div className="flex items-center gap-2 text-gray-600">
-              <Clock className="h-4 w-4 shrink-0" />
-              <Typography variant="body-sm" as="span">
-                {t("extend-to")}: {formatDate(request.extendTo)}
-              </Typography>
-            </div>
-          )}
-
-          {isExtendInvoice && request.invoice?.userAmount && (
-            <div className="flex items-center gap-2 text-gray-600">
-              <DollarSign className="h-4 w-4 shrink-0" />
-              <Typography variant="body-sm" as="span">
-                {t("invoice-amount")}: {request.invoice.userAmount} {currency}
-              </Typography>
-            </div>
-          )}
-
-          {isExtendInvoice && request.invoice?.date && (
-            <div className="flex items-center gap-2 text-gray-600">
-              <Calendar className="h-4 w-4 shrink-0" />
-              <Typography variant="body-sm" as="span">
-                {t("original-date")}: {formatDate(request.invoice.date)}
-              </Typography>
-            </div>
-          )}
-
-          {request.createdAt && (
-            <div className="flex items-center gap-2 text-gray-600">
-              <Calendar className="h-4 w-4 shrink-0" />
-              <Typography variant="body-sm" as="span" className="text-gray-400">
-                {t("created")}: {formatDate(request.createdAt)}
-              </Typography>
-            </div>
-          )}
-        </div>
-
-        {request.owner && (
-          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg mb-3">
-            <OwnerImage owner={request.owner} />
-            <div>
-              <Typography variant="body-sm" as="p" className="font-medium">
-                {request.owner.name}
-              </Typography>
-              <Typography variant="body-sm" as="p" className="text-gray-500">
-                {request.owner.ownerType}
-              </Typography>
-            </div>
-          </div>
-        )}
-
-        {request.ownerComment && (
-          <Typography variant="body-sm" as="p" className="text-gray-600 mt-3 p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded italic">
-            <span className="font-semibold">{t("owner-comment")}:</span> {request.ownerComment}
-          </Typography>
-        )}
-
-        {request.comment && activeTab === "ads" && (
-          <Typography variant="body-sm" as="p" className="text-gray-600 mt-3 p-3 bg-green-50 border-l-4 border-green-400 rounded">
-            <span className="font-semibold">{t("admin-comment")}:</span> {request.comment}
-          </Typography>
-        )}
-
-        {request.reason && (
-          <Typography variant="body-sm" as="p" className="text-gray-600 mt-3 p-3 bg-blue-50 border-l-4 border-blue-400 rounded">
-            <span className="font-semibold">{t("reason")}:</span> {request.reason}
-          </Typography>
-        )}
-
-        {request.description && (
-          <Typography variant="body-sm" as="p" className="text-gray-600 mt-3">
-            {request.description}
-          </Typography>
-        )}
-
-        {/* Pay Now button for rejected extend invoices */}
-        {isExtendInvoice && request.status?.toLowerCase() === "rejected" && (
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            {request.invoice?._id ? (
-              <Button
-                onClick={() => handlePayInvoice(request.invoice._id, request.invoice.amount)}
-                className="w-full bg-main-600 hover:bg-main-700 text-white font-semibold"
-              >
-                {payInvoiceMutation.isPending ? (
-                  <Spinner className="h-4 w-4" />
-                ) : (
-                  t("pay-now")
-                )}
-              </Button>
-            ) : (
-              <Typography variant="body-sm" as="p" className="text-gray-600 text-center p-3 bg-red-50 border border-red-200 rounded">
-                {t("invoice-not-available")}
-              </Typography>
-            )}
-          </div>
-        )}
-
-        {/* View Details button for installments where owner is approved and user is pending */}
-        {activeTab === "installments" && request.ownerStatus?.toLowerCase() === "approved" && request.userStatus?.toLowerCase() === "pending" && (
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <Button
-              onClick={() => setSelectedInstallmentId(request._id)}
-              className="w-full bg-main-600 hover:bg-main-700 text-white font-semibold"
-            >
-              {t("view-details")}
-            </Button>
-          </div>
-        )}
-
-        {/* Approve/Reject buttons for rental collection with PENDING status */}
-        {isRentalCollection && request.tenantStatus?.toUpperCase() === "PENDING" && (
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <div className="flex gap-3">
-              <Button
-                onClick={() => handleApproveReject("approve", request._id, propertyTitle)}
-                disabled={updateUserStatusMutation.isPending}
-                className="flex-1 bg-main-600 hover:bg-main-700 text-white font-semibold"
-              >
-                {updateUserStatusMutation.isPending && confirmationDialog.action === "approve" ? (
-                  <Spinner className="h-4 w-4" />
-                ) : (
-                  <>
-                    <Check className="h-4 w-4 mr-2" />
-                    {t("approve")}
-                  </>
-                )}
-              </Button>
-              <Button
-                onClick={() => handleApproveReject("reject", request._id, propertyTitle)}
-                disabled={updateUserStatusMutation.isPending}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold"
-              >
-                {updateUserStatusMutation.isPending && confirmationDialog.action === "reject" ? (
-                  <Spinner className="h-4 w-4" />
-                ) : (
-                  <>
-                    <X className="h-4 w-4 mr-2" />
-                    {t("reject")}
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-        )}
-      </div>
-    );
   };
 
   const renderEmptyState = (icon: React.ReactNode, message: string) => (
@@ -672,58 +411,58 @@ export default function MyRequestsPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="flex w-full flex-wrap gap-2 h-auto p-2">
+        <TabsList className={cn("flex w-full flex-wrap gap-2 h-auto p-2", locale === "ar" && "flex-row-reverse")}>
           <TabsTrigger
             value="tours"
-            className="px-4 py-2 data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
+            className="px-4 py-2 cursor-pointer data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
           >
             {t("tabs.tours")}
           </TabsTrigger>
           <TabsTrigger
             value="rent"
-            className="px-4 py-2 data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
+            className="px-4 py-2 cursor-pointer data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
           >
             {t("tabs.rent")}
           </TabsTrigger>
           <TabsTrigger
             value="service"
-            className="px-4 py-2 data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
+            className="px-4 py-2 cursor-pointer data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
           >
             {t("tabs.service")}
           </TabsTrigger>
           <TabsTrigger
             value="installments"
-            className="px-4 py-2 data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
+            className="px-4 py-2 cursor-pointer data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
           >
             {t("tabs.installments")}
           </TabsTrigger>
           <TabsTrigger
             value="disclaimers"
-            className="px-4 py-2 data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
+            className="px-4 py-2 cursor-pointer data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
           >
             {t("tabs.disclaimers")}
           </TabsTrigger>
           <TabsTrigger
             value="ads"
-            className="px-4 py-2 data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
+            className="px-4 py-2 cursor-pointer data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
           >
             {t("tabs.ads")}
           </TabsTrigger>
           <TabsTrigger
             value="extend-invoices"
-            className="px-4 py-2 data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
+            className="px-4 py-2 cursor-pointer data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
           >
             {t("tabs.extend-invoices")}
           </TabsTrigger>
           <TabsTrigger
             value="end-contracts"
-            className="px-4 py-2 data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
+            className="px-4 py-2 cursor-pointer data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
           >
             {t("tabs.end-contracts")}
           </TabsTrigger>
           <TabsTrigger
             value="rental-collection"
-            className="px-4 py-2 data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
+            className="px-4 py-2 cursor-pointer data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
           >
             {t("tabs.rental-collection")}
           </TabsTrigger>
@@ -737,14 +476,14 @@ export default function MyRequestsPage() {
             </div>
           ) : requests.length > 0 ? (
             <>
-              <div className="mb-4 flex items-center justify-between">
-                <Typography variant="body-sm" as="p" className="text-gray-500">
+              <div className={cn("mb-4 flex items-center justify-between", locale === "ar" && "flex-row-reverse")}>
+                <Typography variant="body-sm" as="p" className={cn("text-gray-500", locale === "ar" && "text-right")}>
                   {t("showing-page", { currentPage, totalPages, itemsCount })}
                 </Typography>
               </div>
               <div className="space-y-4">
                 {requests.map((request: any) =>
-                  renderRequestCard(request, tabConfig.icon)
+                  renderRequestCard(request)
                 )}
               </div>
               <PaginationControls
@@ -781,6 +520,18 @@ export default function MyRequestsPage() {
         onConfirm={handleConfirmPayment}
         amount={selectedInvoiceAmount || undefined}
         currency="KWD"
+      />
+
+      {/* Generic Request Details Modal */}
+      <RequestDetailsModal
+        isOpen={requestDetailsOpen}
+        onClose={() => {
+          setRequestDetailsOpen(false);
+          setRequestDetailsId(null);
+        }}
+        requestId={requestDetailsId}
+        endpoint={currentEndpoint}
+        requestType={activeTab}
       />
 
       {/* Rental Collection Confirmation Dialog */}

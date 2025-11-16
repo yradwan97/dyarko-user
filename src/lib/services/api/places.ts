@@ -1,4 +1,4 @@
-import axiosClient from "../axios-client";
+import axiosClient, { noAuthAxios } from "../axios-client";
 
 export interface City {
   city: string;
@@ -27,6 +27,17 @@ export interface CountriesResponse {
   data: Country[];
 }
 
+export interface Nationality {
+  name: string;
+  code: string;
+}
+
+export interface NationalitiesResponse {
+  status: string;
+  message: string;
+  data: Nationality[];
+}
+
 export const getCities = async (countryCode: string): Promise<City[]> => {
   const response = await axiosClient.get<CitiesResponse>(
     `/places/cities?countryCode=${countryCode}`
@@ -36,5 +47,10 @@ export const getCities = async (countryCode: string): Promise<City[]> => {
 
 export const getCountries = async (): Promise<Country[]> => {
   const response = await axiosClient.get<CountriesResponse>("/static/countries");
+  return response.data.data;
+};
+
+export const getAllNationalities = async (): Promise<Nationality[]> => {
+  const response = await noAuthAxios.get<NationalitiesResponse>("/static/countries/all");
   return response.data.data;
 };

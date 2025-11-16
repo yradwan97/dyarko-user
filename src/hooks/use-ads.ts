@@ -18,7 +18,7 @@ export interface UserAd {
   };
   title: string;
   description: string;
-  price: number;
+  price: number | { from: number; to: number };
   priceType: "daily" | "weekly" | "monthly";
   __v: number;
   comment: string | null;
@@ -99,6 +99,7 @@ export function useAdDetails(adId: string | undefined) {
 export function useAdComments(adId: string | undefined) {
   return useQuery({
     queryKey: ["ad-comments", adId],
+    staleTime: 5 * 60 * 1000, // 5 minutes
     queryFn: async () => {
       if (!adId) throw new Error("Ad ID is required");
       const response = await axiosClient.get<AdCommentsResponse>(`/ads/comments/${adId}`);

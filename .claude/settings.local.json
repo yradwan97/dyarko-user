@@ -41,7 +41,19 @@
       "Bash(cat:*)",
       "Bash(move \"C:\\Users\\Youssef\\projects\\dyarko-user\\src\\app\\[locale]\\(main)\\companies\\[id]\\page.tsx\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\src\\app\\[locale]\\(main)\\companies\\[id]\\company-details.tsx\")",
       "Bash(find:*)",
-      "Bash($null)"
+      "Bash($null)",
+      "Bash(del \"C:\\Users\\Youssef\\projects\\dyarko-user\\public\\file.svg\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\public\\globe.svg\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\public\\next.svg\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\public\\vercel.svg\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\public\\window.svg\")",
+      "Bash(del \"C:\\Users\\Youssef\\projects\\dyarko-user\\public\\assets\\Base.png\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\public\\assets\\col2-img1.png\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\public\\assets\\DYARKO LOGO PNG-01.png\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\public\\assets\\DYARKO LOGO PNG-02.png\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\public\\assets\\img1.png\")",
+      "Bash(del \"C:\\Users\\Youssef\\projects\\dyarko-user\\public\\assets\\layout.png\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\public\\assets\\logo2.png\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\public\\assets\\map.png\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\public\\assets\\property-1.png\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\public\\assets\\Range.png\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\public\\assets\\wallet-item.png\")",
+      "Bash(del \"C:\\Users\\Youssef\\projects\\dyarko-user\\public\\assets\\kuwait.svg\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\public\\assets\\us.svg\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\public\\assets\\next.svg\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\public\\assets\\vercel.svg\")",
+      "Bash(del \"C:\\Users\\Youssef\\projects\\dyarko-user\\public\\assets\\logo.png\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\public\\assets\\menu.png\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\public\\assets\\service.png\")",
+      "Bash(del \"C:\\Users\\Youssef\\projects\\dyarko-user\\public\\assets\\slider\\background.png\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\public\\assets\\slider\\slider-1.png\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\public\\assets\\slider\\slider1.avif\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\public\\assets\\slider\\slider1.png\")",
+      "Bash(del \"C:\\Users\\Youssef\\projects\\dyarko-user\\src\\components\\layout\\mobile-header.tsx\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\src\\components\\layout\\header\\user-profile-dropdown.tsx\")",
+      "Bash(del \"C:\\Users\\Youssef\\projects\\dyarko-user\\src\\components\\sections\\hero-section.backup2.tsx\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\src\\components\\sections\\landing-videos-section.tsx\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\src\\components\\sections\\mobile-best-companies.tsx\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\src\\components\\sections\\mobile-featured-properties.tsx\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\src\\components\\sections\\mobile-nearest-property.tsx\")",
+      "Bash(del \"C:\\Users\\Youssef\\projects\\dyarko-user\\src\\components\\sections\\new-about-us.tsx\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\src\\components\\sections\\new-featured-companies.tsx\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\src\\components\\sections\\new-newsletter-section.tsx\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\src\\components\\sections\\properties-filter-section.tsx\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\src\\components\\sections\\properties-section.tsx\")",
+      "Bash(git restore:*)",
+      "Bash(del /s /q .next 2)",
+      "Bash(del \"C:\\Users\\Youssef\\projects\\dyarko-user\\src\\app\\[locale]\\(main)\\user\\my-requests\\components\\request-details-modal.tsx\")"
     ],
     "deny": [],
     "ask": []

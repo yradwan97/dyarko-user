@@ -37,6 +37,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useGetPaymentMethods } from "@/hooks/use-payment-methods";
 import { useCreateAd } from "@/hooks/use-ads";
+import { useManagementConfigContext } from "@/components/providers/management-config-provider";
+import { useCountries } from "@/hooks/use-countries";
+import { useCities } from "@/hooks/use-cities";
 
 interface CreateAdDialogProps {
   open: boolean;
@@ -47,9 +50,18 @@ export default function CreateAdDialog({ open, onOpenChange }: CreateAdDialogPro
   const t = useTranslations("CreateAd");
   const locale = useLocale();
   const router = useRouter();
-  const [step, setStep] = useState<1 | 2>(1);
+  const [step, setStep] = useState<0 | 1 | 2>(0);
   const [adData, setAdData] = useState<any>(null);
   const [selectedPayment, setSelectedPayment] = useState<string>("");
+  const [selectedCountry, setSelectedCountry] = useState<string>("");
+
+  // Get management config from provider
+  const { config, currency } = useManagementConfigContext();
+  const adPrice = config?.userAd;
+
+  // Fetch countries and cities
+  const { data: countries, isLoading: countriesLoading } = useCountries();
+  const { data: cities, isLoading: citiesLoading } = useCities(selectedCountry);
 
   // Only fetch payment methods when we reach step 2
   const { data: paymentMethods, isLoading: paymentMethodsLoading } = useGetPaymentMethods(step === 2);
@@ -58,7 +70,10 @@ export default function CreateAdDialog({ open, onOpenChange }: CreateAdDialogPro
   const createAdSchema = z.object({
     title: z.string().min(1, t("title-required")),
     description: z.string().min(1, t("description-required")).max(500, t("description-max")),
-    price: z.string().min(1, t("price-required")),
+    country: z.string().min(1, t("country-required")),
+    city: z.string().min(1, t("city-required")),
+    priceFrom: z.string().min(1, t("price-from-required")),
+    priceTo: z.string().min(1, t("price-to-required")),
     priceType: z.enum(["daily", "weekly", "monthly"], {
       required_error: t("price-type-required"),
     }),
@@ -71,7 +86,10 @@ export default function CreateAdDialog({ open, onOpenChange }: CreateAdDialogPro
     defaultValues: {
       title: "",
       description: "",
-      price: "",
+      country: "",
+      city: "",
+      priceFrom: "",
+      priceTo: "",
       priceType: "weekly",
     },
   });
@@ -81,7 +99,12 @@ export default function CreateAdDialog({ open, onOpenChange }: CreateAdDialogPro
     setAdData({
       title: data.title,
       description: data.description,
-      price: parseFloat(data.price),
+      country: data.country,
+      city: data.city,
+      price: {
+        from: parseFloat(data.priceFrom),
+        to: parseFloat(data.priceTo),
+      },
       priceType: data.priceType,
     });
     setStep(2);
@@ -138,9 +161,10 @@ export default function CreateAdDialog({ open, onOpenChange }: CreateAdDialogPro
   };
 
   const handleClose = () => {
-    setStep(1);
+    setStep(0);
     setAdData(null);
     setSelectedPayment("");
+    setSelectedCountry("");
     form.reset();
     onOpenChange(false);
   };
@@ -149,6 +173,8 @@ export default function CreateAdDialog({ open, onOpenChange }: CreateAdDialogPro
     if (step === 2) {
       setStep(1);
       setSelectedPayment("");
+    } else if (step === 1) {
+      setStep(0);
     } else {
       handleClose();
     }
@@ -158,18 +184,22 @@ export default function CreateAdDialog({ open, onOpenChange }: CreateAdDialogPro
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleBack}
-              className="rounded-full p-1 hover:bg-gray-100"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <DialogTitle className="flex-1 text-center text-xl font-bold">
-              {step === 1 ? t("title") : t("payment-title")}
-            </DialogTitle>
-            <div className="w-6" /> {/* Spacer for centering */}
-          </div>
+          {step === 0 ? (
+            <DialogTitle className="sr-only">{t("intro-title")}</DialogTitle>
+          ) : (
+            <div className="flex items-center gap-2 mt-2">
+              <button
+                onClick={handleBack}
+                className="rounded-full p-1 hover:bg-gray-100"
+              >
+                <ChevronLeft className={`h-5 w-5 ${locale === "ar" ? "rotate-180" : ""}`} />
+              </button>
+              <DialogTitle className="flex-1 text-center text-xl font-bold">
+                {step === 1 ? t("title") : t("payment-title")}
+              </DialogTitle>
+              <div className="w-6" /> {/* Spacer for centering */}
+            </div>
+          )}
           {step === 1 && (
             <p className="text-center text-sm text-gray-600">
               {t("subtitle")}
@@ -177,7 +207,87 @@ export default function CreateAdDialog({ open, onOpenChange }: CreateAdDialogPro
           )}
         </DialogHeader>
 
-        {step === 1 ? (
+        {step === 0 ? (
+          <div className="space-y-6 py-4 ">
+            <button
+              onClick={handleBack}
+              className={`absolute top-9 rounded-full p-1 hover:bg-gray-100 ${
+                locale === "ar" ? "right-4" : "left-4"
+              }`}
+            >
+              <ChevronLeft className={`h-5 w-5 ${locale === "ar" ? "rotate-180" : ""}`} />
+            </button>
+
+            <h2 className={`text-2xl font-bold text-gray-900 dark:text-white px-8 ${
+              locale === "ar" ? "text-right" : "text-left"
+            }`}>
+              {t("intro-title")}
+            </h2>
+
+            <div className="space-y-4">
+              {/* Step 1 */}
+              <div className={`flex gap-4`}>
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-main-600 text-white font-bold">
+                  {locale === "ar" ? "١" : "1"}
+                </div>
+                <div className={locale === "ar" ? "text-right" : "text-left"}>
+                  <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                    {t("intro-step1-title")}
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {t("intro-step1-description")}
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 2 */}
+              <div className={`flex gap-4`}>
+                <div className="flex-shrink-0">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-main-600 text-white font-bold">
+                    {locale === "ar" ? "٢" : "2"}
+                  </div>
+                </div>
+                <div className={locale === "ar" ? "text-right" : "text-left"}>
+                  <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                    {t("intro-step2-title")}
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {t("intro-step2-description")}
+                  </p>
+                    {adPrice && currency && (
+                      <span className="font-semibold text-main-600">
+                        {" "}({adPrice} {currency})
+                      </span>
+                    )}
+                </div>
+              </div>
+
+              {/* Step 3 */}
+              <div className={`flex gap-4 `}>
+                <div className="flex-shrink-0">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-main-600 text-white font-bold">
+                    {locale === "ar" ? "٣" : "3"}
+                  </div>
+                </div>
+                <div className={locale === "ar" ? "text-right" : "text-left"}>
+                  <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                    {t("intro-step3-title")}
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {t("intro-step3-description")}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <Button
+              onClick={() => setStep(1)}
+              className="w-full bg-main-600 text-white hover:bg-main-700 h-12 text-base font-semibold"
+            >
+              {t("intro-start-button")}
+            </Button>
+          </div>
+        ) : step === 1 ? (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
@@ -224,14 +334,78 @@ export default function CreateAdDialog({ open, onOpenChange }: CreateAdDialogPro
               <div className="grid grid-cols-2 gap-3">
                 <FormField
                   control={form.control}
-                  name="price"
+                  name="country"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="rtl:text-right block">{t("price-label")}</FormLabel>
+                      <FormLabel className="rtl:text-right block">{t("country-label")}</FormLabel>
+                      <Select
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          setSelectedCountry(value);
+                          form.setValue("city", ""); // Reset city when country changes
+                        }}
+                        value={field.value}
+                        disabled={countriesLoading}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="rtl:text-right">
+                            <SelectValue placeholder={t("country-placeholder")} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {countries?.map((country, index) => (
+                            <SelectItem key={country.code || `country-${index}`} value={country.code} className="rtl:text-right">
+                              {locale === "ar" ? country.countryAr : country.countryEn}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage className="rtl:text-right" />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="city"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="rtl:text-right block">{t("city-label")}</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                        disabled={!selectedCountry || citiesLoading}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="rtl:text-right">
+                            <SelectValue placeholder={t("city-placeholder")} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {cities?.map((city, index) => (
+                            <SelectItem key={city.key || `city-${index}`} value={city.key} className="rtl:text-right">
+                              {locale === "ar" ? city.city : city.city}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage className="rtl:text-right" />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <FormField
+                  control={form.control}
+                  name="priceFrom"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="rtl:text-right block">{t("price-from-label")}</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
-                          placeholder={t("price-placeholder")}
+                          placeholder={t("price-from-placeholder")}
                           className="rtl:text-right rtl:placeholder:text-right"
                           {...field}
                         />
@@ -243,36 +417,55 @@ export default function CreateAdDialog({ open, onOpenChange }: CreateAdDialogPro
 
                 <FormField
                   control={form.control}
-                  name="priceType"
+                  name="priceTo"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="rtl:text-right block">{t("price-type-label")}</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="rtl:text-right">
-                            <SelectValue placeholder={t("price-type-placeholder")} />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="daily" className="rtl:text-right">
-                            {t("daily")}
-                          </SelectItem>
-                          <SelectItem value="weekly" className="rtl:text-right">
-                            {t("weekly")}
-                          </SelectItem>
-                          <SelectItem value="monthly" className="rtl:text-right">
-                            {t("monthly")}
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <FormLabel className="rtl:text-right block">{t("price-to-label")}</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder={t("price-to-placeholder")}
+                          className="rtl:text-right rtl:placeholder:text-right"
+                          {...field}
+                        />
+                      </FormControl>
                       <FormMessage className="rtl:text-right" />
                     </FormItem>
                   )}
                 />
               </div>
+
+              <FormField
+                control={form.control}
+                name="priceType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="rtl:text-right block">{t("price-type-label")}</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="rtl:text-right">
+                          <SelectValue placeholder={t("price-type-placeholder")} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="daily" className="rtl:text-right">
+                          {t("daily")}
+                        </SelectItem>
+                        <SelectItem value="weekly" className="rtl:text-right">
+                          {t("weekly")}
+                        </SelectItem>
+                        <SelectItem value="monthly" className="rtl:text-right">
+                          {t("monthly")}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage className="rtl:text-right" />
+                  </FormItem>
+                )}
+              />
 
               <Button
                 type="submit"

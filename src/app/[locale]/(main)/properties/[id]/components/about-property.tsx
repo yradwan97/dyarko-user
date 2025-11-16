@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
-import { Property } from "@/lib/services/api/properties";
+import { type Property } from "@/lib/services/api/properties";
 import { getLocalizedPath } from "@/lib/utils";
 import { Bed, Bath, Square, CheckCircle2, XCircle, Paperclip, Play, X } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -31,8 +31,21 @@ export default function AboutProperty({ property, currency = "KWD" }: AboutPrope
 
   const hasVideo = !!property.video;
 
-  const { owner, lat, long, amenities, services, category } = property;
+  const { owner, lat, long, amenities, services } = property;
   const { _id: ownerId, name: ownerName, image: ownerImage } = owner;
+
+  // Validate owner image URL
+  const isValidImageUrl = (url: string | undefined | null): boolean => {
+    if (!url || typeof url !== "string" || url.trim() === "") return false;
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const validOwnerImage = isValidImageUrl(ownerImage) ? ownerImage : null;
 
   return (
     <>
@@ -226,12 +239,12 @@ export default function AboutProperty({ property, currency = "KWD" }: AboutPrope
                   locale === "ar" ? "flex-row-reverse" : "flex-row"
                 } items-center`}
               >
-                {ownerImage ? (
+                {validOwnerImage ? (
                   <Image
                     className="mx-4 h-12 w-12 rounded-full object-cover"
                     width={48}
                     height={48}
-                    src={ownerImage}
+                    src={validOwnerImage}
                     alt={ownerName || "Owner"}
                   />
                 ) : (

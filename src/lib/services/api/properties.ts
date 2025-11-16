@@ -52,6 +52,7 @@ export interface Property {
   allowNationality: string;
   rules?: string
   __t?: string; // Property type discriminator
+  isFavourite: boolean;
   // Physical characteristics
   bedrooms?: number;
   bathrooms?: number;
@@ -144,6 +145,7 @@ export interface GetPropertiesParams {
   priceTo?: number;
   city?: string;
   country?: string;
+  class?: string;
   sortBy?: "mostPopular" | "bestOffer" | "nearest";
   sort?: string;
   owner?: string;

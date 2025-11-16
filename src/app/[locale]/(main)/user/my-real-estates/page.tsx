@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Building2, KeyRound, CreditCard } from "lucide-react";
 
 import Typography from "@/components/shared/typography";
@@ -15,9 +15,11 @@ import InstallmentCard from "./components/installment-card";
 import RentDetailsModal from "./components/rent-details-modal";
 import InstallmentDetailsModal from "./components/installment-details-modal";
 import PaginationControls from "@/components/shared/pagination-controls";
+import { cn } from "@/lib/utils";
 
 export default function MyRealEstatesPage() {
   const t = useTranslations("User.MyRealEstates");
+  const locale = useLocale();
   const [activeTab, setActiveTab] = useState<"rents" | "installments">("rents");
   const [selectedRentId, setSelectedRentId] = useState<string | null>(null);
   const [selectedInstallmentId, setSelectedInstallmentId] = useState<string | null>(null);
@@ -85,7 +87,7 @@ export default function MyRealEstatesPage() {
         onValueChange={handleTabChange}
         className="w-full"
       >
-        <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
+        <TabsList className={cn("grid w-full grid-cols-2 max-w-md mx-auto", locale === "ar" && "flex-row-reverse")}>
           <TabsTrigger value="rents" className="flex items-center gap-2">
             <KeyRound className="h-4 w-4" />
             {t("tabs.rents")}

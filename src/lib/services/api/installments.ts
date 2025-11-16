@@ -1,6 +1,7 @@
+import { Property } from "@/types";
 import { axiosClient } from "../axios-client";
 
-export interface InstallmentProperty {
+export interface InstallmentProperty extends Property {
   code: string;
   title: string;
   country: string;
@@ -44,6 +45,13 @@ export interface Installment {
   installmentPlan?: string;
   installmentType?: string;
   startDate?: string;
+  installments?: CustomInstallment[],
+}
+
+export interface CustomInstallment {
+  date: string,
+  amount: 250,
+  _id: string
 }
 
 export interface InstallmentsResponse {

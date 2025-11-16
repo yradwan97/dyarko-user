@@ -1,0 +1,227 @@
+"use client";
+
+import { useTranslations, useLocale } from "next-intl";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Spinner } from "@/components/ui/spinner";
+import Typography from "@/components/shared/typography";
+import { useRequestDetails } from "@/hooks/use-request-details";
+import { useCountries } from "@/hooks/use-countries";
+import Image from "next/image";
+import { getProxiedImageUrl, cn } from "@/lib/utils";
+import { BaseModalProps } from "./types";
+import { formatDate, formatStatus, getStatusColor, getCurrency as getCountryCurrency, PersonImage } from "./shared-utils";
+import Link from "next/link";
+
+interface BaseDetailsModalProps extends BaseModalProps {
+  requestType: string;
+  children: (data: {
+    request: any;
+    locale: string;
+    t: any;
+    formatDate: (date: string) => string;
+    formatStatus: (status: string) => string;
+    getStatusColor: (status: string) => string;
+    currency: string;
+    property: any;
+  }) => React.ReactNode;
+}
+
+export function BaseDetailsModal({
+  isOpen,
+  onClose,
+  requestId,
+  endpoint,
+  requestType,
+  children,
+}: BaseDetailsModalProps) {
+  const t = useTranslations("User.MyRequests");
+  const locale = useLocale();
+  const { data: countries } = useCountries();
+  const { data, isLoading } = useRequestDetails(endpoint, requestId);
+
+  const getModalTitle = () => {
+    const typeLabels: Record<string, string> = {
+      tours: t("tabs.tours"),
+      rent: t("tabs.rent"),
+      service: t("tabs.service"),
+      installments: t("tabs.installments"),
+      disclaimers: t("tabs.disclaimers"),
+      "extend-invoices": t("tabs.extend-invoices"),
+      "end-contracts": t("tabs.end-contracts"),
+      "rental-collection": t("tabs.rental-collection"),
+    };
+
+    const typeLabel = typeLabels[requestType] || t("request-details");
+    return `${typeLabel} ${t("request-details-suffix")}`;
+  };
+
+  const getCurrency = (countryCode?: string) => getCountryCurrency(countries || [], countryCode);
+
+  if (!data?.data) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{getModalTitle()}</DialogTitle>
+          </DialogHeader>
+          {isLoading ? (
+            <div className="flex justify-center py-12">
+              <Spinner className="h-12 w-12 text-main-400" />
+            </div>
+          ) : (
+            <div className="py-8 text-center">
+              <Typography variant="body-md" as="p" className="text-gray-500">
+                {t("no-data")}
+              </Typography>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  const request = data.data;
+
+  // Handle different property structures
+  const isExtendInvoice = requestType === "extend-invoices";
+  const isEndContract = requestType === "end-contracts";
+  const isRentalCollection = requestType === "rental-collection";
+
+  const property = isExtendInvoice
+    ? request.invoice?.property
+    : isEndContract
+      ? request.rent?.property
+      : isRentalCollection
+        ? request
+        : request.property;
+
+  const propertyTitle = property?.title || request.title || t("request-title");
+  const propertyLocation = property
+    ? `${property.city || ""}, ${property.region || ""}`.trim().replace(/^,|,$/g, "")
+    : null;
+  const currency = getCurrency(property?.country);
+
+  const getRequestDate = () => {
+    if (request.date) return formatDate(request.date, locale);
+    if (request.createdAt) return formatDate(request.createdAt, locale);
+    return "";
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{getModalTitle()}</DialogTitle>
+        </DialogHeader>
+
+        {isLoading ? (
+          <div className="flex justify-center py-12">
+            <Spinner className="h-12 w-12 text-main-400" />
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {/* Listing Details Section */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <Typography variant="body-sm" as="p" className="text-gray-500 mb-3">
+                {t("listing-details")}
+              </Typography>
+
+              <div className={cn("flex gap-3", locale === "ar" && "flex-row-reverse")}>
+                {property?.image && (
+                  <Image
+                    src={getProxiedImageUrl(property.image)}
+                    alt={propertyTitle}
+                    width={80}
+                    height={80}
+                    className="rounded-lg object-cover"
+                  />
+                )}
+
+                <div className={cn("flex-1", locale === "ar" && "text-right")}>
+                  {property?.code && (
+                    <Typography variant="body-sm" as="p" className="text-gray-500">
+                      {t("property-code")}: {property.code}
+                    </Typography>
+                  )}
+                  <Typography variant="body-md-bold" as="p" className="font-semibold mb-1">
+                    {propertyTitle}
+                  </Typography>
+                  {propertyLocation && (
+                    <Typography variant="body-sm" as="p" className="text-gray-600 mb-2">
+                      {propertyLocation}
+                    </Typography>
+                  )}
+                  <div className={cn("flex items-center gap-3 flex-wrap", locale === "ar" && "flex-row-reverse justify-end")}>
+                    {getRequestDate() && (
+                      <Typography variant="body-sm" as="span" className="text-gray-600">
+                        {t("request-date")}: {getRequestDate()}
+                      </Typography>
+                    )}
+                    {request.status && (
+                      <span
+                        className={`inline-block rounded-full border px-3 py-1 text-xs font-medium whitespace-nowrap ${getStatusColor(
+                          request.status
+                        )}`}
+                      >
+                        {formatStatus(request.status)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <Typography variant="body-md-bold" as="h3" className="font-semibold">
+              {getModalTitle()}
+            </Typography>
+
+            {/* Owner/Agent Section */}
+            {request.owner && (
+              <div className={cn("flex items-center gap-3", locale === "ar" && "flex-row-reverse")}>
+                <PersonImage person={request.owner} />
+                <div className={cn(locale === "ar" && "text-right")}>
+                  {requestType === "ads" ? (
+                    <Link
+                      href={`/${locale}/companies/${request.owner._id}`}
+                      className="font-medium text-main-600 hover:text-main-700 hover:underline"
+                    >
+                      <Typography variant="body-sm" as="span">
+                        {request.owner.name}
+                      </Typography>
+                    </Link>
+                  ) : (
+                    <Typography variant="body-sm" as="p" className="font-medium">
+                      {request.owner.name}
+                    </Typography>
+                  )}
+                  {request.owner.ownerType && (
+                    <Typography variant="body-sm" as="p" className="text-gray-500">
+                      {request.owner.ownerType}
+                    </Typography>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Render type-specific content */}
+            {children({
+              request,
+              locale,
+              t,
+              formatDate: (date: string) => formatDate(date, locale),
+              formatStatus,
+              getStatusColor,
+              currency,
+              property,
+            })}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}

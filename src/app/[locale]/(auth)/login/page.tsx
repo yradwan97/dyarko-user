@@ -127,7 +127,7 @@ function LoginForm() {
                     <Input
                       type={showPassword ? "text" : "password"}
                       placeholder={t("Form.password.placeholder")}
-                      className="h-12 pr-12"
+                      className="h-12 pe-12"
                       disabled={loginMutation.isPending}
                       {...field}
                     />
@@ -135,7 +135,7 @@ function LoginForm() {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      className="absolute ltr:right-0 rtl:left-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                       onClick={() => setShowPassword(!showPassword)}
                       disabled={loginMutation.isPending}
                     >

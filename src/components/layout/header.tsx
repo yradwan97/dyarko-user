@@ -5,10 +5,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useLocale, useTranslations } from "next-intl";
-import { BellIcon, BookmarkIcon, MapPinIcon, MenuIcon, SearchIcon, SlidersHorizontalIcon, ChevronDown, PlusCircle, Map } from "lucide-react";
+import { BellIcon, MenuIcon, ChevronDown, PlusCircle, Map } from "lucide-react";
 import { DropdownMenu, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
 import Navbar from "./header/navbar";
 import MobileSidebar from "./header/mobile-sidebar";
 import NotificationDropdown from "./header/notification-dropdown";
@@ -30,7 +29,7 @@ export default function Header() {
   const { data: session } = useSession();
   const [notificationCount, setNotificationCount] = useState(0);
   // const { data, isSuccess, refetch } = useGetNotifications();
-  const markAllReadMutation = useMarkAllNotificationsRead();  
+  const markAllReadMutation = useMarkAllNotificationsRead();
 
   // useEffect(() => {
   //   if (session) {
@@ -54,22 +53,116 @@ export default function Header() {
   //   });
   // };
 
+  // User section - Icons and User (logged in)
+  const UserSectionLoggedIn = (
+    <div
+      className={cn(
+        "flex items-center gap-2 sm:gap-3",
+        // locale === "ar" ? "flex-row-reverse" : "flex-row"
+      )}
+    >
+      <LocalizationDropdown />
+
+      <button
+        onClick={() => setCreateAdOpen(true)}
+        className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
+      >
+        <PlusCircle className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+      </button>
+
+      <Link
+        href={getLocalizedPath("/map", locale)}
+        className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
+      >
+        <Map className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+      </Link>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700">
+            <BellIcon className="relative z-10 h-5 w-5 text-gray-700 dark:text-gray-300" />
+            {notificationCount > 0 && (
+              <span className="absolute -right-1 -top-1 z-20 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-medium text-white">
+                {notificationCount < 9 ? notificationCount : "9+"}
+              </span>
+            )}
+          </button>
+        </DropdownMenuTrigger>
+        {/* <NotificationDropdown
+          onReadAll={handleReadAllNotifications}
+          notifications={notifications}
+        /> */}
+      </DropdownMenu>
+
+      <UserProfilePopover
+        userName={session?.user?.name || t("defaultUser")}
+        userEmail={session?.user?.email || undefined}
+        userImage={session?.user?.image || undefined}
+      />
+
+      <button
+        className="inline-block lg:hidden"
+        onClick={() => setVisible(true)}
+      >
+        <MenuIcon className="h-6 w-6 text-gray-700 dark:text-gray-300" />
+      </button>
+    </div>
+  );
+
+  // User section - Icons and Sign In (logged out)
+  const UserSectionLoggedOut = (
+    <div className={cn(
+      "flex items-center gap-3",
+      locale === "ar" ? "flex-row-reverse" : "flex-row"
+    )}>
+      <div className="hidden md:flex items-center gap-3">
+        <LocalizationDropdown />
+        <Popover>
+          <PopoverTrigger asChild suppressHydrationWarning>
+            <button className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700">
+              <span>{t("helloSignIn")}</span>
+              <ChevronDown className="h-4 w-4" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-64 p-4" align={locale === "ar" ? "start" : "end"}>
+            <div className="space-y-3">
+              <Button
+                variant="primary"
+                to={getLocalizedPath("/login", locale)}
+                className="w-full"
+              >
+                {t("login")}
+              </Button>
+              <Button
+                variant="primary-outline"
+                to={getLocalizedPath("/sign-up", locale)}
+                className="w-full"
+              >
+                {t("sign-up")}
+              </Button>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
+      <button
+        className="inline-block md:hidden"
+        onClick={() => setVisible(true)}
+      >
+        <MenuIcon className="h-6 w-6 text-gray-700 dark:text-gray-300" />
+      </button>
+    </div>
+  );
+
   return (
     <>
-      <header className="top-0 z-20 bg-white shadow-md sm:sticky dark:bg-gray-800 dark:shadow-gray-700/50">
-        {/* Top row - Location, Navigation, Icons */}
-        <div
-          className={cn(
-            "mx-auto flex items-center justify-between gap-4 border-b border-gray-200 px-4 py-3 md:px-6 lg:px-8 xl:px-10 dark:border-gray-700",
-            locale === "ar" ? "flex-row-reverse" : "flex-row"
-          )}
-        >
-          {/* Logo and Location */}
+      <header className={`top-0 z-20 bg-white flex ${locale === "ar" ? "flex-row-reverse" : "flex-row"} p-4 shadow-md sm:sticky dark:bg-gray-800 dark:shadow-gray-700/50 items-center gap-2`}>
+        {/* Left/Right side - Blue section */}
+        <div className={locale === "ar" ? "order-3" : "order-1"}>
           <div className={cn(
             "flex items-center gap-3",
-            locale === "ar" ? "flex-row-reverse" : "flex-row"
+            // locale === "ar" ? "flex-row-reverse" : "flex-row"
           )}>
-            <Link href={getLocalizedPath("/", locale)} className="flex-shrink-0">
+            <Link href={getLocalizedPath("/", locale)} className="shrink-0">
               <Image
                 src="/logo.png"
                 alt={t("logoAlt")}
@@ -80,133 +173,20 @@ export default function Header() {
             </Link>
             <CountryDropdown />
           </div>
-
-          {/* Center navigation */}
-          <nav
-            className={cn(
-              "hidden flex-1 items-center justify-center lg:flex",
-              locale === "ar" ? "lg:flex-row-reverse" : "lg:flex-row"
-            )}
-          >
-            <Navbar />
-          </nav>
-
-          {/* Right side icons */}
-          {session ? (
-            <div
-              className={cn(
-                "flex items-center gap-2 sm:gap-3",
-                locale === "ar" ? "flex-row-reverse" : "flex-row"
-              )}
-            >
-              <LocalizationDropdown />
-
-              <button
-                onClick={() => setCreateAdOpen(true)}
-                className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
-              >
-                <PlusCircle className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-              </button>
-
-              <Link
-                href={getLocalizedPath("/map", locale)}
-                className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
-              >
-                <Map className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-              </Link>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700">
-                    <BellIcon className="relative z-10 h-5 w-5 text-gray-700 dark:text-gray-300" />
-                    {notificationCount > 0 && (
-                      <span className="absolute -right-1 -top-1 z-20 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-medium text-white">
-                        {notificationCount < 9 ? notificationCount : "9+"}
-                      </span>
-                    )}
-                  </button>
-                </DropdownMenuTrigger>
-                {/* <NotificationDropdown
-                  onReadAll={handleReadAllNotifications}
-                  notifications={notifications}
-                /> */}
-              </DropdownMenu>
-
-              <UserProfilePopover
-                userName={session.user?.name || t("defaultUser")}
-                userEmail={session.user?.email || undefined}
-                userImage={session.user?.image || undefined}
-              />
-
-              <button
-                className="inline-block lg:hidden"
-                onClick={() => setVisible(true)}
-              >
-                <MenuIcon className="h-6 w-6 text-gray-700 dark:text-gray-300" />
-              </button>
-            </div>
-          ) : (
-            <>
-              <div
-                className={cn(
-                  "hidden md:flex items-center gap-3",
-                  locale === "ar" ? "md:flex-row-reverse" : "md:flex-row"
-                )}
-              >
-                <LocalizationDropdown />
-                <Popover>
-                  <PopoverTrigger asChild suppressHydrationWarning>
-                    <button className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700">
-                      <span>{t("helloSignIn")}</span>
-                      <ChevronDown className="h-4 w-4" />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-64 p-4" align={locale === "ar" ? "start" : "end"}>
-                    <div className="space-y-3">
-                      <Button
-                        variant="primary"
-                        to={getLocalizedPath("/login", locale)}
-                        className="w-full"
-                      >
-                        {t("login")}
-                      </Button>
-                      <Button
-                        variant="primary-outline"
-                        to={getLocalizedPath("/sign-up", locale)}
-                        className="w-full"
-                      >
-                        {t("sign-up")}
-                      </Button>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <button
-                className="inline-block md:hidden"
-                onClick={() => setVisible(true)}
-              >
-                <MenuIcon className="h-6 w-6 text-gray-700 dark:text-gray-300" />
-              </button>
-            </>
-          )}
         </div>
 
-        {/* Bottom row - Search bar */}
-        {/* {session && (
-          <div className="mx-auto px-4 py-3 lg:px-10">
-            <div className="relative flex items-center gap-2">
-              <SearchIcon className="absolute left-3 h-5 w-5 text-gray-400" />
-              <Input
-                type="search"
-                placeholder={t("searchPlaceholder")}
-                className="h-11 pl-10 pr-4"
-              />
-              <button className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:bg-gray-50">
-                <SlidersHorizontalIcon className="h-5 w-5 text-gray-700" />
-              </button>
-            </div>
-          </div>
-        )} */}
+        {/* Center navigation */}
+        <nav className={cn(
+          "hidden flex-1 items-center justify-center lg:flex order-2",
+          locale === "ar" ? "lg:flex-row-reverse" : "lg:flex-row"
+        )}>
+          <Navbar />
+        </nav>
+
+        {/* Right/Left side - Red section */}
+        <div className={locale === "ar" ? "order-1" : "order-3"}>
+          {session ? UserSectionLoggedIn : UserSectionLoggedOut}
+        </div>
       </header>
       <MobileSidebar visible={visible} setVisible={setVisible} />
       <CreateAdDialog open={createAdOpen} onOpenChange={setCreateAdOpen} />

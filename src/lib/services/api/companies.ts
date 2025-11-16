@@ -71,10 +71,11 @@ export interface GetOwnersParams {
 
 export const getBestCompanies = async (
   page: number = 1,
-  size: number = 10
+  size: number = 10,
+  country: string = "KW"
 ): Promise<BestCompaniesResponse> => {
   const response = await axiosClient.get<BestCompaniesResponse>(
-    `/companies/best?page=${page}&size=${size}`
+    `/companies/best?page=${page}&size=${size}&country=${country}`
   );
   return response.data;
 };

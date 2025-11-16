@@ -55,11 +55,11 @@ const PRICE_RANGES = {
   CASH: { min: 0, max: 1000000 },
 };
 
-const SORT_OPTIONS = [
-  { id: "mostPopular", name: "Most Popular" },
-  { id: "nearest", name: "Nearest" },
-  { id: "bestOffer", name: "Best Offer" },
-  { id: "recentlyAdded", name: "Recently Added" },
+const getSortOptions = (t: any) => [
+  { id: "mostPopular", name: t("most-popular") },
+  { id: "nearest", name: t("nearest") },
+  { id: "bestOffer", name: t("best-offer") },
+  { id: "recentlyAdded", name: t("recently-added") },
 ];
 
 export default function FilterSide({
@@ -80,6 +80,7 @@ export default function FilterSide({
   const currency = useCurrency();
   const { selectedCountry } = useCountryContext();
   const { data: cities, isLoading: citiesLoading } = useCities(selectedCountry);
+  const sortOptions = getSortOptions(t);
 
   // Fetch categories
   const { data: categories } = useQuery({
@@ -252,11 +253,11 @@ export default function FilterSide({
             {/* Search Field */}
             <div className="px-1">
               <Typography variant="body-md-bold" as="p" className="mb-3 block">
-                Search
+                {t("search-label")}
               </Typography>
               <Input
                 type="text"
-                placeholder="Search properties..."
+                placeholder={t("search-placeholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="h-11"
@@ -284,7 +285,7 @@ export default function FilterSide({
                 <div className="mt-3 flex items-center space-x-3 rounded-lg border border-gray-300 p-4 transition-colors hover:border-main-400 focus-within:border-main-400 focus-within:ring-1 focus-within:ring-main-400 dark:border-gray-600">
                   <RadioGroupItem value="CASH" id="cash" />
                   <Label htmlFor="cash" className="flex-1 cursor-pointer font-medium">
-                    Cash
+                    {t("cash")}
                   </Label>
                 </div>
               </RadioGroup>
@@ -293,14 +294,14 @@ export default function FilterSide({
             {/* Sort By */}
             <div className="px-1">
               <Typography variant="body-md-bold" as="p" className="mb-3 block">
-                Sort By
+                {t("sort-by")}
               </Typography>
               <Select value={selectedSort} onValueChange={setSelectedSort}>
                 <SelectTrigger className="h-11">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {SORT_OPTIONS.map((option) => (
+                  {sortOptions.map((option) => (
                     <SelectItem key={option.id} value={option.id}>
                       {option.name}
                     </SelectItem>
@@ -312,11 +313,11 @@ export default function FilterSide({
             {/* City */}
             <div className="px-1">
               <Typography variant="body-md-bold" as="p" className="mb-3 block">
-                City
+                {t("city-label")}
               </Typography>
               <Select value={selectedCity} onValueChange={setSelectedCity}>
                 <SelectTrigger className="h-11">
-                  <SelectValue placeholder="Select city..." />
+                  <SelectValue placeholder={t("city-placeholder")} />
                 </SelectTrigger>
                 <SelectContent>
                   {cityOptions.map((city) => (
@@ -331,7 +332,7 @@ export default function FilterSide({
             {/* Categories */}
             <div className="px-1">
               <Typography variant="body-md-bold" as="p" className="mb-3 block">
-                Categories
+                {t("categories")}
               </Typography>
               <div className="flex flex-wrap gap-2">
                 {categories?.map((category) => (
@@ -357,12 +358,12 @@ export default function FilterSide({
             <div className="grid grid-cols-2 gap-4 px-1">
               <div>
                 <Typography variant="body-md-bold" as="p" className="mb-3 block">
-                  Bedrooms
+                  {t("bedrooms")}
                 </Typography>
                 <Input
                   type="number"
                   min="0"
-                  placeholder="Any"
+                  placeholder={t("any-placeholder")}
                   value={bedrooms}
                   onChange={(e) => setBedrooms(e.target.value)}
                   className="h-11"
@@ -370,12 +371,12 @@ export default function FilterSide({
               </div>
               <div>
                 <Typography variant="body-md-bold" as="p" className="mb-3 block">
-                  Bathrooms
+                  {t("bathrooms")}
                 </Typography>
                 <Input
                   type="number"
                   min="0"
-                  placeholder="Any"
+                  placeholder={t("any-placeholder")}
                   value={bathrooms}
                   onChange={(e) => setBathrooms(e.target.value)}
                   className="h-11"
@@ -410,37 +411,37 @@ export default function FilterSide({
             {/* Availability */}
             <div className="px-1 pb-4">
               <Typography variant="body-md-bold" as="p" className="mb-4 block">
-                Availability
+                {t("availability")}
               </Typography>
               <div className="space-y-4">
                 <div className="flex items-center space-x-3 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
                   <Checkbox id="daily" checked={isDaily} onCheckedChange={(checked) => setIsDaily(checked as boolean)} />
                   <Label htmlFor="daily" className="flex-1 cursor-pointer font-medium">
-                    Daily
+                    {t("daily")}
                   </Label>
                 </div>
                 <div className="flex items-center space-x-3 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
                   <Checkbox id="weekly" checked={isWeekly} onCheckedChange={(checked) => setIsWeekly(checked as boolean)} />
                   <Label htmlFor="weekly" className="flex-1 cursor-pointer font-medium">
-                    Weekly
+                    {t("weekly")}
                   </Label>
                 </div>
                 <div className="flex items-center space-x-3 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
                   <Checkbox id="monthly" checked={isMonthly} onCheckedChange={(checked) => setIsMonthly(checked as boolean)} />
                   <Label htmlFor="monthly" className="flex-1 cursor-pointer font-medium">
-                    Monthly
+                    {t("monthly")}
                   </Label>
                 </div>
                 <div className="flex items-center space-x-3 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
                   <Checkbox id="weekdays" checked={isWeekdays} onCheckedChange={(checked) => setIsWeekdays(checked as boolean)} />
                   <Label htmlFor="weekdays" className="flex-1 cursor-pointer font-medium">
-                    Weekdays
+                    {t("weekdays")}
                   </Label>
                 </div>
                 <div className="flex items-center space-x-3 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
                   <Checkbox id="holidays" checked={isHolidays} onCheckedChange={(checked) => setIsHolidays(checked as boolean)} />
                   <Label htmlFor="holidays" className="flex-1 cursor-pointer font-medium">
-                    Holidays
+                    {t("holidays")}
                   </Label>
                 </div>
               </div>

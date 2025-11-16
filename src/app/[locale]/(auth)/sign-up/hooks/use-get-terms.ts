@@ -19,7 +19,7 @@ export const useGetTermsAndConditions = () => {
       const allTerms = response.data.data.data as Term[];
       // Filter by type "user"
       return allTerms
-      // .filter(term => term.type === "user");
+      .filter(term => term.type === "user");
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });

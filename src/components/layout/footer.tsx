@@ -38,9 +38,9 @@ export default function Footer() {
   return (
     <div>
       <div className="container mx-auto rounded-md bg-main-100 py-20 shadow-sm px-4 md:px-6">
-        <div className="grid gap-8 sm:grid-cols-1 md:grid-cols-4">
-          {/* Logo */}
-          <div className={`${locale === "ar" ? "order-4 ml-auto" : "order-1"}`}>
+        <div className="grid gap-8 grid-cols-1 md:grid-cols-4">
+          {/* Logo - First on mobile, positioned by locale on md+ */}
+          <div className={`flex flex-col p-4 order-1 ${locale === "ar" ? "md:order-4 md:ml-auto" : "md:order-1"}`}>
             <Image
               src="/logo.png"
               height={160}
@@ -50,8 +50,8 @@ export default function Footer() {
             />
           </div>
 
-          {/* Services */}
-          <div className={`flex flex-col ms-4 ${locale === "ar" ? "text-end" : "text-start"}`}>
+          {/* Services - Second on mobile, second or third on md+ based on locale */}
+          <div className={`flex flex-col p-4 order-4 ${locale === "ar" ? "md:order-1 text-end" : "md:order-2 text-start"}`}>
             <Typography variant="h5" as="h5" className="mb-3">
               {t("Services.title")}
             </Typography>
@@ -69,8 +69,8 @@ export default function Footer() {
             </Typography>
           </div>
 
-          {/* About */}
-          <div className={`flex flex-col ${locale === "ar" ? "text-end" : "text-start"}`}>
+          {/* About - Third on mobile */}
+          <div className={`flex flex-col p-4 order-3 ${locale === "ar" ? "md:order-2 text-end" : "md:order-3 text-start"}`}>
             <Typography variant="h5" as="h5" className="mb-3">
               {t("About.title")}
             </Typography>
@@ -81,15 +81,12 @@ export default function Footer() {
               <Link href={getLocalizedPath("/privacy-policy", locale)}>{t("About.privacy")}</Link>
             </Typography>
             <Typography variant="body-sm-medium" as="p" className="mb-3 text-gray-600">
-              <Link href={getLocalizedPath("/faqs", locale)}>{t("About.faqs")}</Link>
-            </Typography>
-            <Typography variant="body-sm-medium" as="p" className="mb-3 text-gray-600">
-              <Link href={getLocalizedPath("/contact-us", locale)}>{t("About.contact")}</Link>
+              <Link href={getLocalizedPath("/refund-policy", locale)}>{t("About.refund")}</Link>
             </Typography>
           </div>
 
-          {/* Social */}
-          <div className={`flex flex-col ${locale === "ar" ? "text-end" : "text-start"}`}>
+          {/* Social - Second on mobile (after logo) */}
+          <div className={`flex flex-col p-4 order-2 ${locale === "ar" ? "md:order-3 text-end" : "md:order-4 text-start"}`}>
             <Typography variant="h5" as="h5" className="mb-3">
               {t("Social.title")}
             </Typography>

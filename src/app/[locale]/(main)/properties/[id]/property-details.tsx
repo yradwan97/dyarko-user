@@ -2,13 +2,12 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useProperty } from "@/hooks/use-properties";
 import { useCountries } from "@/hooks/use-countries";
 import { toast } from "sonner";
 import { axiosClient } from "@/lib/services/axios-client";
-import { checkFavourite, addFavourite, removeFavourite } from "@/lib/services/api/favourites";
+import { addFavourite, removeFavourite } from "@/lib/services/api/favourites";
 import { ChevronLeft, Share2, Heart, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { getLocalizedPath, cn } from "@/lib/utils";
@@ -24,11 +23,10 @@ interface PropertyDetailsProps {
 export default function PropertyDetails({ id }: PropertyDetailsProps) {
   const locale = useLocale();
   const t = useTranslations("Properties.Details");
-  const router = useRouter();
   const queryClient = useQueryClient();
   const [liked, setLiked] = useState(false);
 
-  const { data: property, isLoading, error, refetch } = useProperty(id);
+  const { data: property, isLoading, error } = useProperty(id);
   const { data: countries } = useCountries();
 
   // Get currency based on property country
@@ -46,19 +44,19 @@ export default function PropertyDetails({ id }: PropertyDetailsProps) {
     if (property) {
       // Create property view
       createPropertyView(id);
-      // Check favorite status
-      checkFavoriteStatus();
+      setLiked(property.isFavourite);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [property, id]);
 
-  const checkFavoriteStatus = async () => {
-    try {
-      const isFavorited = await checkFavourite(id);
-      setLiked(isFavorited);
-    } catch (error) {
-      console.error("Failed to check favorite status:", error);
-    }
-  };
+  // const checkFavoriteStatus = async () => {
+  //   try {
+  //     const isFavorited = await checkFavourite(id);
+  //     setLiked(isFavorited);
+  //   } catch (error) {
+  //     console.error("Failed to check favorite status:", error);
+  //   }
+  // };
 
   const createPropertyView = async (propertyId: string) => {
     try {

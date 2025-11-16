@@ -38,7 +38,7 @@ function SelectTrigger({
       data-slot="select-trigger"
       data-size={size}
       className={cn(
-        "flex w-fit items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm whitespace-nowrap outline-none transition-colors",
+        "flex w-full items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm whitespace-nowrap outline-none transition-colors",
         "hover:bg-gray-50",
         "focus:ring-2 focus:ring-main-500 focus:ring-offset-0",
         "disabled:cursor-not-allowed disabled:opacity-50",
@@ -53,16 +53,16 @@ function SelectTrigger({
         // Size variants
         "data-[size=default]:h-9 data-[size=sm]:h-8",
         // Icon and value styles
-        "*:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2",
+        "*:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 *:data-[slot=select-value]:text-start",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         "[&_svg:not([class*='text-'])]:text-gray-500 dark:[&_svg:not([class*='text-'])]:text-gray-400",
         className
       )}
       {...props}
     >
-      {children}
+      <span className="flex-1 text-start truncate">{children}</span>
       <SelectPrimitive.Icon asChild>
-        <ChevronDownIcon className="size-4 opacity-50" />
+        <ChevronDownIcon className="size-4 opacity-50 shrink-0" />
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
   )
@@ -133,7 +133,7 @@ function SelectItem({
     <SelectPrimitive.Item
       data-slot="select-item"
       className={cn(
-        "relative flex w-full cursor-pointer items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm font-medium text-gray-700 outline-hidden select-none",
+        "relative flex w-full cursor-pointer items-center gap-2 rounded-sm py-1.5 pe-8 ps-2 text-sm font-medium text-gray-700 outline-hidden select-none",
         "hover:bg-gray-50 focus:bg-gray-50",
         "dark:text-gray-200 dark:hover:bg-gray-700 dark:focus:bg-gray-700",
         "data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 data-[disabled]:text-gray-400 dark:data-[disabled]:text-gray-500",
@@ -144,7 +144,7 @@ function SelectItem({
       )}
       {...props}
     >
-      <span className="absolute right-2 flex size-3.5 items-center justify-center">
+      <span className="absolute ltr:right-2 rtl:left-2 flex size-3.5 items-center justify-center">
         <SelectPrimitive.ItemIndicator>
           <CheckIcon className="size-4" />
         </SelectPrimitive.ItemIndicator>

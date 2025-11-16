@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Calendar, DollarSign, User, Home, FileText, MapPin, Check, X } from "lucide-react";
 import Image from "next/image";
 import {
@@ -26,9 +26,15 @@ import { Button } from "@/components/ui/button";
 import { useInstallmentDetails, useUpdateInstallmentUserStatus } from "@/hooks/use-installments";
 import { Spinner } from "@/components/ui/spinner";
 import Typography from "@/components/shared/typography";
-import { getProxiedImageUrl } from "@/lib/utils";
+import { getLocalizedPath, getProxiedImageUrl } from "@/lib/utils";
 import { useCountryCurrency } from "@/hooks/use-country-currency";
 import { toast } from "sonner";
+import { type CustomInstallment } from "@/lib/services/api/installments";
+import PropertyCard from "../shared/property-card";
+import { getPropertyPrice } from "@/lib/utils/property";
+import { type Property } from "@/types";
+import { formatPrice } from "@/lib/utils/property-pricing";
+import Link from "next/link";
 
 interface InstallmentDetailsDialogProps {
   installmentId: string | null;
@@ -79,7 +85,7 @@ export default function InstallmentDetailsDialog({
   onOpenChange,
 }: InstallmentDetailsDialogProps) {
   const t = useTranslations("User.MyRequests");
-  const tCommon = useTranslations("General");
+  const locale = useLocale();
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [actionType, setActionType] = useState<"APPROVED" | "REJECTED" | null>(null);
 
@@ -140,12 +146,25 @@ export default function InstallmentDetailsDialog({
 
   const installmentSchedule = installment && installment.amount && installment.installmentPeriod && installment.installmentType && installment.startDate
     ? calculateInstallmentSchedule(
-        installment.amount,
-        installment.installmentPeriod,
-        installment.installmentType,
-        installment.startDate
-      )
-    : [];
+      installment.amount,
+      installment.installmentPeriod,
+      installment.installmentType,
+      installment.startDate
+    )
+    : installment?.installments?.sort((a: CustomInstallment, b: CustomInstallment) => new Date(a.date).getTime() - new Date(b.date).getTime()).map((inst: CustomInstallment, index: number) => {
+      return {
+        date: inst.date,
+        amount: inst.amount,
+        installmentNumber: index + 1
+      }
+    });
+
+  const locationStr = [installment?.property.region, installment?.property.city, installment?.property.country]
+    .filter(Boolean)
+    .join(", ");
+
+  const price = getPropertyPrice(installment?.property as Property);
+  const priceDisplay = price ? formatPrice(price, currency) : t("price-not-available");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -169,53 +188,30 @@ export default function InstallmentDetailsDialog({
 
             <TabsContent value="details" className="space-y-6 mt-6">
               {/* Property Information */}
+
               {installment.property && (
-                <div className="space-y-4">
+                <>
                   <Typography variant="h5" as="h5" className="font-bold flex items-center gap-2 capitalize">
                     <Home className="h-5 w-5 text-main-600" />
                     {t("property-information")}
                   </Typography>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <div>
-                      <Typography variant="body-sm" as="p" className="text-gray-500 dark:text-gray-400 mb-1 capitalize">
-                        {t("property-title")}
-                      </Typography>
-                      <Typography variant="body-md" as="p" className="font-semibold capitalize">
-                        {installment.property.title}
-                      </Typography>
-                    </div>
-                    <div>
-                      <Typography variant="body-sm" as="p" className="text-gray-500 dark:text-gray-400 mb-1 capitalize">
-                        {t("property-code")}
-                      </Typography>
-                      <Typography variant="body-md" as="p" className="font-semibold capitalize">
-                        {installment.property.code}
-                      </Typography>
-                    </div>
-                    <div>
-                      <Typography variant="body-sm" as="p" className="text-gray-500 dark:text-gray-400 mb-1 capitalize">
-                        {t("location")}
-                      </Typography>
-                      <Typography variant="body-md" as="p" className="font-semibold flex items-center gap-1 capitalize">
-                        <MapPin className="h-4 w-4" />
-                        {installment.property.city}, {installment.property.country}
-                      </Typography>
-                    </div>
-                    <div>
-                      <Typography variant="body-sm" as="p" className="text-gray-500 dark:text-gray-400 mb-1 capitalize">
-                        {t("property-price")}
-                      </Typography>
-                      <Typography variant="body-md" as="p" className="font-semibold capitalize">
-                        {installment.property.price} {currency}
-                      </Typography>
-                    </div>
-                  </div>
-                </div>
+                  <Link href={getLocalizedPath(`/properties/${installment.property._id}`, locale)}>
+                    <PropertyCard
+                      variant="featured"
+                      image={getProxiedImageUrl(installment.property.image || installment.property.video)}
+                      name={installment.property.title || "Property"}
+                      location={locationStr || t("location-not-specified")}
+                      price={priceDisplay}
+                      badge="installment"
+                      propertyId={installment?.property._id}
+                    />
+                  </Link>
+                </>
               )}
 
               {/* Owner Information */}
               {installment.owner && (
-                <div className="space-y-4">
+                <div className="space-y-4 mt-4">
                   <Typography variant="h5" as="h5" className="font-bold flex items-center gap-2 capitalize">
                     <User className="h-5 w-5 text-main-600" />
                     {t("owner-information")}
@@ -339,7 +335,7 @@ export default function InstallmentDetailsDialog({
                 {t("payment-schedule")}
               </Typography>
 
-              {installmentSchedule.length > 0 ? (
+              {installmentSchedule && installmentSchedule.length > 0 ? (
                 <div className="space-y-3">
                   {installmentSchedule.map((schedule) => (
                     <div
@@ -385,7 +381,7 @@ export default function InstallmentDetailsDialog({
                     </div>
                     <div className="mt-2 flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 capitalize">
                       <span>{t("number-of-installments")}: {installmentSchedule.length}</span>
-                      <span>{t("payment-frequency")}: {installment?.installmentType}</span>
+                      {installment?.installmentType && <span>{t("payment-frequency")}: {installment?.installmentType}</span>}
                     </div>
                   </div>
                 </div>
@@ -408,36 +404,36 @@ export default function InstallmentDetailsDialog({
 
         {/* Footer with Action Buttons - Only show if owner approved and user pending */}
         {installment &&
-         installment.ownerStatus?.toLowerCase() === "approved" &&
-         installment.userStatus?.toLowerCase() === "pending" && (
-          <DialogFooter className="flex gap-2 sm:gap-2 border-t pt-4">
-            <Button
-              variant="outline"
-              onClick={() => handleActionClick("REJECTED")}
-              disabled={updateStatusMutation.isPending}
-              className="flex-1"
-            >
-              {updateStatusMutation.isPending && actionType === "REJECTED" ? (
-                <Spinner className="h-4 w-4 mr-2" />
-              ) : (
-                <X className="h-4 w-4 mr-2" />
-              )}
-              {t("reject")}
-            </Button>
-            <Button
-              onClick={() => handleActionClick("APPROVED")}
-              disabled={updateStatusMutation.isPending}
-              className="flex-1 bg-main-600 text-white hover:bg-main-300 hover:text-main-500 font-semibold shadow-sm hover:shadow-md transition-all"
-            >
-              {updateStatusMutation.isPending && actionType === "APPROVED" ? (
-                <Spinner className="h-4 w-4 mr-2" />
-              ) : (
-                <Check className="h-4 w-4 mr-2" />
-              )}
-              {t("approve")}
-            </Button>
-          </DialogFooter>
-        )}
+          installment.ownerStatus?.toLowerCase() === "approved" &&
+          installment.userStatus?.toLowerCase() === "pending" && (
+            <DialogFooter className="flex gap-2 sm:gap-2 border-t pt-4">
+              <Button
+                variant="outline"
+                onClick={() => handleActionClick("REJECTED")}
+                disabled={updateStatusMutation.isPending}
+                className="flex-1"
+              >
+                {updateStatusMutation.isPending && actionType === "REJECTED" ? (
+                  <Spinner className="h-4 w-4 mr-2" />
+                ) : (
+                  <X className="h-4 w-4 mr-2" />
+                )}
+                {t("reject")}
+              </Button>
+              <Button
+                onClick={() => handleActionClick("APPROVED")}
+                disabled={updateStatusMutation.isPending}
+                className="flex-1 bg-main-600 text-white hover:bg-main-300 hover:text-main-500 font-semibold shadow-sm hover:shadow-md transition-all"
+              >
+                {updateStatusMutation.isPending && actionType === "APPROVED" ? (
+                  <Spinner className="h-4 w-4 mr-2" />
+                ) : (
+                  <Check className="h-4 w-4 mr-2" />
+                )}
+                {t("approve")}
+              </Button>
+            </DialogFooter>
+          )}
       </DialogContent>
 
       {/* Confirmation Dialog */}

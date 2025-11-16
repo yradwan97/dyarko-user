@@ -2,11 +2,14 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { GoogleMap, Marker } from "@react-google-maps/api";
+import { Filter } from "lucide-react";
 import { useCountryContext } from "@/components/providers/country-provider";
 import { useGoogleMaps } from "@/components/providers/google-maps-provider";
 import { useGetPropertiesByCountry } from "@/hooks/use-properties";
 import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@/components/ui/button";
 import PropertyMapCard from "./components/property-map-card";
+import MapFiltersModal from "./components/map-filters-modal";
 import type { Property } from "@/lib/services/api/properties";
 
 const mapContainerStyle = {
@@ -33,16 +36,23 @@ export default function MapPage() {
   const { selectedCountry } = useCountryContext();
   const { isLoaded, loadError } = useGoogleMaps();
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  const [isFiltersOpen, setIsFiltersOpen] = useState(true); // Open by default
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedClass, setSelectedClass] = useState<string>("");
+  const [selectedCity, setSelectedCity] = useState<string>("");
 
   // Get center based on selected country
   const countryCenter = countryCenters[selectedCountry || "KW"] || countryCenters.KW;
   const [mapCenter, setMapCenter] = useState(countryCenter);
 
-  // Fetch properties based on selected country
+  // Fetch properties based on selected country and filters
   const { data: propertiesData, isLoading } = useGetPropertiesByCountry(
     selectedCountry || "KW",
     1,
-    100
+    100,
+    selectedCategory || undefined,
+    selectedClass || undefined,
+    selectedCity || undefined
   );
 
   const properties = propertiesData?.data?.data || [];
@@ -69,6 +79,13 @@ export default function MapPage() {
     setSelectedProperty(null);
   }, []);
 
+  const handleApplyFilters = useCallback((filters: { category?: string; class?: string; city?: string }) => {
+    setSelectedCategory(filters.category || "");
+    setSelectedClass(filters.class || "");
+    setSelectedCity(filters.city || "");
+    setSelectedProperty(null); // Close property popup on filter change
+  }, []);
+
   if (loadError) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -92,6 +109,18 @@ export default function MapPage() {
           <Spinner className="h-12 w-12 text-main-400" />
         </div>
       )}
+
+      {/* Filters Button - Top Right */}
+      <div className="absolute top-6 right-6 z-10">
+        <Button
+          onClick={() => setIsFiltersOpen(true)}
+          className="gap-2 bg-white text-gray-900 shadow-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700"
+          size="lg"
+        >
+          <Filter className="h-4 w-4" />
+          Filters
+        </Button>
+      </div>
 
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
@@ -132,6 +161,16 @@ export default function MapPage() {
           />
         </div>
       )}
+
+      {/* Filters Modal */}
+      <MapFiltersModal
+        isOpen={isFiltersOpen}
+        onClose={() => setIsFiltersOpen(false)}
+        onApplyFilters={handleApplyFilters}
+        initialCategory={selectedCategory}
+        initialClass={selectedClass}
+        initialCity={selectedCity}
+      />
     </div>
   );
 }

@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/select";
 import { useSignup } from "@/hooks/use-auth";
 import { useCountries } from "@/hooks/use-countries";
+import { useNationalities } from "@/hooks/use-nationalities";
 import { TermsModal } from "./components/terms-modal";
 import { PrivacyModal } from "./components/privacy-modal";
 import { RefundModal } from "./components/refund-modal";
@@ -44,8 +45,9 @@ export default function SignUpPage() {
   const [privacyOpen, setPrivacyOpen] = useState(false);
   const [refundOpen, setRefundOpen] = useState(false);
 
-  // Fetch countries and policies
+  // Fetch countries, nationalities, and policies
   const { data: countries, isLoading: countriesLoading } = useCountries();
+  const { data: nationalities, isLoading: nationalitiesLoading } = useNationalities();
   const { terms, isSuccess: hasTerms } = useGetTermsAndConditions();
   const { policies, isSuccess: hasPolicies } = useGetPrivacyPolicy();
   const { policies: refundPolicies, isSuccess: hasRefund } = useGetRefundPolicy();
@@ -213,7 +215,7 @@ export default function SignUpPage() {
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
-                  disabled={signupMutation.isPending || countriesLoading}
+                  disabled={signupMutation.isPending || nationalitiesLoading}
                 >
                   <FormControl>
                     <SelectTrigger className="h-12 w-full">
@@ -221,9 +223,9 @@ export default function SignUpPage() {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {countries?.map((country) => (
-                      <SelectItem key={country.code} value={country.code}>
-                        {locale === "ar" ? country.countryAr : country.countryEn}
+                    {nationalities?.map((nationality) => (
+                      <SelectItem key={nationality.code} value={nationality.code}>
+                        {nationality.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -269,7 +271,7 @@ export default function SignUpPage() {
               <FormItem>
                 <FormLabel className="text-gray-700">{t("Phone.label")}</FormLabel>
                 <FormControl>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2" dir="ltr">
                     {selectedCountry && (
                       <div className="flex h-12 min-w-[80px] items-center justify-center rounded-md border border-input bg-gray-50 px-3 text-sm font-medium text-gray-700">
                         {selectedCountry.countryCode}
@@ -301,7 +303,7 @@ export default function SignUpPage() {
                     <Input
                       type={showPassword ? "text" : "password"}
                       placeholder={t("Password.placeholder")}
-                      className="h-12 pr-12"
+                      className="h-12 pe-12"
                       disabled={signupMutation.isPending}
                       {...field}
                     />
@@ -309,7 +311,7 @@ export default function SignUpPage() {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      className="absolute ltr:right-0 rtl:left-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                       onClick={() => setShowPassword(!showPassword)}
                       disabled={signupMutation.isPending}
                     >

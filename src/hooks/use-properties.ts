@@ -69,11 +69,14 @@ export function useProperty(id: string) {
 export function useGetPropertiesByCountry(
   country: string,
   page: number = 1,
-  size: number = 30
+  size: number = 30,
+  category?: string,
+  propertyClass?: string,
+  city?: string
 ) {
   return useQuery({
-    queryKey: ["properties-by-country", country, page, size],
-    queryFn: () => getProperties({ country, page, size }),
+    queryKey: ["properties-by-country", country, page, size, category, propertyClass, city],
+    queryFn: () => getProperties({ country, page, size, category, class: propertyClass, city }),
     enabled: !!country,
     staleTime: 1000 * 60 * 5, // 5 minutes
     retry: false,

@@ -11,6 +11,8 @@ import {
   FileText,
   Home,
   Receipt,
+  HelpCircle,
+  MessageCircle,
 } from "lucide-react";
 
 import Typography from "@/components/shared/typography";
@@ -78,6 +80,43 @@ export default function UserSidebar({ currentPath, onNavigate }: UserSidebarProp
           );
         })}
       </nav>
+
+      {/* Bottom Links - Fixed at bottom */}
+      <div className="border-t border-gray-200 p-4 space-y-1">
+        <Link
+          href={getLocalizedPath("/user/faqs", locale)}
+          onClick={onNavigate}
+          className={cn(
+            "flex items-center gap-3 rounded-lg px-4 py-3 transition-all duration-200",
+            locale === "ar" ? "flex-row-reverse text-right" : "",
+            isActive("/user/faqs")
+              ? "bg-main-600 text-white font-semibold shadow-sm hover:bg-main-700"
+              : "text-gray-700 hover:bg-main-50 hover:text-main-600"
+          )}
+        >
+          <HelpCircle className="h-5 w-5 flex-shrink-0" />
+          <Typography variant="body-md" as="span" className="flex-1">
+            {t("faqs")}
+          </Typography>
+        </Link>
+
+        <Link
+          href={getLocalizedPath("/user/contact-us", locale)}
+          onClick={onNavigate}
+          className={cn(
+            "flex items-center gap-3 rounded-lg px-4 py-3 transition-all duration-200",
+            locale === "ar" ? "flex-row-reverse text-right" : "",
+            isActive("/contact-us")
+              ? "bg-main-600 text-white font-semibold shadow-sm hover:bg-main-700"
+              : "text-gray-700 hover:bg-main-50 hover:text-main-600"
+          )}
+        >
+          <MessageCircle className="h-5 w-5 flex-shrink-0" />
+          <Typography variant="body-md" as="span" className="flex-1">
+            {t("contact-us")}
+          </Typography>
+        </Link>
+      </div>
     </div>
   );
 }

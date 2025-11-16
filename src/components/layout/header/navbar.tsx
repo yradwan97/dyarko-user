@@ -23,8 +23,8 @@ export default function Navbar() {
   const navLinks = [
     { to: "/property-listing/rent", text: "rent" },
     { to: "/property-listing/buy", text: "buy", hasSubMenu: true },
-    { to: "/property-listing/share", text: "shared" },
-    { to: "/property-listing/replacement", text: "replacement" },
+    { to: "/user/my-real-estates", text: "my-real-estates" },
+    { to: "/user/my-requests", text: "my-requests" },
     { to: "/categories", text: "categories" },
     { to: "/companies", text: "companies" },
     { to: "/videos", text: "videos" },

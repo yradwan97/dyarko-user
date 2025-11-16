@@ -5,13 +5,14 @@ import { useLocale, useTranslations } from "next-intl";
 import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import { Property } from "@/lib/services/api/properties";
-import { getLocalizedPath } from "@/lib/utils";
+import { getLocalizedPath, cn } from "@/lib/utils";
 import { getPropertyPrice, getPropertyPeriod, formatPrice } from "@/lib/utils/property-pricing";
 import { toast } from "sonner";
 import { axiosClient } from "@/lib/services/axios-client";
 import { Button } from "@/components/ui/button";
-import { FileText, MapPin } from "lucide-react";
+import { FileText, MapPin, Phone } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import Image from "next/image";
 import ScheduleTour from "./schedule-tour";
 
 interface ReservationBoxProps {
@@ -31,6 +32,19 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
   const t = useTranslations("Properties.Details.Reservations");
   const tPrice = useTranslations("Properties.Price");
   const tCategories = useTranslations("General.Categories");
+
+  // Validate owner image URL
+  const isValidImageUrl = (url: string | undefined | null): boolean => {
+    if (!url || typeof url !== "string" || url.trim() === "") return false;
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const validOwnerImage = isValidImageUrl(property.owner.image) ? property.owner.image : null;
 
   // TODO: Re-enable OTP check when endpoint is ready
   // useEffect(() => {
@@ -88,10 +102,16 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
     }
 
     if (property.offerType === "rent") {
-      // Navigate to rent application page
-      const href = decideSubmitButtonLinkHref();
-      if (href) {
-        router.push(href);
+      // Check if it's management type
+      if (property.adType === "management") {
+        // Navigate to rent application page for management properties
+        const href = decideSubmitButtonLinkHref();
+        if (href) {
+          router.push(href);
+        }
+      } else {
+        // Show contact owner modal for non-management rent properties
+        setIsContactOwnerOpen(true);
       }
     } else {
       // Show contact owner modal for all non-rent types
@@ -114,19 +134,66 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
 
       {/* Contact Owner Modal */}
       <Dialog open={isContactOwnerOpen} onOpenChange={setIsContactOwnerOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{t("OwnerModal.title")}</DialogTitle>
+            <DialogTitle className={cn("text-center text-xl font-bold", locale === "ar" && "text-right")}>
+              {t("OwnerModal.title")}
+            </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-500">{t("OwnerModal.email")}</p>
-              <p className="font-medium">{property.owner.email}</p>
+          <div className={cn("space-y-6 py-4", locale === "ar" && "text-right")}>
+            {/* Owner Image and Name */}
+            <div className="flex flex-col items-center gap-4">
+              {validOwnerImage ? (
+                <Image
+                  src={validOwnerImage}
+                  alt={property.owner.name || "Owner"}
+                  width={96}
+                  height={96}
+                  className="h-24 w-24 rounded-full object-cover border-4 border-main-100"
+                />
+              ) : (
+                <div className="flex h-24 w-24 items-center justify-center rounded-full bg-main-100 border-4 border-main-200">
+                  <span className="text-3xl font-bold text-main-600">
+                    {property.owner.name?.[0]?.toUpperCase() || "U"}
+                  </span>
+                </div>
+              )}
+              <div className="text-center">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                  {property.owner.name || "Owner"}
+                </h3>
+              </div>
             </div>
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-500">{t("OwnerModal.mobile")}</p>
-              <p className="font-medium">{property.owner.phoneNumber}</p>
+
+            {/* Phone Number */}
+            <div className={cn(
+              "flex items-center gap-4 rounded-lg bg-gray-50 dark:bg-gray-800 p-4",
+              locale === "ar" && "flex-row-reverse"
+            )}>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-main-100">
+                <Phone className="h-6 w-6 text-main-600" />
+              </div>
+              <div className={cn("flex-1", locale === "ar" && "text-right")}>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{t("OwnerModal.mobile")}</p>
+                <p className="text-lg font-semibold text-gray-900 dark:text-white" dir="ltr">
+                  {property.owner.phoneNumber || "N/A"}
+                </p>
+              </div>
             </div>
+
+            {/* Call Button */}
+            {property.owner.phoneNumber && (
+              <a
+                href={`tel:${property.owner.phoneNumber}`}
+                className={cn(
+                  "flex w-full items-center justify-center gap-2 rounded-lg bg-main-600 px-6 py-3 text-white font-semibold hover:bg-main-700 transition-colors",
+                  locale === "ar" && "flex-row-reverse"
+                )}
+              >
+                <Phone className="h-5 w-5" />
+                <span>{t("OwnerModal.call")}</span>
+              </a>
+            )}
           </div>
         </DialogContent>
       </Dialog>

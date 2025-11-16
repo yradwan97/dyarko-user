@@ -38,11 +38,11 @@ interface FilterSectionProps {
   onApplyFilters: () => void;
 }
 
-const SORT_OPTIONS = [
-  { id: "mostPopular", name: "Most Popular" },
-  { id: "nearest", name: "Nearest" },
-  { id: "bestOffer", name: "Best Offer" },
-  { id: "recentlyAdded", name: "Recently Added" },
+const getSortOptions = (t: any) => [
+  { id: "mostPopular", name: t("filters.most-popular") },
+  { id: "nearest", name: t("filters.nearest") },
+  { id: "bestOffer", name: t("filters.best-offer") },
+  { id: "recentlyAdded", name: t("filters.recently-added") },
 ];
 
 const PRICE_RANGES = {
@@ -70,6 +70,7 @@ export default function FilterSection({
   const t = useTranslations("PropertySearch");
   const currency = useCurrency();
   const [isFilterSideOpen, setIsFilterSideOpen] = useState(false);
+  const sortOptions = getSortOptions(t);
 
   const currentRange = PRICE_RANGES[offerType as keyof typeof PRICE_RANGES] || PRICE_RANGES.RENT;
 
@@ -81,16 +82,16 @@ export default function FilterSection({
           {/* Search Input */}
           <div className="flex-1">
             <Typography variant="body-md" as="p" className="mb-2 text-gray-600">
-              Search
+              {t("search")}
             </Typography>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
               <Input
                 type="text"
-                placeholder="Search properties..."
+                placeholder={t("filters.search-placeholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-12 pl-10"
+                className="h-9 pl-10"
               />
             </div>
           </div>
@@ -101,7 +102,7 @@ export default function FilterSection({
               {t("filters.location")}
             </Typography>
             <CustomSelect
-              containerClass="w-full rounded-lg px-4"
+              containerClass="w-full h-12 rounded-lg px-4"
               values={cities}
               selected={selectedCity}
               setSelected={setSelectedCity}
@@ -112,14 +113,14 @@ export default function FilterSection({
           {/* Sort Dropdown */}
           <div className="flex-1">
             <Typography variant="body-md" as="p" className="mb-2 text-gray-600">
-              Sort By
+              {t("sort")}
             </Typography>
             <Select value={selectedSort} onValueChange={setSelectedSort}>
               <SelectTrigger className="h-12">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {SORT_OPTIONS.map((option) => (
+                {sortOptions.map((option) => (
                   <SelectItem key={option.id} value={option.id}>
                     {option.name}
                   </SelectItem>
@@ -135,7 +136,7 @@ export default function FilterSection({
           <div className="flex-1">
             <div className="mb-3 flex items-center justify-between">
               <Typography variant="body-md" as="p" className="text-gray-600">
-                Price Range
+                {t("filters.price-range")}
               </Typography>
               <Typography variant="body-sm" as="span" className="text-gray-500">
                 {formatPrice(priceRange[0], currency)} - {formatPrice(priceRange[1], currency)}
@@ -164,7 +165,7 @@ export default function FilterSection({
               className="flex-1 md:flex-initial flex items-center justify-center gap-2 px-6 md:h-12"
             >
               <Search className="h-4 w-4" />
-              <span>Search</span>
+              <span>{t("filters.search-button")}</span>
             </Button>
 
             {/* More Filters Button */}

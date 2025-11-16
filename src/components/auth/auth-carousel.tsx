@@ -12,9 +12,9 @@ import {
 import Autoplay from "embla-carousel-autoplay";
 
 const loginImages = [
-  "/assets/login/login-1.png",
-  "/assets/login/login-2.png",
-  "/assets/login/login-3.png",
+  "/assets/login/login 1.png",
+  "/assets/login/login 2.png",
+  "/assets/login/login 3.png",
 ];
 
 export default function AuthCarousel() {
