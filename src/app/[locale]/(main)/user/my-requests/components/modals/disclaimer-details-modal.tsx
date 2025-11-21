@@ -3,7 +3,7 @@
 import { Phone, FileText } from "lucide-react";
 import Typography from "@/components/shared/typography";
 import { cn } from "@/lib/utils";
-import { BaseModalProps } from "./types";
+import { type BaseModalProps } from "./types";
 import { BaseDetailsModal } from "./base-modal";
 
 export function DisclaimerDetailsModal(props: BaseModalProps) {
@@ -36,19 +36,19 @@ export function DisclaimerDetailsModal(props: BaseModalProps) {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-main-600 hover:underline text-sm"
               >
-                <FileText className="h-4 w-4" />
+                <FileText className="h-4 w-4 stroke-red-600" />
                 {t("view-file")}
               </a>
             </div>
           )}
 
-          {request.ownerComment && (
+          {request.reason && (
             <div className={cn("p-3 bg-gray-50 border-gray-200 rounded", locale === "ar" ? "border-r-4" : "border-l-4")}>
               <Typography variant="body-sm" as="p" className="font-medium text-gray-700 mb-1">
                 {t("comment")}:
               </Typography>
               <Typography variant="body-sm" as="p" className="text-gray-600">
-                {request.ownerComment}
+                {request.reason}
               </Typography>
             </div>
           )}

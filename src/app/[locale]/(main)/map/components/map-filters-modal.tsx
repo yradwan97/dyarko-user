@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
 import {
   Dialog,
@@ -37,6 +37,8 @@ export default function MapFiltersModal({
 }: MapFiltersModalProps) {
   const t = useTranslations("General.Categories");
   const tGeneral = useTranslations("General");
+  const tMap = useTranslations("Map");
+  const locale = useLocale();
   const { selectedCountry } = useCountryContext();
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
   const [selectedClass, setSelectedClass] = useState<string>(initialClass);
@@ -77,24 +79,16 @@ export default function MapFiltersModal({
   };
 
   const handleApply = () => {
-    // City is mandatory
-    if (!selectedCity) {
+    // All filters are mandatory
+    if (!selectedCity || !selectedCategory || !selectedClass) {
       return;
     }
 
-    const filters: { category?: string; class?: string; city?: string } = {};
-
-    if (selectedCategory) {
-      filters.category = selectedCategory;
-    }
-
-    if (selectedClass) {
-      filters.class = selectedClass;
-    }
-
-    if (selectedCity) {
-      filters.city = selectedCity;
-    }
+    const filters: { category?: string; class?: string; city?: string } = {
+      category: selectedCategory,
+      class: selectedClass,
+      city: selectedCity,
+    };
 
     onApplyFilters(filters);
     onClose();
@@ -114,11 +108,11 @@ export default function MapFiltersModal({
           {/* Cities - Mandatory */}
           <div>
             <Typography variant="body-md-bold" as="p" className="mb-3">
-              {tGeneral("city") || "City"} <span className="text-red-500">*</span>
+              {tGeneral("city")} <span className="text-red-500">*</span>
             </Typography>
             {citiesLoading ? (
               <Typography variant="body-sm" as="p" className="text-gray-500">
-                Loading cities...
+                {tMap("loading-cities")}
               </Typography>
             ) : cities && cities.length > 0 ? (
               <div className="flex flex-wrap gap-2">
@@ -135,21 +129,21 @@ export default function MapFiltersModal({
                       setSelectedCity(selectedCity === city.key ? "" : city.key)
                     }
                   >
-                    {city.city}
+                    {locale === "ar" ? city.cityAr : city.city}
                   </Badge>
                 ))}
               </div>
             ) : (
               <Typography variant="body-sm" as="p" className="text-gray-500">
-                No cities available
+                {tMap("no-cities-available")}
               </Typography>
             )}
           </div>
 
-          {/* Categories */}
+          {/* Categories - Mandatory */}
           <div>
             <Typography variant="body-md-bold" as="p" className="mb-3">
-              {tGeneral("category") || "Category"}
+              {tGeneral("category")} <span className="text-red-500">*</span>
             </Typography>
             <div className="flex flex-wrap gap-2">
               {categories?.map((category) => (
@@ -171,18 +165,18 @@ export default function MapFiltersModal({
             </div>
           </div>
 
-          {/* Classes */}
+          {/* Classes - Mandatory */}
           <div>
             <Typography variant="body-md-bold" as="p" className="mb-3">
-              Class
+              {tGeneral("class")} <span className="text-red-500">*</span>
             </Typography>
             {!selectedCategory ? (
               <Typography variant="body-sm" as="p" className="text-gray-500">
-                Please select a category first
+                {tMap("select-category-first")}
               </Typography>
             ) : classesLoading ? (
               <Typography variant="body-sm" as="p" className="text-gray-500">
-                Loading classes...
+                {tMap("loading-classes")}
               </Typography>
             ) : classes && classes.length > 0 ? (
               <div className="flex flex-wrap gap-2">
@@ -205,7 +199,7 @@ export default function MapFiltersModal({
               </div>
             ) : (
               <Typography variant="body-sm" as="p" className="text-gray-500">
-                No classes available for this category
+                {tMap("no-classes-available")}
               </Typography>
             )}
           </div>
@@ -214,15 +208,15 @@ export default function MapFiltersModal({
         {/* Action Buttons */}
         <div className="flex gap-4 border-t border-gray-200 pt-4 dark:border-gray-700">
           <Button variant="primary-outline" onClick={handleReset} className="flex-1">
-            {tGeneral("reset") || "Reset"}
+            {tGeneral("reset")}
           </Button>
           <Button
             variant="primary"
             onClick={handleApply}
             className="flex-1"
-            disabled={!selectedCity}
+            disabled={!selectedCity || !selectedCategory || !selectedClass}
           >
-            {tGeneral("apply") || "Apply"}
+            {tGeneral("apply")}
           </Button>
         </div>
       </DialogContent>

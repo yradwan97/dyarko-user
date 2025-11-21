@@ -4,11 +4,9 @@ import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
-import { Property } from "@/lib/services/api/properties";
+import { type Property } from "@/lib/services/api/properties";
 import { getLocalizedPath, cn } from "@/lib/utils";
-import { getPropertyPrice, getPropertyPeriod, formatPrice } from "@/lib/utils/property-pricing";
-import { toast } from "sonner";
-import { axiosClient } from "@/lib/services/axios-client";
+import { getPropertyPrice, getPropertyPeriod } from "@/lib/utils/property-pricing";
 import { Button } from "@/components/ui/button";
 import { FileText, MapPin, Phone } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -216,14 +214,10 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
           </p>
         ) : (
           <div
-            className={`flex ${
-              locale === "en" ? "flex-row" : "flex-row-reverse"
-            } justify-between`}
+            className="flex  justify-between"
           >
             <div
-              className={`flex flex-col ${
-                locale === "en" ? "items-start" : "items-end"
-              }`}
+              className="flex flex-col"
             >
               <span className="text-xs text-gray-500 dark:text-gray-400">
                 {property.offerType === "rent" ? t("rent-price") : t("price")}
@@ -259,7 +253,7 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
           <span className="font-bold">{getButtonText()}</span>
         </Button>
 
-        <div className="my-6 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent dark:via-gray-600" />
+        <div className="my-6 h-px bg-linear-to-r from-transparent via-gray-300 to-transparent dark:via-gray-600" />
 
         <p className="my-6 text-center text-lg font-bold text-gray-800 dark:text-gray-200">{t("request-home-tour")}</p>
 

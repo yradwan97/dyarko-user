@@ -5,7 +5,7 @@ import { Megaphone } from "lucide-react";
 import Typography from "@/components/shared/typography";
 import { cn } from "@/lib/utils";
 import { type RequestCardProps } from "./types";
-import { formatStatus, getStatusColor } from "./shared-utils";
+import { getStatusColor } from "./shared-utils";
 
 export function AdRequestCard({ request, locale, onCardClick, getCurrency }: RequestCardProps) {
   const t = useTranslations("User.MyRequests");
@@ -18,7 +18,8 @@ export function AdRequestCard({ request, locale, onCardClick, getCurrency }: Req
   const hasAdComment = request.comment;
 
   // Determine status based on whether ad has a comment
-  const adStatus = request.comment ? "replied" : "pending";
+  const adStatusKey = request.comment ? "replied" : "pending";
+  const adStatus = request.comment ? t("status-replied") : t("status-pending");
 
   return (
     <div
@@ -32,7 +33,7 @@ export function AdRequestCard({ request, locale, onCardClick, getCurrency }: Req
             <Megaphone className="h-6 w-6 text-main-600" />
           </div>
           <div className={cn(locale === "ar" && "text-right")}>
-            <Typography variant="body-lg-medium" as="h5" className="font-bold mb-1">
+            <Typography variant="body-lg-medium" as="h5" className="capitalize font-bold mb-1">
               {propertyTitle}
             </Typography>
           </div>
@@ -41,10 +42,10 @@ export function AdRequestCard({ request, locale, onCardClick, getCurrency }: Req
         <div className={cn("flex flex-col gap-2 items-end", locale === "ar" && "items-start")}>
           <span
             className={`inline-block rounded-full border px-4 py-1 text-sm font-medium whitespace-nowrap ${getStatusColor(
-              adStatus
+              adStatusKey
             )}`}
           >
-            {formatStatus(adStatus)}
+            {adStatus}
           </span>
         </div>
       </div>

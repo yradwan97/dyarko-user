@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useSession } from "next-auth/react";
 import { Grid3x3, List } from "lucide-react";
 
@@ -27,6 +27,7 @@ const PropertyGrid = dynamic(() => import("./property-grid"), {
 
 export default function SearchPageContent() {
   const t = useTranslations("PropertySearch");
+  const locale = useLocale();
   const { data: session } = useSession();
   const searchParams = useSearchParams();
   const { selectedCountry } = useCountryContext();
@@ -124,11 +125,11 @@ export default function SearchPageContent() {
     return cities
       ? cities.map((city) => ({
           id: city.key,
-          name: city.city,
-          icon: city.city,
+          name: locale === "ar" ? city.cityAr : city.city,
+          icon: locale === "ar" ? city.cityAr : city.city,
         }))
       : [];
-  }, [cities]);
+  }, [cities, locale]);
 
   // Initialize selected city when cities load or country changes
   useEffect(() => {

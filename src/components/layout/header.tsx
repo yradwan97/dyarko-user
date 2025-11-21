@@ -155,7 +155,7 @@ export default function Header() {
 
   return (
     <>
-      <header className={`top-0 z-20 bg-white flex ${locale === "ar" ? "flex-row-reverse" : "flex-row"} p-4 shadow-md sm:sticky dark:bg-gray-800 dark:shadow-gray-700/50 items-center gap-2`}>
+      <header className={`top-0 z-20 bg-white flex ${locale === "ar" ? "flex-row-reverse" : "flex-row"} justify-between p-4 shadow-md sm:sticky dark:bg-gray-800 dark:shadow-gray-700/50 items-center gap-2`}>
         {/* Left/Right side - Blue section */}
         <div className={locale === "ar" ? "order-3" : "order-1"}>
           <div className={cn(

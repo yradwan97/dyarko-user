@@ -139,15 +139,6 @@ export default function SignUpPage() {
   }, [selectedCountryCode, form]);
 
   const onSubmit = (data: SignupFormData) => {
-    console.log("🔵 FORM: Form submitted with data:", {
-      name: data.name,
-      email: data.email,
-      country: data.country,
-      nationality: data.nationality,
-      phoneNumber: data.phoneNumber,
-      passwordLength: data.password.length,
-    });
-
     signupMutation.mutate({
       name: data.name,
       email: data.email,
@@ -225,7 +216,7 @@ export default function SignUpPage() {
                   <SelectContent>
                     {nationalities?.map((nationality) => (
                       <SelectItem key={nationality.code} value={nationality.code}>
-                        {nationality.name}
+                        {locale === "ar" ? nationality.nameAr : nationality.nameEn}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -273,7 +264,7 @@ export default function SignUpPage() {
                 <FormControl>
                   <div className="flex gap-2" dir="ltr">
                     {selectedCountry && (
-                      <div className="flex h-12 min-w-[80px] items-center justify-center rounded-md border border-input bg-gray-50 px-3 text-sm font-medium text-gray-700">
+                      <div className="flex h-12 min-w-20 items-center justify-center rounded-md border border-input bg-gray-50 px-3 text-sm font-medium text-gray-700">
                         {selectedCountry.countryCode}
                       </div>
                     )}

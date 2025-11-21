@@ -15,6 +15,12 @@ export interface CreateRentPayload {
   endTime?: string;
   lat?: string;
   long?: string;
+  paymentMethod?: string;
+}
+
+export interface ProceedRentRequestPayload {
+  request: string;
+  paymentMethod?: string;
 }
 
 export interface PriceDetails {
@@ -34,6 +40,22 @@ export interface CreateRentResponse {
     sessionId: string;
     priceDetails: PriceDetails;
   };
+}
+
+export interface ProceedRentRequestResponse {
+  status: string;
+  message: string;
+  data: {
+    PayUrl: string;
+    sessionId: string;
+    priceDetails: PriceDetails;
+  };
+}
+
+export interface CreateRentRequestResponse {
+  status: string;
+  message: string;
+  data?: any;
 }
 
 export interface RentOwner {
@@ -111,6 +133,16 @@ export const createRent = async (
   return response.data;
 };
 
+export const proceedRentRequest = async (
+  payload: ProceedRentRequestPayload
+): Promise<ProceedRentRequestResponse> => {
+  const response = await axiosClient.post<ProceedRentRequestResponse>(
+    "/requests/rents/proceed",
+    payload
+  );
+  return response.data;
+};
+
 export const getRents = async (page: number = 1): Promise<RentsResponse> => {
   const response = await axiosClient.get<RentsResponse>(
     `/rents?page=${page}&size=9`
@@ -121,4 +153,14 @@ export const getRents = async (page: number = 1): Promise<RentsResponse> => {
 export const getRentById = async (id: string): Promise<Rent> => {
   const response = await axiosClient.get<RentDetailsResponse>(`/rents/${id}`);
   return response.data.data;
+};
+
+export const createRentRequest = async (
+  payload: CreateRentPayload
+): Promise<CreateRentRequestResponse> => {
+  const response = await axiosClient.post<CreateRentRequestResponse>(
+    "/requests/rents",
+    payload
+  );
+  return response.data;
 };

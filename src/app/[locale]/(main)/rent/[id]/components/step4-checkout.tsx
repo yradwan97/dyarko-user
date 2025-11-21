@@ -8,7 +8,7 @@ import { Calendar, Clock, Home, Wallet, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { useCountries } from "@/hooks/use-countries";
 import { useManagementConfig } from "@/hooks/use-management-config";
-import { createRent } from "@/lib/services/api/rents";
+import { createRent, createRentRequest } from "@/lib/services/api/rents";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -105,12 +105,21 @@ export default function Step4Checkout({
       return totalApartmentPrice * selectedDates.length;
     } else {
       // For other properties: use property's daily/weekly/monthly price
-      const rentAmountPerDay = selectedRentType === "daily"
-        ? property?.dailyPrice
-        : selectedRentType === "weekly"
-        ? property.weeklyPrice
-        : property?.monthlyPrice;
-      return Number(rentAmountPerDay || 0) * selectedDates.length;
+      const numberOfDays = selectedDates.length;
+
+      if (selectedRentType === "daily") {
+        return Number(property?.dailyPrice || 0) * numberOfDays;
+      } else if (selectedRentType === "weekly") {
+        // Calculate number of weeks (minimum 1 week)
+        const numberOfWeeks = Math.ceil(numberOfDays / 7);
+        return Number(property?.weeklyPrice || 0) * numberOfWeeks;
+      } else if (selectedRentType === "monthly") {
+        // Calculate number of months (minimum 1 month)
+        const numberOfMonths = Math.ceil(numberOfDays / 30);
+        return Number(property?.monthlyPrice || 0) * numberOfMonths;
+      }
+
+      return 0;
     }
   }, [isCourt, isTentBased, isHotelApartment, selectedTents, selectedApartments, selectedDates.length, selectedRentType, property, timeRange]);
 
@@ -203,36 +212,50 @@ export default function Step4Checkout({
         }));
       }
 
-      // Submit the rent request
-      const response = await createRent(payload);
+      // Submit the rent request based on rent management type
+      if (isDirectRent) {
+        // Direct rent - use payment flow
+        const response = await createRent(payload);
 
-      if (response.status === "success" && response.data.PayUrl) {
-        toast.success(response.message || "Payment session initiated successfully!");
+        if (response.status === "success" && response.data.PayUrl) {
+          toast.success(response.message || "Payment session initiated successfully!");
 
-        // Open payment URL in a new window
-        const paymentWindow = window.open(
-          response.data.PayUrl,
-          "_blank",
-          "width=800,height=600,scrollbars=yes,resizable=yes"
-        );
+          // Open payment URL in a new window
+          const paymentWindow = window.open(
+            response.data.PayUrl,
+            "_blank",
+            "width=800,height=600,scrollbars=yes,resizable=yes"
+          );
 
-        if (!paymentWindow) {
-          // If popup was blocked, show a message
-          toast.error("Please allow popups to proceed with payment");
-          // Fallback: navigate to the payment URL in the same tab
-          window.location.href = response.data.PayUrl;
+          if (!paymentWindow) {
+            // If popup was blocked, show a message
+            toast.error("Please allow popups to proceed with payment");
+            // Fallback: navigate to the payment URL in the same tab
+            window.location.href = response.data.PayUrl;
+          } else {
+            // Monitor the payment window
+            const checkWindowClosed = setInterval(() => {
+              if (paymentWindow.closed) {
+                clearInterval(checkWindowClosed);
+                // Redirect to property details after payment window is closed
+                router.push(`/${locale}/properties/${property._id}`);
+              }
+            }, 1000);
+          }
         } else {
-          // Monitor the payment window
-          const checkWindowClosed = setInterval(() => {
-            if (paymentWindow.closed) {
-              clearInterval(checkWindowClosed);
-              // Redirect to property details after payment window is closed
-              router.push(`/${locale}/properties/${property._id}`);
-            }
-          }, 1000);
+          toast.error("Failed to initiate payment session");
         }
       } else {
-        toast.error("Failed to initiate payment session");
+        // Non-direct rent - create request only
+        const response = await createRentRequest(payload);
+
+        if (response.status === "success") {
+          toast.success(response.message || "Rent request submitted successfully!");
+          // Redirect to property details or requests page
+          router.push(`/${locale}/user/my-requests`);
+        } else {
+          toast.error(response.message || "Failed to submit rent request");
+        }
       }
     } catch (error: any) {
       console.error("Error submitting rent:", error);
@@ -285,8 +308,12 @@ export default function Step4Checkout({
                 </p>
                 <p className="text-sm font-medium text-gray-900 dark:text-white">
                   {property.checkInTime && property.checkOutTime
-                    ? `${property.checkInTime} - ${property.checkOutTime}`
-                    : property.checkInTime || property.checkOutTime}
+                    ? `${format(new Date(property.checkInTime), "dd MMM yyyy, hh:mm a")} - ${format(new Date(property.checkOutTime), "dd MMM yyyy, hh:mm a")}`
+                    : property.checkInTime
+                    ? format(new Date(property.checkInTime), "dd MMM yyyy, hh:mm a")
+                    : property.checkOutTime
+                    ? format(new Date(property.checkOutTime), "dd MMM yyyy, hh:mm a")
+                    : "N/A"}
                 </p>
               </div>
             </div>

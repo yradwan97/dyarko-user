@@ -2,11 +2,12 @@
 
 import { useSession } from "next-auth/react";
 import { axiosClient, noAuthAxios } from "@/lib/services/axios-client";
-import { useEffect, type PropsWithChildren } from "react";
+import { useEffect, useRef, type PropsWithChildren } from "react";
 import { jwtDecode } from "jwt-decode";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
+import { AxiosError, InternalAxiosRequestConfig } from "axios";
 
 interface DecodedToken {
   exp: number;
@@ -31,6 +32,21 @@ export function AxiosInterceptorProvider({ children }: PropsWithChildren) {
   const { data: session, update, status } = useSession();
   const router = useRouter();
   const locale = useLocale();
+
+  // Ref to prevent multiple simultaneous refresh attempts
+  const isRefreshing = useRef(false);
+  const refreshSubscribers = useRef<((token: string) => void)[]>([]);
+
+  // Subscribe to token refresh
+  const subscribeTokenRefresh = (callback: (token: string) => void) => {
+    refreshSubscribers.current.push(callback);
+  };
+
+  // Notify all subscribers with new token
+  const onTokenRefreshed = (newToken: string) => {
+    refreshSubscribers.current.forEach(callback => callback(newToken));
+    refreshSubscribers.current = [];
+  };
 
   useEffect(() => {
     const requestInterceptor = axiosClient.interceptors.request.use(
@@ -104,17 +120,83 @@ export function AxiosInterceptorProvider({ children }: PropsWithChildren) {
       }
     );
 
-    // Add response interceptor to handle 401 during session loading
+    // Add response interceptor to handle 401 and refresh token
     const responseInterceptor = axiosClient.interceptors.response.use(
       (response) => response,
-      (error) => {
+      async (error: AxiosError) => {
+        const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+
         // If we get a 401 and session is still loading, don't redirect
         if (status === "loading" && error?.response?.status === 401) {
           return Promise.reject({ ...error, silent: true });
         }
 
-        // If we get a 401/403 and we're authenticated but token refresh failed
-        if (error?.response?.status === 401 || error?.response?.status === 403) {
+        // Handle 401 errors - attempt to refresh token
+        if (error?.response?.status === 401 && !originalRequest._retry) {
+          if (status === "authenticated" && session?.user?.refreshToken) {
+            // Mark this request as retried to prevent infinite loops
+            originalRequest._retry = true;
+
+            // If already refreshing, wait for the new token
+            if (isRefreshing.current) {
+              return new Promise((resolve) => {
+                subscribeTokenRefresh((newToken: string) => {
+                  originalRequest.headers["auth-token"] = `Bearer ${newToken}`;
+                  resolve(axiosClient(originalRequest));
+                });
+              });
+            }
+
+            isRefreshing.current = true;
+
+            try {
+              // Attempt to refresh the token
+              const response = await noAuthAxios.post(`/auth/token`, {
+                refreshToken: session.user.refreshToken
+              });
+
+              const newAccessToken = response.data.data?.accessToken || response.data.accessToken;
+
+              if (newAccessToken) {
+                // Update session with new access token
+                await update({
+                  ...session,
+                  user: {
+                    ...session.user,
+                    accessToken: newAccessToken,
+                  },
+                });
+
+                // Notify all waiting requests
+                onTokenRefreshed(newAccessToken);
+
+                // Retry the original request with new token
+                originalRequest.headers["auth-token"] = `Bearer ${newAccessToken}`;
+                return axiosClient(originalRequest);
+              }
+            } catch (refreshError) {
+              // Refresh failed, redirect to login
+              const currentPath = getCurrentPath();
+              const encodedPath = currentPath ? encodeURIComponent(currentPath) : '';
+              const redirectParam = encodedPath ? `?redirect=${encodedPath}` : '';
+              const loginUrl = `/${locale}/login${redirectParam}`;
+              router.push(loginUrl);
+              return Promise.reject(refreshError);
+            } finally {
+              isRefreshing.current = false;
+            }
+          } else {
+            // No refresh token or not authenticated, redirect to login
+            const currentPath = getCurrentPath();
+            const encodedPath = currentPath ? encodeURIComponent(currentPath) : '';
+            const redirectParam = encodedPath ? `?redirect=${encodedPath}` : '';
+            const loginUrl = `/${locale}/login${redirectParam}`;
+            router.push(loginUrl);
+          }
+        }
+
+        // Handle 403 errors
+        if (error?.response?.status === 403) {
           if (status === "authenticated") {
             const currentPath = getCurrentPath();
             const encodedPath = currentPath ? encodeURIComponent(currentPath) : '';

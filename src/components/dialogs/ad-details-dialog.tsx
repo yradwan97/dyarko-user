@@ -49,6 +49,17 @@ export default function AdDetailsDialog({
     }
   };
 
+  // Get initials from name
+  const getInitials = (name: string): string => {
+    if (!name) return "U";
+    return name
+      .split(" ")
+      .map((word) => word[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   // Helper function to get currency from country code
   const getCurrency = (countryCode?: string): string => {
     if (!countries || !countryCode) {
@@ -65,7 +76,8 @@ export default function AdDetailsDialog({
   const currency = getCurrency(ad?.user?.country);
 
   // Determine status based on whether ad has a comment
-  const adStatus = ad?.comment ? "replied" : "pending";
+  const adStatusKey = ad?.comment ? "replied" : "pending";
+  const adStatus = ad?.comment ? t("status-replied") : t("status-pending");
 
   // Pagination logic
   const totalPages = Math.ceil(allComments.length / commentsPerPage);
@@ -114,7 +126,7 @@ export default function AdDetailsDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir={locale === "ar" ? "rtl" : "ltr"}>
         <DialogHeader>
           <DialogTitle className="flex items-center justify-center">
             <span>{t("ads-request")}</span>
@@ -129,9 +141,21 @@ export default function AdDetailsDialog({
           <div className="space-y-6">
             {/* Listing Details Section */}
             <div>
-              <Typography variant="body-sm" as="p" className={`text-gray-500 mb-3 ${locale === "ar" ? "text-right" : ""}`}>
-                {t("listing-details")}
-              </Typography>
+              <div className={cn(
+                "flex items-center justify-between mb-3"
+              )}>
+                <Typography variant="body-sm" as="p" className="text-gray-500">
+                  {t("listing-details")}
+                </Typography>
+                <span
+                  className={cn(
+                    "rounded-full border px-3 py-1 text-xs font-medium whitespace-nowrap",
+                    getStatusColor(adStatusKey)
+                  )}
+                >
+                  {adStatus}
+                </span>
+              </div>
 
               <div className={`space-y-3 ${locale === "ar" ? "text-right" : ""}`}>
                 <Typography variant="h5" as="h5" className="font-bold">
@@ -141,68 +165,59 @@ export default function AdDetailsDialog({
                   {ad.description}
                 </Typography>
 
-                <div className={cn("flex gap-3")}>
-                  <span
-                    className={`inline-block rounded-full border px-3 py-1 text-xs font-medium whitespace-nowrap ${getStatusColor(
-                      adStatus
-                    )}`}
-                  >
-                    {formatStatus(adStatus)}
-                  </span>
-                  <div className={cn("flex flex-col gap-1", locale === "ar" && "items-end")}>
+                <div className={cn("flex flex-col gap-1")}>
 
                     {typeof ad.price === 'object' && ad.price.from && ad.price.to ? (
-                      <div className={cn("flex flex-row gap-3 text-gray-600", locale === "ar" && "items-end ")}>
-                        <div className={`flex items-center gap-1 ${locale === "ar" ? "flex-row-reverse" : ""}`}>
+                      <div className="flex flex-row flex-wrap gap-x-4 gap-y-1 text-gray-600">
+                        <span>
                           <Typography variant="body-md-medium" as="span">
-                            {t("from-label")}
-                          </Typography>
-                          <Typography variant="body-sm" as="span" >
+                            {t("from-label-flipped")}
+                          </Typography>{" "}
+                          <Typography variant="body-sm" as="span">
                             {ad.price.from} {currency}
                           </Typography>
-                        </div>
-                        <div className={`flex items-center gap-1 ${locale === "ar" ? "flex-row-reverse" : ""}`}>
+                        </span>
+                        <span>
                           <Typography variant="body-md-medium" as="span">
-                            {t("to-label")}
-                          </Typography>
+                            {t("to-label-flipped")}
+                          </Typography>{" "}
                           <Typography variant="body-sm" as="span">
                             {ad.price.to} {currency}
                           </Typography>
-                        </div>
+                        </span>
                         {ad.priceType && (
-                          <div className={`flex items-center gap-1 ${locale === "ar" ? "flex-row-reverse" : ""}`}>
+                          <span>
                             <Typography variant="body-md-medium" as="span">
-                              {t("type-label")}
-                            </Typography>
+                              {t("type-label-flipped")}
+                            </Typography>{" "}
                             <Typography variant="body-sm" as="span">
                               {t(`price-types.${ad.priceType}`)}
                             </Typography>
-                          </div>
+                          </span>
                         )}
                       </div>
                     ) : (
-                      <div className={cn("flex flex-row gap-3 text-gray-600", locale === "ar" && "items-end")}>
-                        <div className={`flex items-center gap-1 ${locale === "ar" ? "flex-row-reverse" : ""}`}>
+                      <div className="flex flex-row flex-wrap gap-x-4 gap-y-1 text-gray-600">
+                        <span>
                           <Typography variant="body-md-medium" as="span">
                             {t("price")}
-                          </Typography>
+                          </Typography>{" "}
                           <Typography variant="body-sm" as="span">
                             {ad.price as number} {currency}
                           </Typography>
-                        </div>
+                        </span>
                         {ad.priceType && (
-                          <div className={`flex items-center gap-1 ${locale === "ar" ? "flex-row-reverse" : ""}`}>
+                          <span>
                             <Typography variant="body-md-medium" as="span">
-                              {t("type-label")}
-                            </Typography>
+                              {t("type-label-flipped")}
+                            </Typography>{" "}
                             <Typography variant="body-sm" as="span">
                               {t(`price-types.${ad.priceType}`)}
                             </Typography>
-                          </div>
+                          </span>
                         )}
                       </div>
                     )}
-                  </div>
                 </div>
               </div>
             </div>
@@ -240,9 +255,9 @@ export default function AdDetailsDialog({
                                       className="h-10 w-10 rounded-full object-cover"
                                     />
                                   ) : (
-                                    <div className="h-10 w-10 rounded-full bg-main-100 flex items-center justify-center">
-                                      <span className="text-lg font-bold text-main-600">
-                                        {comment.owner.name?.[0]?.toUpperCase() || "U"}
+                                    <div className="h-10 w-10 rounded-full bg-main-500 flex items-center justify-center">
+                                      <span className="text-sm font-bold text-white">
+                                        {getInitials(comment.owner.name)}
                                       </span>
                                     </div>
                                   )}
@@ -287,9 +302,9 @@ export default function AdDetailsDialog({
                                   className="h-10 w-10 rounded-full object-cover"
                                 />
                               ) : (
-                                <div className="h-10 w-10 rounded-full bg-main-100 flex items-center justify-center">
-                                  <span className="text-lg font-bold text-main-600">
-                                    {comment.owner.name?.[0]?.toUpperCase() || "U"}
+                                <div className="h-10 w-10 rounded-full bg-main-500 flex items-center justify-center">
+                                  <span className="text-sm font-bold text-white">
+                                    {getInitials(comment.owner.name)}
                                   </span>
                                 </div>
                               )}

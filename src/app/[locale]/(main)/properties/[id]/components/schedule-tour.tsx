@@ -40,6 +40,7 @@ export default function ScheduleTour({
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTime, setSelectedTime] = useState<string>("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [userComment, setUserComment] = useState("");
 
   useEffect(() => {
     if (visible && ownerId) {
@@ -142,6 +143,7 @@ export default function ScheduleTour({
       property: propertyId,
       date: formattedDate,
       mobileNumber: phoneNumber,
+      userComment: userComment,
     };
 
     try {
@@ -151,6 +153,7 @@ export default function ScheduleTour({
       setPhoneNumber("");
       setSelectedDate(undefined);
       setSelectedTime("");
+      setUserComment("");
     } catch (error) {
       toast.error(t("error"));
     }
@@ -226,19 +229,32 @@ export default function ScheduleTour({
           {/* Phone Number */}
           <div className="space-y-2">
             <Label className="text-sm font-medium text-gray-900 dark:text-white">
-              {t("Phone.label") || "Please let us know what number to call at the schedule time?"}
+              {t("Phone.label")}
             </Label>
             <div className="relative">
               <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <Input
                 type="tel"
-                placeholder={t("Phone.placeholder") || "Phone Number"}
+                placeholder={t("Phone.placeholder")}
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 className="h-12 pl-10 bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700"
                 required
               />
             </div>
+          </div>
+
+          {/* Comment */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-gray-900 dark:text-white">
+              {t("Comment.label")}
+            </Label>
+            <Textarea
+              placeholder={t("Comment.placeholder")}
+              value={userComment}
+              onChange={(e) => setUserComment(e.target.value)}
+              className="min-h-[100px] bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700"
+            />
           </div>
 
           {/* Confirm Button */}

@@ -74,7 +74,7 @@ export const authOptions: NextAuthConfig = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    async jwt({ token, user, trigger }) {
+    async jwt({ token, user, trigger, session: updateData }) {
       // Initial sign in
       if (user) {
         return {
@@ -98,13 +98,20 @@ export const authOptions: NextAuthConfig = {
         return null as any;
       }
 
-      // If update trigger, refresh the token
-      if (trigger === "update") {
-        return {
-          ...token,
-          iat: now,
-          exp: now + 7200
-        };
+      // If update trigger with new session data, update the token
+      if (trigger === "update" && updateData) {
+        const updatedUser = updateData.user;
+        if (updatedUser) {
+          return {
+            ...token,
+            user: {
+              ...(token.user as Record<string, unknown>),
+              ...updatedUser,
+            },
+            iat: now,
+            exp: now + 7200
+          };
+        }
       }
 
       return token;

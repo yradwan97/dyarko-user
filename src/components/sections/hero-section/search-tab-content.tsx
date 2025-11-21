@@ -7,14 +7,14 @@ import { useLocale, useTranslations } from "next-intl";
 
 import Button from "@/components/shared/button";
 import CustomSelect from "@/components/shared/custom-select";
-import DropDownSelect from "@/components/shared/dropdown-select";
 import Typography from "@/components/shared/typography";
 import { DatePicker } from "@/components/ui/date-picker";
-import { useGetPropertyTypes } from "@/hooks/use-properties";
 import { useCities } from "@/hooks/use-cities";
 import { useCountryContext } from "@/components/providers/country-provider";
 import type { Governorate } from "@/types/property";
 import { getLocalizedPath } from "@/lib/utils";
+import { City } from "@/lib/services/api/places";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface SearchTabContentProps {
   tab: string;
@@ -29,26 +29,15 @@ export function SearchTabContent({ tab, session }: SearchTabContentProps) {
   // const { data: propertyTypes } = useGetPropertyTypes();
   const { data: cities, isLoading: citiesLoading } = useCities(selectedCountry);
   const [date, setDate] = useState<Date | null>(null);
-  const [selectedGov, setSelectedGov] = useState<Governorate | undefined>(undefined);
+  const [selectedGov, setSelectedGov] = useState<City | undefined>(undefined);
   const [selectedPropertyType, setSelectedPropertyType] = useState<{ name: string; value: string } | undefined>();
-
-  // Convert cities to governorate format for compatibility with CustomSelect
-  const cityOptions: Governorate[] = useMemo(() => {
-    return cities
-      ? cities.map((city) => ({
-          id: city.key,
-          name: city.city,
-          icon: city.city,
-        }))
-      : [];
-  }, [cities]);
 
   // Update selected city when cities load or country changes
   useEffect(() => {
-    if (cityOptions.length > 0) {
-      setSelectedGov(cityOptions[0]);
+    if (cities && cities.length > 0) {
+      setSelectedGov(cities[0]);
     }
-  }, [cityOptions]);
+  }, [cities]);
 
   // useEffect(() => {
   //   if (propertyTypes && propertyTypes.length > 0) {
@@ -60,7 +49,7 @@ export function SearchTabContent({ tab, session }: SearchTabContentProps) {
     const params = new URLSearchParams();
     params.append("offerType", tab);
     if (date) params.append("date", date.toISOString());
-    if (selectedGov) params.append("city", selectedGov.id);
+    if (selectedGov) params.append("city", selectedGov.key);
     if (selectedPropertyType) params.append("type", selectedPropertyType.value);
 
     router.push(getLocalizedPath(`/property-search?${params.toString()}`, locale));
@@ -73,13 +62,22 @@ export function SearchTabContent({ tab, session }: SearchTabContentProps) {
         <Typography variant="body-md" as="p" className="mb-2 text-gray-600">
           {t("location")}
         </Typography>
-        <CustomSelect
-          containerClass="w-full rounded-lg px-4"
-          values={cityOptions}
-          selected={selectedGov}
-          setSelected={setSelectedGov}
-          disabled={citiesLoading}
-        />
+        <Select
+              value={selectedGov?.key}
+              onValueChange={(e) => setSelectedGov(cities?.find((city) => city.key === e))}
+              disabled={citiesLoading}
+            >
+              <SelectTrigger className="w-full justify-between rounded-lg border border-gray-300 bg-white px-5 py-5">
+                <SelectValue placeholder={citiesLoading ? t("loading") : t("select-city")} />
+              </SelectTrigger>
+              <SelectContent>
+                {(cities || []).map((city) => (
+                  <SelectItem key={city.key} value={city.key}>
+                    {locale === "ar" ? city.cityAr : city.city}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
       </div>
 
       {/* Date */}

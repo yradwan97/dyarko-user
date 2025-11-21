@@ -230,14 +230,10 @@ export default function AboutProperty({ property, currency = "KWD" }: AboutPrope
               {t("listed-by")}
             </p>
             <div
-              className={`mt-6 flex flex-col ${
-                locale === "ar" ? "sm:flex-row-reverse" : "sm:flex-row"
-              } items-start justify-between gap-4 sm:items-center`}
+              className={`mt-6 flex flex-col sm:flex-row items-start justify-between gap-4 sm:items-center`}
             >
               <div
-                className={`flex ${
-                  locale === "ar" ? "flex-row-reverse" : "flex-row"
-                } items-center`}
+                className={`flex items-center`}
               >
                 {validOwnerImage ? (
                   <Image

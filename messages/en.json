@@ -88,6 +88,7 @@
     "reset": "Reset",
     "category": "Category",
     "city": "City",
+    "class": "Class",
     "filter-properties-description": "Filter properties by category and class"
   },
   "PropertyListing": {
@@ -228,6 +229,7 @@
         "rent-price": "Rent Price",
         "installment": "Request Installment",
         "buy": "Contact Owner",
+        "contact-owner": "Contact Owner",
         "tent-group": "Price based on tent selection.",
         "replace-with": "Replace this property with a ",
         "cash": "Contact Owner",
@@ -249,7 +251,7 @@
       },
       "Tour": {
         "Phone": {
-          "label": "Phone Number",
+          "label": "Please let us know what number to call at the scheduled time",
           "placeholder": "5XXXXXXX",
           "required": "Phone number is required",
           "minimum-length": "Minimum character length is 8"
@@ -282,7 +284,7 @@
       "documents": "Attached Documents",
       "property-video": "Property Video",
       "listed-by": "Listed by property owner",
-      "more-info": "Get more info",
+      "more-info": "See Owner Profile",
       "rental-amenities": "Unit Amenities",
       "rental-features": "Unit features",
       "services": "Available Extra Services",
@@ -375,7 +377,9 @@
         "when": "When",
         "type": "Property Type",
         "browse": "Browse",
-        "date-placeholder": "Select Move-in Date"
+        "date-placeholder": "Select Move-in Date",
+        "loading": "Loading...",
+        "select-city": "Select City"
       },
       "counters": {
         "renters": {
@@ -1352,8 +1356,9 @@
       "request-id": "Request ID",
       "invoice-id": "Invoice ID",
       "type": "Request Type",
-      "tour-date": "Tour Date",
+      "tour-date": "Tour Date:",
       "request-date": "Request Date",
+      "property-code": "Property Code",
       "currency": "KWD",
       "owner": "Owner",
       "user": "User",
@@ -1396,8 +1401,17 @@
       "service-requested": "Service Requested",
       "check-in-out-date": "Check In & Out Date",
       "rent-period": "Rent Period",
-      "rent-type": "Rent Type",
+      "rent-dates": "Rent Dates:",
+      "rent-type": "Rent Type:",
       "rent-amount": "Rent Amount",
+      "invoice-details": "Invoice Details",
+      "rent": "Rent",
+      "insurance": "Insurance",
+      "commission": "Commission",
+      "tax": "Tax",
+      "credit": "Credit",
+      "at": "at",
+      "dyarko": "Dyarko",
       "start-installment-date": "Start Installment date",
       "installment-period": "Installment Period",
       "installment-type": "Installment Type",
@@ -1410,6 +1424,13 @@
       "rent-details": "Rent details",
       "payment-type": "Payment Type",
       "listing-details": "Listing Details",
+      "status-replied": "Replied",
+      "status-pending": "Pending",
+      "status-approved": "Approved",
+      "status-rejected": "Rejected",
+      "status-completed": "Completed",
+      "status-confirmed": "Confirmed",
+      "status-canceled": "Canceled",
       "view-file": "View File",
       "comment": "Comment",
       "reject-reason": "Reject Reason",
@@ -1420,6 +1441,7 @@
       "due-date": "Due Date",
       "tabs": {
         "tours": "Tours",
+        "tour": "Tour",
         "rent": "Rent",
         "service": "Services",
         "installments": "Installments",
@@ -1457,8 +1479,11 @@
       "from": "from",
       "to": "to",
       "from-label": "From:",
+      "from-label-flipped": "From:",
       "to-label": "To:",
+      "to-label-flipped": "To:",
       "type-label": "Price Type: ",
+      "type-label-flipped": "Price Type: ",
       "price-types": {
         "daily": "Daily",
         "weekly": "Weekly",
@@ -1506,6 +1531,14 @@
         },
         "cancel": "Cancel",
         "confirm": "Confirm"
+      },
+      "rent-types": {
+        "hourly": "Hourly",
+        "daily": "Daily",
+        "weekly": "Weekly",
+        "monthly": "Monthly",
+        "weekdays": "Weekdays",
+        "holidays": "Holidays"
       }
     },
     "MyRealEstates": {
@@ -1525,7 +1558,7 @@
         "dates": "Rental Period",
         "contractTerminated": "Contract Terminated",
         "rentEnded": "Rent Ended",
-        "upcomingDue": "Upcoming due"
+        "upcomingDue": "Rent start date"
       },
       "InstallmentCard": {
         "code": "Code",
@@ -1617,6 +1650,14 @@
         "national-id": "National ID",
         "code": "Code",
         "pickup-location": "Pickup Location",
+        "rent-types": {
+          "hourly": "Hourly",
+          "daily": "Daily",
+          "weekly": "Weekly",
+          "monthly": "Monthly",
+          "weekdays": "Weekdays",
+          "holidays": "Holidays"
+        },
         "tabs": {
           "details": "Rent Details",
           "invoices": "Invoices"
@@ -1639,11 +1680,6 @@
           "pending": "Pending",
           "expired": "Expired",
           "cancelled": "Cancelled"
-        },
-        "rent-types": {
-          "daily": "Daily",
-          "weekly": "Weekly",
-          "monthly": "Monthly"
         },
         "confirmation": {
           "confirm": "Confirm",
@@ -1889,7 +1925,12 @@
   "Map": {
     "view-details": "View Details",
     "loading-map": "Loading map...",
-    "no-properties": "No properties found in this area"
+    "no-properties": "No properties found in this area",
+    "loading-cities": "Loading cities...",
+    "no-cities-available": "No cities available",
+    "select-category-first": "Please select a category first",
+    "loading-classes": "Loading classes...",
+    "no-classes-available": "No classes available for this category"
   },
   "CreateAd": {
     "title": "Create ADS",

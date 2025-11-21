@@ -9,7 +9,8 @@ import { Rating } from "@mui/material";
 
 import Typography from "@/components/shared/typography";
 import Button from "@/components/shared/button";
-import { Owner, followOwner, unfollowOwner, isOwnerFollowed } from "@/lib/services/api/companies";
+import { Owner } from "@/lib/services/api/companies";
+import { checkCompanyFavourite, addCompanyFavourite, removeCompanyFavourite } from "@/lib/services/api/favourites";
 
 interface CompanyCardProps {
   owner: Owner;
@@ -21,20 +22,24 @@ export default function CompanyCard({ owner, onFollowChange }: CompanyCardProps)
   const router = useRouter();
   const pathname = usePathname();
   const t = useTranslations("Companies");
-  const [followed, setFollowed] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const checkFollowStatus = async () => {
+    const checkFavoriteStatus = async () => {
       if (session?.user) {
-        // const status = await isOwnerFollowed(owner._id);
-        // setFollowed(status);
+        try {
+          const status = await checkCompanyFavourite(owner._id);
+          setIsFavorite(status);
+        } catch (error) {
+          console.error("Error checking favorite status:", error);
+        }
       }
     };
-    checkFollowStatus();
+    checkFavoriteStatus();
   }, [owner._id, session]);
 
-  const handleFollow = async (e: React.MouseEvent) => {
+  const handleFavorite = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -46,15 +51,15 @@ export default function CompanyCard({ owner, onFollowChange }: CompanyCardProps)
 
     setIsLoading(true);
     try {
-      if (followed) {
-        await unfollowOwner(owner._id);
+      if (isFavorite) {
+        await removeCompanyFavourite(owner._id);
       } else {
-        await followOwner(owner._id);
+        await addCompanyFavourite(owner._id);
       }
-      setFollowed(!followed);
+      setIsFavorite(!isFavorite);
       onFollowChange?.();
     } catch (error) {
-      console.error("Error toggling follow:", error);
+      console.error("Error toggling favorite:", error);
     } finally {
       setIsLoading(false);
     }
@@ -71,13 +76,13 @@ export default function CompanyCard({ owner, onFollowChange }: CompanyCardProps)
           className="h-[240px] w-full rounded-lg object-cover sm:w-[240px]"
         />
         <Button
-          onClick={handleFollow}
-          variant={followed ? "primary-outline" : "primary"}
+          onClick={handleFavorite}
+          variant={isFavorite ? "primary-outline" : "primary"}
           className="!absolute !right-2 !top-2 !rounded-md !px-2 !py-1 sm:!hidden"
           disabled={isLoading}
         >
           <Typography variant="body-xs-medium" as="p">
-            {followed ? t("unfollow") : t("follow")}
+            {isFavorite ? t("unfollow") : t("follow")}
           </Typography>
         </Button>
       </div>
@@ -108,12 +113,12 @@ export default function CompanyCard({ owner, onFollowChange }: CompanyCardProps)
 
       <div className="relative col-span-1 hidden text-end sm:col-span-2 sm:block md:col-span-1">
         <Button
-          variant={followed ? "primary-outline" : "primary"}
+          variant={isFavorite ? "primary-outline" : "primary"}
           className="!px-5 !py-2 font-bold"
-          onClick={handleFollow}
+          onClick={handleFavorite}
           disabled={isLoading}
         >
-          {followed ? t("unfollow") : t("follow")}
+          {isFavorite ? t("unfollow") : t("follow")}
         </Button>
       </div>
     </div>

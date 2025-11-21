@@ -88,6 +88,7 @@
     "reset": "إعادة تعيين",
     "category": "الفئة",
     "city": "المدينة",
+    "class": "الصنف",
     "filter-properties-description": "تصفية العقارات حسب الفئة والنوع"
   },
   "PropertyListing": {
@@ -224,6 +225,7 @@
         "rent-price": "سعر الإيجار",
         "installment": "طلب تقسيط",
         "buy": "التواصل مع المالك",
+        "contact-owner": "التواصل مع المالك",
         "tent-group": "يتحدد السعر بناءً على اختيارك .",
         "replace-with": "استبدال هذة الوحدة بـ ",
         "cash": "التواصل مع المالك",
@@ -245,7 +247,7 @@
       },
       "Tour": {
         "Phone": {
-          "label": "رقم الهاتف",
+          "label": "يرجى إخبارنا برقم الهاتف للاتصال بك في الموعد المحدد",
           "placeholder": "5XXXXXXX",
           "required": "رقم الهاتف مطلوب",
           "minimum-length": "أقل عدد من الحروف هو 8"
@@ -278,7 +280,7 @@
       "documents": "الوثائق المرفقة",
       "property-video": "فيديو العقار",
       "listed-by": "مدرجة من قبل مالك العقار",
-      "more-info": "الحصول على المزيد من المعلومات",
+      "more-info": "عرض ملف المالك الشخصي",
       "rental-features": "مميزات العقار",
       "services": "الخدمات المتاحة",
       "interior": "التصميم الداخلى",
@@ -371,7 +373,9 @@
         "when": "متى",
         "type": "نوع الوحدة",
         "browse": "بحث",
-        "date-placeholder": "حدد التاريخ"
+        "date-placeholder": "حدد التاريخ",
+        "loading": "جاري التحميل...",
+        "select-city": "اختر المدينة"
       },
       "counters": {
         "renters": {
@@ -1129,7 +1133,12 @@
   "Map": {
     "view-details": "عرض التفاصيل",
     "loading-map": "جاري تحميل الخريطة...",
-    "no-properties": "لا توجد عقارات في هذه المنطقة"
+    "no-properties": "لا توجد عقارات في هذه المنطقة",
+    "loading-cities": "جاري تحميل المدن...",
+    "no-cities-available": "لا توجد مدن متاحة",
+    "select-category-first": "يرجى اختيار فئة أولاً",
+    "loading-classes": "جاري تحميل الأصناف...",
+    "no-classes-available": "لا توجد أصناف متاحة لهذه الفئة"
   },
   "CreateAd": {
     "title": "إنشاء إعلان",
@@ -1385,6 +1394,7 @@
     },
     "MyRequests": {
       "title": "طلباتي",
+      "price-not-available": "السعر غير متاح",
       "description": "عرض وإدارة طلبات الإيجار والشراء الخاصة بك",
       "no-requests": "لا توجد طلبات بعد",
       "no-requests-description": "ستظهر طلبات العقارات الخاصة بك هنا",
@@ -1392,8 +1402,9 @@
       "request-id": "رقم الطلب",
       "invoice-id": "رقم الفاتورة",
       "type": "نوع الطلب",
-      "tour-date": "تاريخ المعاينة",
+      "tour-date": " :تاريخ المعاينة",
       "request-date": "تاريخ الطلب",
+      "property-code": "رمز العقار",
       "currency": "د.ك",
       "owner": "المالك",
       "user": "المستخدم",
@@ -1437,8 +1448,17 @@
       "service-requested": "الخدمة المطلوبة",
       "check-in-out-date": "تاريخ الدخول والخروج",
       "rent-period": "فترة الإيجار",
-      "rent-type": "نوع الإيجار",
+      "rent-dates": " :تواريخ الإيجار",
+      "rent-type": " :نوع الإيجار",
       "rent-amount": "قيمة الإيجار",
+      "invoice-details": "تفاصيل الفاتورة",
+      "rent": "الإيجار",
+      "insurance": "التأمين",
+      "commission": "العمولة",
+      "tax": "الضريبة",
+      "credit": "رصيد",
+      "at": "في",
+      "dyarko": "دياركو",
       "start-installment-date": "تاريخ بدء التقسيط",
       "installment-period": "فترة التقسيط",
       "installment-type": "نوع التقسيط",
@@ -1453,6 +1473,13 @@
       "end-date": "تاريخ الانتهاء",
       "payment-type": "نوع الدفع",
       "listing-details": "تفاصيل العقار",
+      "status-replied": "تم الرد",
+      "status-pending": "قيد الانتظار",
+      "status-approved": "موافق عليه",
+      "status-rejected": "مرفوض",
+      "status-completed": "مكتمل",
+      "status-confirmed": "مؤكد",
+      "status-canceled": "ملغي",
       "property-code": "كود العقار",
       "phone-number": "رقم الهاتف",
       "view-file": "عرض الملف",
@@ -1466,6 +1493,7 @@
       "amount": "المبلغ",
       "tabs": {
         "tours": "المعاينات",
+        "tour": "المعاينة",
         "rent": "الإيجار",
         "service": "الخدمات",
         "installments": "التقسيط",
@@ -1502,8 +1530,11 @@
       "from": "من",
       "to": "إلى",
       "from-label": ":من",
+      "from-label-flipped": "من:",
       "to-label": ":إلى",
+      "to-label-flipped": "إلى:",
       "type-label": ":النوع",
+      "type-label-flipped": "النوع:",
       "price-types": {
         "daily": "يومي",
         "weekly": "أسبوعي",
@@ -1546,6 +1577,14 @@
         },
         "cancel": "إلغاء",
         "confirm": "تأكيد"
+      },
+      "rent-types": {
+        "hourly": "ساعي",
+        "daily": "يومي",
+        "weekly": "أسبوعي",
+        "monthly": "شهري",
+        "weekdays": "أيام الأسبوع",
+        "holidays": "العطلات"
       }
     },
     "MyRealEstates": {
@@ -1657,6 +1696,14 @@
         "national-id": "الرقم الوطني",
         "code": "الكود",
         "pickup-location": "موقع الاستلام",
+        "rent-types": {
+          "hourly": "ساعي",
+          "daily": "يومي",
+          "weekly": "أسبوعي",
+          "monthly": "شهري",
+          "weekdays": "أيام الأسبوع",
+          "holidays": "العطلات"
+        },
         "tabs": {
           "details": "تفاصيل الإيجار",
           "invoices": "الفواتير"
@@ -1679,11 +1726,6 @@
           "pending": "قيد الانتظار",
           "expired": "منتهي",
           "cancelled": "ملغي"
-        },
-        "rent-types": {
-          "daily": "يومي",
-          "weekly": "أسبوعي",
-          "monthly": "شهري"
         },
         "confirmation": {
           "confirm": "تأكيد",

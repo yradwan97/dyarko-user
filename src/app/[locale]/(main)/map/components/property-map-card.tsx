@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useQueryClient } from "@tanstack/react-query";
-import { X, MapPin, Home, Bed, Bath, Maximize, Heart } from "lucide-react";
+import { X, MapPin, Heart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import type { Property } from "@/lib/services/api/properties";
+import type { MapProperty } from "@/lib/services/api/properties";
 import { getLocalizedPath, cn } from "@/lib/utils";
 import Typography from "@/components/shared/typography";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ import { checkFavourite, addFavourite, removeFavourite } from "@/lib/services/ap
 import { toast } from "sonner";
 
 interface PropertyMapCardProps {
-  property: Property;
+  property: MapProperty;
   onClose: () => void;
 }
 
@@ -29,6 +29,7 @@ export default function PropertyMapCard({
   const queryClient = useQueryClient();
   const [isFavorite, setIsFavorite] = useState(false);
   const [isCheckingFavorite, setIsCheckingFavorite] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     if (property._id) {
@@ -85,7 +86,7 @@ export default function PropertyMapCard({
     return labels[offerType] || offerType;
   };
 
-  const formatPrice = (price: number | undefined) => {
+  const formatPrice = (price: number | undefined | null) => {
     if (!price) return tCommon("contact-for-price");
     return `${price.toLocaleString()} ${tCommon("kwd")}`;
   };
@@ -103,10 +104,11 @@ export default function PropertyMapCard({
       {/* Property Image */}
       <div className="relative h-48 w-full">
         <Image
-          src={property.image || "/placeholder.jpg"}
+          src={imageError || !property.image ? "/no-apartment.png" : property.image}
           alt={property.title}
           fill
           className="object-cover"
+          onError={() => setImageError(true)}
         />
         {/* Offer Type Badge */}
         <div className="absolute top-2 left-2 bg-main-600 text-white px-3 py-1 rounded-full text-xs font-semibold">
@@ -122,7 +124,10 @@ export default function PropertyMapCard({
           size="icon"
           onClick={handleFavoriteClick}
           disabled={isCheckingFavorite}
-          className="absolute top-2 right-2 h-8 w-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+          className={cn(
+            "absolute top-2 h-8 w-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700",
+            locale === "ar" ? "left-2" : "right-2"
+          )}
         >
           <Heart
             className={cn(
@@ -140,44 +145,16 @@ export default function PropertyMapCard({
 
         {/* Location */}
         <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-          <MapPin className="h-4 w-4 flex-shrink-0" />
+          <MapPin className="h-4 w-4 shrink-0" />
           <Typography variant="body-sm" as="p" className="line-clamp-1">
             {property.city}, {property.region}
           </Typography>
         </div>
 
-        {/* Property Info */}
-        <div className="flex items-center gap-4">
-          {property.bedrooms && (
-            <div className="flex items-center gap-1">
-              <Bed className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-              <Typography variant="body-sm" as="span" className="text-gray-600 dark:text-gray-400">
-                {property.bedrooms}
-              </Typography>
-            </div>
-          )}
-          {property.bathrooms && (
-            <div className="flex items-center gap-1">
-              <Bath className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-              <Typography variant="body-sm" as="span" className="text-gray-600 dark:text-gray-400">
-                {property.bathrooms}
-              </Typography>
-            </div>
-          )}
-          {property.area && (
-            <div className="flex items-center gap-1">
-              <Maximize className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-              <Typography variant="body-sm" as="span" className="text-gray-600 dark:text-gray-400">
-                {property.area} {tCommon("sqm")}
-              </Typography>
-            </div>
-          )}
-        </div>
-
         {/* Price */}
         <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
           <Typography variant="h5" as="p" className="font-bold text-main-600">
-            {formatPrice(property.dailyPrice || property.weeklyPrice || property.monthlyPrice)}
+            {formatPrice(property.price || property.dailyPrice || property.weeklyPrice || property.monthlyPrice || property.hourlyPrice)}
           </Typography>
         </div>
 

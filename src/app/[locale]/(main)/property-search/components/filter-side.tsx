@@ -129,7 +129,7 @@ export default function FilterSide({
   const cityOptions = cities
     ? cities.map((city) => ({
         id: city.key,
-        name: city.city,
+        name: locale === "ar" ? city.cityAr : city.city,
       }))
     : [];
 
@@ -270,21 +270,21 @@ export default function FilterSide({
                 {t("offer-type")}
               </Typography>
               <RadioGroup value={offerType} onValueChange={(value) => setOfferType(value as OfferType)}>
-                <div className="flex items-center space-x-3 rounded-lg border border-gray-300 p-4 transition-colors hover:border-main-400 focus-within:border-main-400 focus-within:ring-1 focus-within:ring-main-400 dark:border-gray-600">
+                <div className="flex flex-row rtl:flex-row-reverse items-center gap-3 rounded-lg border border-gray-300 p-4 transition-colors hover:border-main-400 focus-within:border-main-400 focus-within:ring-1 focus-within:ring-main-400 dark:border-gray-600">
                   <RadioGroupItem value="RENT" id="rent" />
-                  <Label htmlFor="rent" className="flex-1 cursor-pointer font-medium">
+                  <Label htmlFor="rent" className="cursor-pointer font-medium">
                     {t("rent")}
                   </Label>
                 </div>
-                <div className="mt-3 flex items-center space-x-3 rounded-lg border border-gray-300 p-4 transition-colors hover:border-main-400 focus-within:border-main-400 focus-within:ring-1 focus-within:ring-main-400 dark:border-gray-600">
+                <div className="mt-3 flex flex-row rtl:flex-row-reverse items-center gap-3 rounded-lg border border-gray-300 p-4 transition-colors hover:border-main-400 focus-within:border-main-400 focus-within:ring-1 focus-within:ring-main-400 dark:border-gray-600">
                   <RadioGroupItem value="INSTALLMENT" id="installment" />
-                  <Label htmlFor="installment" className="flex-1 cursor-pointer font-medium">
+                  <Label htmlFor="installment" className="cursor-pointer font-medium">
                     {t("installment")}
                   </Label>
                 </div>
-                <div className="mt-3 flex items-center space-x-3 rounded-lg border border-gray-300 p-4 transition-colors hover:border-main-400 focus-within:border-main-400 focus-within:ring-1 focus-within:ring-main-400 dark:border-gray-600">
+                <div className="mt-3 flex flex-row rtl:flex-row-reverse items-center gap-3 rounded-lg border border-gray-300 p-4 transition-colors hover:border-main-400 focus-within:border-main-400 focus-within:ring-1 focus-within:ring-main-400 dark:border-gray-600">
                   <RadioGroupItem value="CASH" id="cash" />
-                  <Label htmlFor="cash" className="flex-1 cursor-pointer font-medium">
+                  <Label htmlFor="cash" className="cursor-pointer font-medium">
                     {t("cash")}
                   </Label>
                 </div>
@@ -414,33 +414,33 @@ export default function FilterSide({
                 {t("availability")}
               </Typography>
               <div className="space-y-4">
-                <div className="flex items-center space-x-3 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+                <div className="flex flex-row rtl:flex-row-reverse items-center gap-3 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
                   <Checkbox id="daily" checked={isDaily} onCheckedChange={(checked) => setIsDaily(checked as boolean)} />
-                  <Label htmlFor="daily" className="flex-1 cursor-pointer font-medium">
+                  <Label htmlFor="daily" className="cursor-pointer font-medium">
                     {t("daily")}
                   </Label>
                 </div>
-                <div className="flex items-center space-x-3 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+                <div className="flex flex-row rtl:flex-row-reverse items-center gap-3 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
                   <Checkbox id="weekly" checked={isWeekly} onCheckedChange={(checked) => setIsWeekly(checked as boolean)} />
-                  <Label htmlFor="weekly" className="flex-1 cursor-pointer font-medium">
+                  <Label htmlFor="weekly" className="cursor-pointer font-medium">
                     {t("weekly")}
                   </Label>
                 </div>
-                <div className="flex items-center space-x-3 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+                <div className="flex flex-row rtl:flex-row-reverse items-center gap-3 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
                   <Checkbox id="monthly" checked={isMonthly} onCheckedChange={(checked) => setIsMonthly(checked as boolean)} />
-                  <Label htmlFor="monthly" className="flex-1 cursor-pointer font-medium">
+                  <Label htmlFor="monthly" className="cursor-pointer font-medium">
                     {t("monthly")}
                   </Label>
                 </div>
-                <div className="flex items-center space-x-3 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+                <div className="flex flex-row rtl:flex-row-reverse items-center gap-3 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
                   <Checkbox id="weekdays" checked={isWeekdays} onCheckedChange={(checked) => setIsWeekdays(checked as boolean)} />
-                  <Label htmlFor="weekdays" className="flex-1 cursor-pointer font-medium">
+                  <Label htmlFor="weekdays" className="cursor-pointer font-medium">
                     {t("weekdays")}
                   </Label>
                 </div>
-                <div className="flex items-center space-x-3 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+                <div className="flex flex-row rtl:flex-row-reverse items-center gap-3 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
                   <Checkbox id="holidays" checked={isHolidays} onCheckedChange={(checked) => setIsHolidays(checked as boolean)} />
-                  <Label htmlFor="holidays" className="flex-1 cursor-pointer font-medium">
+                  <Label htmlFor="holidays" className="cursor-pointer font-medium">
                     {t("holidays")}
                   </Label>
                 </div>

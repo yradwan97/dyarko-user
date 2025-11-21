@@ -5,12 +5,12 @@ import { GoogleMap, Marker } from "@react-google-maps/api";
 import { Filter } from "lucide-react";
 import { useCountryContext } from "@/components/providers/country-provider";
 import { useGoogleMaps } from "@/components/providers/google-maps-provider";
-import { useGetPropertiesByCountry } from "@/hooks/use-properties";
+import { useMapProperties } from "@/hooks/use-properties";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import PropertyMapCard from "./components/property-map-card";
 import MapFiltersModal from "./components/map-filters-modal";
-import type { Property } from "@/lib/services/api/properties";
+import type { MapProperty } from "@/lib/services/api/properties";
 
 const mapContainerStyle = {
   width: "100%",
@@ -35,7 +35,7 @@ const countryCenters: Record<string, { lat: number; lng: number }> = {
 export default function MapPage() {
   const { selectedCountry } = useCountryContext();
   const { isLoaded, loadError } = useGoogleMaps();
-  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  const [selectedProperty, setSelectedProperty] = useState<MapProperty | null>(null);
   const [isFiltersOpen, setIsFiltersOpen] = useState(true); // Open by default
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedClass, setSelectedClass] = useState<string>("");
@@ -45,17 +45,14 @@ export default function MapPage() {
   const countryCenter = countryCenters[selectedCountry || "KW"] || countryCenters.KW;
   const [mapCenter, setMapCenter] = useState(countryCenter);
 
-  // Fetch properties based on selected country and filters
-  const { data: propertiesData, isLoading } = useGetPropertiesByCountry(
-    selectedCountry || "KW",
-    1,
-    100,
-    selectedCategory || undefined,
-    selectedClass || undefined,
-    selectedCity || undefined
+  // Fetch properties based on filters
+  const { data: propertiesData, isLoading } = useMapProperties(
+    selectedCity,
+    selectedCategory,
+    selectedClass
   );
 
-  const properties = propertiesData?.data?.data || [];
+  const properties = propertiesData?.data || [];
 
   // Update map center when country changes
   useEffect(() => {
@@ -65,9 +62,9 @@ export default function MapPage() {
 
   // Debug: Log properties to check lat/long
   console.log("Properties:", properties);
-  console.log("Properties with coordinates:", properties.filter((p: Property) => p.lat && p.long));
+  console.log("Properties with coordinates:", properties.filter((p: MapProperty) => p.lat && p.long));
 
-  const handleMarkerClick = useCallback((property: Property) => {
+  const handleMarkerClick = useCallback((property: MapProperty) => {
     setSelectedProperty(property);
     // Center map on selected property
     if (property.lat && property.long) {
@@ -133,7 +130,7 @@ export default function MapPage() {
         }}
       >
         {/* Property Markers */}
-        {properties.length > 0 && properties.map((property: Property) => {
+        {properties.length > 0 && properties.map((property: MapProperty) => {
           console.log("Rendering marker for:", property.title, "Lat:", property.lat, "Long:", property.long);
 
           if (!property.lat || !property.long) {

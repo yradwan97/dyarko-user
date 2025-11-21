@@ -384,7 +384,7 @@ export default function CreateAdDialog({ open, onOpenChange }: CreateAdDialogPro
                         <SelectContent>
                           {cities?.map((city, index) => (
                             <SelectItem key={city.key || `city-${index}`} value={city.key} className="rtl:text-right">
-                              {locale === "ar" ? city.city : city.city}
+                              {locale === "ar" ? city.cityAr : city.city}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -488,7 +488,7 @@ export default function CreateAdDialog({ open, onOpenChange }: CreateAdDialogPro
                 paymentMethods?.map((method) => (
                   <div
                     key={method.key}
-                    className="flex items-center space-x-2 rounded-lg border border-gray-200 p-4 hover:bg-gray-50 rtl:space-x-reverse"
+                    className="flex flex-row rtl:flex-row-reverse items-center gap-2 rounded-lg border border-gray-200 p-4 hover:bg-gray-50"
                   >
                     <RadioGroupItem value={method.key} id={method.key} />
                     <Label

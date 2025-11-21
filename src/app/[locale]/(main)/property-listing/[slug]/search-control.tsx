@@ -48,11 +48,11 @@ export default function SearchControl({ slug, onSearch, onReset }: SearchControl
     return cities
       ? cities.map((city) => ({
           id: city.key,
-          name: city.city,
-          icon: city.city,
+          name: locale === "ar" ? city.cityAr : city.city,
+          icon: locale === "ar" ? city.cityAr : city.city,
         }))
       : [];
-  }, [cities]);
+  }, [cities, locale]);
 
   // Initialize or update selected city when cities load or country changes
   useEffect(() => {

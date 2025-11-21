@@ -3,7 +3,7 @@ import { Property } from "./properties";
 
 export interface AddFavouritePayload {
   item: string;
-  type: "PROPERTY";
+  type: "PROPERTY" | "COMPANY";
 }
 
 export interface FavouriteResponse {
@@ -86,6 +86,64 @@ export const getFavourites = async (page: number = 1): Promise<{
 }> => {
   const response = await axiosClient.get<GetFavouritesResponse>(
     `/favourites?type=PROPERTY&page=${page}`
+  );
+  return response.data.data;
+};
+
+/**
+ * Check if a company is favorited
+ * Returns status 200 if favorited, 400 if not
+ */
+export const checkCompanyFavourite = async (companyId: string): Promise<boolean> => {
+  try {
+    const response = await axiosClient.get<FavouriteResponse>(
+      `/favourites/${companyId}?type=COMPANY`
+    );
+    return response.status === 200;
+  } catch (error: any) {
+    // Status 400 means not favorited
+    return false;
+  }
+};
+
+/**
+ * Add a company to favorites
+ */
+export const addCompanyFavourite = async (
+  companyId: string
+): Promise<FavouriteResponse> => {
+  const response = await axiosClient.post<FavouriteResponse>(
+    "/favourites",
+    {
+      item: companyId,
+      type: "COMPANY",
+    }
+  );
+  return response.data;
+};
+
+/**
+ * Remove a company from favorites
+ */
+export const removeCompanyFavourite = async (
+  companyId: string
+): Promise<FavouriteResponse> => {
+  const response = await axiosClient.delete<FavouriteResponse>(
+    `/favourites/${companyId}?type=COMPANY`
+  );
+  return response.data;
+};
+
+/**
+ * Get all favorited companies with pagination
+ */
+export const getCompanyFavourites = async (page: number = 1): Promise<{
+  data: FavouriteItem[];
+  itemsCount: number;
+  pages: number;
+}> => {
+  const response = await axiosClient.get<GetFavouritesResponse>(
+    `/favourites?type=COMPANY&page=${page}`
   );
   return response.data.data;
 };

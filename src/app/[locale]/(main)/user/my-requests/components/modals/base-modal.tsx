@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import {
   Dialog,
@@ -43,10 +44,16 @@ export function BaseDetailsModal({
   const locale = useLocale();
   const { data: countries } = useCountries();
   const { data, isLoading } = useRequestDetails(endpoint, requestId);
+  const [imageError, setImageError] = useState(false);
+
+  // Reset image error when request changes
+  useEffect(() => {
+    setImageError(false);
+  }, [requestId]);
 
   const getModalTitle = () => {
     const typeLabels: Record<string, string> = {
-      tours: t("tabs.tours"),
+      tours: t("tabs.tour"),
       rent: t("tabs.rent"),
       service: t("tabs.service"),
       installments: t("tabs.installments"),
@@ -57,7 +64,7 @@ export function BaseDetailsModal({
     };
 
     const typeLabel = typeLabels[requestType] || t("request-details");
-    return `${typeLabel} ${t("request-details-suffix")}`;
+    return locale === "ar" ? `${t("request-details-suffix")} ${typeLabel}` : `${typeLabel} ${t("request-details-suffix")}`;
   };
 
   const getCurrency = (countryCode?: string) => getCountryCurrency(countries || [], countryCode);
@@ -66,8 +73,8 @@ export function BaseDetailsModal({
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{getModalTitle()}</DialogTitle>
+          <DialogHeader className="text-center">
+            <DialogTitle className={`flex ${locale === "ar" && "flex-row-reverse"}`}>{getModalTitle()}</DialogTitle>
           </DialogHeader>
           {isLoading ? (
             <div className="flex justify-center py-12">
@@ -102,7 +109,7 @@ export function BaseDetailsModal({
 
   const propertyTitle = property?.title || request.title || t("request-title");
   const propertyLocation = property
-    ? `${property.city || ""}, ${property.region || ""}`.trim().replace(/^,|,$/g, "")
+    ? `${property.city || ""}, ${property.country || ""}`.trim().replace(/^,|,$/g, "")
     : null;
   const currency = getCurrency(property?.country);
 
@@ -112,11 +119,32 @@ export function BaseDetailsModal({
     return "";
   };
 
+  const getLocalizedStatus = (status: string) => {
+    const statusKey = status?.toLowerCase();
+    switch (statusKey) {
+      case "pending":
+        return t("status-pending");
+      case "approved":
+        return t("status-approved");
+      case "rejected":
+        return t("status-rejected");
+      case "completed":
+        return t("status-completed");
+      case "confirmed":
+        return t("status-confirmed");
+      case "canceled":
+      case "cancelled":
+        return t("status-canceled");
+      default:
+        return status;
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto" dir={locale === "ar" ? "rtl" : "ltr"}>
         <DialogHeader>
-          <DialogTitle>{getModalTitle()}</DialogTitle>
+          <DialogTitle className="text-center">{getModalTitle()}</DialogTitle>
         </DialogHeader>
 
         {isLoading ? (
@@ -127,51 +155,74 @@ export function BaseDetailsModal({
           <div className="space-y-6">
             {/* Listing Details Section */}
             <div className="bg-gray-50 rounded-lg p-4">
-              <Typography variant="body-sm" as="p" className="text-gray-500 mb-3">
-                {t("listing-details")}
-              </Typography>
-
-              <div className={cn("flex gap-3", locale === "ar" && "flex-row-reverse")}>
-                {property?.image && (
-                  <Image
-                    src={getProxiedImageUrl(property.image)}
-                    alt={propertyTitle}
-                    width={80}
-                    height={80}
-                    className="rounded-lg object-cover"
-                  />
+              <div className="flex items-center justify-between mb-3">
+                <Typography variant="body-sm" as="p" className="text-gray-500">
+                  {t("listing-details")}
+                </Typography>
+                {request.status && (
+                  <span
+                    className={cn(
+                      "inline-block rounded-full border px-3 py-1 text-xs font-medium whitespace-nowrap",
+                      getStatusColor(request.status)
+                    )}
+                  >
+                    {getLocalizedStatus(request.status)}
+                  </span>
                 )}
+              </div>
 
-                <div className={cn("flex-1", locale === "ar" && "text-right")}>
+              <div className="flex gap-3">
+                <div className="shrink-0">
+                  {property?.image && !imageError ? (
+                    <Image
+                      src={getProxiedImageUrl(property.image)}
+                      alt={propertyTitle}
+                      width={100}
+                      height={80}
+                      className="h-20 w-24 rounded-lg object-cover"
+                      onError={() => setImageError(true)}
+                    />
+                  ) : (
+                    <Image
+                      src="/no-apartment.png"
+                      alt={propertyTitle}
+                      width={100}
+                      height={80}
+                      className="h-20 w-24 rounded-lg object-cover"
+                    />
+                  )}
+                </div>
+
+                <div className="flex-1">
                   {property?.code && (
                     <Typography variant="body-sm" as="p" className="text-gray-500">
                       {t("property-code")}: {property.code}
                     </Typography>
                   )}
-                  <Typography variant="body-md-bold" as="p" className="font-semibold mb-1">
-                    {propertyTitle}
-                  </Typography>
+                  {property?._id ? (
+                    <Link
+                      href={`/${locale}/properties/${property._id}`}
+                      className="font-semibold text-main-600 hover:text-main-700 hover:underline"
+                    >
+                      <Typography variant="body-md-bold" as="span" className="mb-1 capitalize">
+                        {propertyTitle}
+                      </Typography>
+                    </Link>
+                  ) : (
+                    <Typography variant="body-md-bold" as="p" className="font-semibold mb-1 capitalize">
+                      {propertyTitle}
+                    </Typography>
+                  )}
                   {propertyLocation && (
-                    <Typography variant="body-sm" as="p" className="text-gray-600 mb-2">
+                    <Typography variant="body-sm" as="p" className="text-gray-600 mb-2 capitalize">
                       {propertyLocation}
                     </Typography>
                   )}
-                  <div className={cn("flex items-center gap-3 flex-wrap", locale === "ar" && "flex-row-reverse justify-end")}>
-                    {getRequestDate() && (
-                      <Typography variant="body-sm" as="span" className="text-gray-600">
-                        {t("request-date")}: {getRequestDate()}
-                      </Typography>
-                    )}
-                    {request.status && (
-                      <span
-                        className={`inline-block rounded-full border px-3 py-1 text-xs font-medium whitespace-nowrap ${getStatusColor(
-                          request.status
-                        )}`}
-                      >
-                        {formatStatus(request.status)}
-                      </span>
-                    )}
-                  </div>
+                  {requestType !== "tours" && getRequestDate() && (
+                    <Typography variant="body-sm" as="p" className="text-gray-600">
+                      {t("request-date")}: {getRequestDate()}
+                    </Typography>
+                  )}
                 </div>
               </div>
             </div>
@@ -182,23 +233,17 @@ export function BaseDetailsModal({
 
             {/* Owner/Agent Section */}
             {request.owner && (
-              <div className={cn("flex items-center gap-3", locale === "ar" && "flex-row-reverse")}>
+              <div className="flex items-center gap-3">
                 <PersonImage person={request.owner} />
-                <div className={cn(locale === "ar" && "text-right")}>
-                  {requestType === "ads" ? (
-                    <Link
-                      href={`/${locale}/companies/${request.owner._id}`}
-                      className="font-medium text-main-600 hover:text-main-700 hover:underline"
-                    >
-                      <Typography variant="body-sm" as="span">
-                        {request.owner.name}
-                      </Typography>
-                    </Link>
-                  ) : (
-                    <Typography variant="body-sm" as="p" className="font-medium">
+                <div>
+                  <Link
+                    href={`/${locale}/companies/${request.owner._id}`}
+                    className="font-medium text-main-600 hover:text-main-700 hover:underline"
+                  >
+                    <Typography variant="body-sm" as="span">
                       {request.owner.name}
                     </Typography>
-                  )}
+                  </Link>
                   {request.owner.ownerType && (
                     <Typography variant="body-sm" as="p" className="text-gray-500">
                       {request.owner.ownerType}

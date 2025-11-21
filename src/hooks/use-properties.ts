@@ -5,6 +5,7 @@ import { axiosClient } from "@/lib/services";
 import {
   getProperties,
   getPropertyById,
+  getMapProperties,
   type GetPropertiesParams,
 } from "@/lib/services/api/properties";
 
@@ -78,6 +79,21 @@ export function useGetPropertiesByCountry(
     queryKey: ["properties-by-country", country, page, size, category, propertyClass, city],
     queryFn: () => getProperties({ country, page, size, category, class: propertyClass, city }),
     enabled: !!country,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: false,
+    gcTime: 0,
+  });
+}
+
+export function useMapProperties(
+  city: string,
+  category: string,
+  propertyClass: string
+) {
+  return useQuery({
+    queryKey: ["map-properties", city, category, propertyClass],
+    queryFn: () => getMapProperties({ city, category, propertyClass }),
+    enabled: !!city && !!category && !!propertyClass,
     staleTime: 1000 * 60 * 5, // 5 minutes
     retry: false,
     gcTime: 0,

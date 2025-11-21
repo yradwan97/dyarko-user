@@ -1,10 +1,11 @@
 "use client";
 
-import { Phone } from "lucide-react";
+import { Phone, Settings } from "lucide-react";
 import Typography from "@/components/shared/typography";
 import { cn } from "@/lib/utils";
 import { BaseModalProps } from "./types";
 import { BaseDetailsModal } from "./base-modal";
+import Image from "next/image";
 
 export function ServiceDetailsModal(props: BaseModalProps) {
   return (
@@ -16,9 +17,17 @@ export function ServiceDetailsModal(props: BaseModalProps) {
               <Typography variant="body-sm" as="p" className="font-medium text-gray-700 mb-2">
                 {t("service-requested")}:
               </Typography>
-              <Typography variant="body-sm" as="p" className="text-gray-600">
-                {request.services.map((s: any) => locale === "ar" ? s.nameAr : s.nameEn).join(", ")}
-              </Typography>
+              
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 mb-5">
+                  {request.services.map((s: any, index: number) => (
+                    <div key={index} className={cn("flex mt-3 gap-3 items-center")}>
+                      <Image src={s.image} alt={s.nameEn} width={50} height={50} />
+                      <Typography variant="body-sm" as="p" className="text-gray-600">
+                        {locale === "ar" ? s.nameAr : s.nameEn}
+                      </Typography>
+                    </div>
+                  ))}
+                </div>
             </div>
           )}
 

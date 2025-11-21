@@ -37,10 +37,6 @@ export default function PropertiesFilterSection() {
     }
   }, [cities]);
 
-  // Fallback to governorates if cities are not loaded
-  const cityOptions = cities && cities.length > 0
-    ? cities.map(c => ({ key: c.key, city: c.city })) : []
-
   const handleBrowse = () => {
     const queryParams = new URLSearchParams();
     if (selectedCity) {
@@ -104,16 +100,12 @@ export default function PropertiesFilterSection() {
               disabled={citiesLoading}
             >
               <SelectTrigger className="w-full justify-between rounded-lg border border-gray-300 bg-white px-5 py-5">
-                <SelectValue>
-                  {citiesLoading
-                    ? "Loading..."
-                    : cityOptions.find((c) => c.key === selectedCity)?.city || "Select City"}
-                </SelectValue>
+                <SelectValue placeholder={citiesLoading ? "Loading..." : "Select City"} />
               </SelectTrigger>
               <SelectContent>
-                {cityOptions.map((city) => (
+                {(cities || []).map((city) => (
                   <SelectItem key={city.key} value={city.key}>
-                    {city.city}
+                    {locale === "ar" ? city.cityAr : city.city}
                   </SelectItem>
                 ))}
               </SelectContent>

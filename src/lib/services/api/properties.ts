@@ -291,3 +291,54 @@ export const getPropertyById = async (id: string): Promise<Property> => {
   }>(`/properties/${id}/`);
   return response.data.data;
 };
+
+export interface GetMapPropertiesParams {
+  city: string;
+  category: string;
+  propertyClass: string;
+}
+
+export interface MapProperty {
+  _id: string;
+  image: string | null;
+  offerType: string;
+  category: string;
+  title: string;
+  country: string;
+  city: string;
+  region: string;
+  dailyPrice: number | null;
+  weeklyPrice: number | null;
+  monthlyPrice: number | null;
+  hourlyPrice: number | null;
+  price: number | null;
+  hasDiscount: boolean;
+  discountRate: string;
+  discount: number | null;
+  discountStartDate: string | null;
+  discountEndDate: string | null;
+  lat: number;
+  long: number;
+  code: string;
+}
+
+export interface MapPropertiesResponse {
+  status: string;
+  message: string;
+  data: MapProperty[];
+}
+
+export const getMapProperties = async (
+  params: GetMapPropertiesParams
+): Promise<MapPropertiesResponse> => {
+  const { city, category, propertyClass } = params;
+
+  const queryParams = new URLSearchParams();
+  queryParams.append("city", city);
+  queryParams.append("category", category);
+  queryParams.append("propertyClass", propertyClass);
+
+  const url = `/properties/map?${queryParams.toString()}`;
+  const response = await noAuthAxios.get<MapPropertiesResponse>(url);
+  return response.data;
+};
