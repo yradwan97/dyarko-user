@@ -16,6 +16,7 @@ interface Step2ChooseDateProps {
   setTimeRange?: (timeRange: { from: string; to: string }) => void;
   selectedTimeSlotIndices?: number[];
   setSelectedTimeSlotIndices?: (indices: number[]) => void;
+  selectedRentType?: string;
   onNext: () => void;
 }
 
@@ -39,6 +40,7 @@ export default function Step2ChooseDate({
   setTimeRange,
   selectedTimeSlotIndices: parentSelectedTimeSlotIndices,
   setSelectedTimeSlotIndices: parentSetSelectedTimeSlotIndices,
+  selectedRentType,
   onNext,
 }: Step2ChooseDateProps) {
   const t = useTranslations("Rent.Step2");
@@ -161,7 +163,21 @@ export default function Step2ChooseDate({
 
   const isDateDisabled = (date: Date) => {
     const today = new Date(new Date().setHours(0, 0, 0, 0));
-    return date < today || isDateBooked(date);
+    const isPastOrBooked = date < today || isDateBooked(date);
+
+    // For weekly rent type, only allow dates in weekly increments from the start date
+    if (selectedRentType === "weekly" && selectedDates.length > 0 && !isCourt) {
+      const startDate = new Date(selectedDates[0].setHours(0, 0, 0, 0));
+      const checkDate = new Date(date.setHours(0, 0, 0, 0));
+      const daysDiff = Math.floor((checkDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+
+      // Allow the start date itself, or dates that are exactly multiples of 7 days from start
+      const isValidWeeklyIncrement = daysDiff === 0 || (daysDiff > 0 && daysDiff % 7 === 0);
+
+      return isPastOrBooked || !isValidWeeklyIncrement;
+    }
+
+    return isPastOrBooked;
   };
 
   // Handle time slot selection with sequential validation

@@ -308,12 +308,8 @@ export default function Step4Checkout({
                 </p>
                 <p className="text-sm font-medium text-gray-900 dark:text-white">
                   {property.checkInTime && property.checkOutTime
-                    ? `${format(new Date(property.checkInTime), "dd MMM yyyy, hh:mm a")} - ${format(new Date(property.checkOutTime), "dd MMM yyyy, hh:mm a")}`
-                    : property.checkInTime
-                    ? format(new Date(property.checkInTime), "dd MMM yyyy, hh:mm a")
-                    : property.checkOutTime
-                    ? format(new Date(property.checkOutTime), "dd MMM yyyy, hh:mm a")
-                    : "N/A"}
+                    ? `${property.checkInTime} - ${property.checkOutTime}`
+                    : property.checkInTime || property.checkOutTime || "N/A"}
                 </p>
               </div>
             </div>
@@ -327,7 +323,7 @@ export default function Step4Checkout({
                 {t("rentType")}
               </p>
               <p className="text-sm font-medium text-gray-900 dark:text-white capitalize">
-                {selectedRentType || t("notSelected")}
+                {tCommon(`rent-types.${selectedRentType}`) || t("notSelected")}
               </p>
             </div>
           </div>
@@ -401,7 +397,7 @@ export default function Step4Checkout({
           {/* Rent */}
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600 dark:text-gray-400">
-              {t("rent")} ({selectedRentType})
+              {t("rent")} ({tCommon(`rent-types.${selectedRentType}`)})
               {isCourt && timeRange && timeRange.from && timeRange.to && (
                 <> - {Math.ceil((new Date(timeRange.to).getTime() - new Date(timeRange.from).getTime()) / (1000 * 60 * 60))} {t("hours") || "hours"}</>
               )}

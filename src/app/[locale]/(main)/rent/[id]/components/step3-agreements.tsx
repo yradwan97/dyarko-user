@@ -5,6 +5,7 @@ import { Property } from "@/lib/services/api/properties";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 interface Step3AgreementsProps {
   property: Property;
@@ -124,9 +125,7 @@ export default function Step3Agreements({
               className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer flex-1"
             >
               {t("ownerRoles")}
-              <span className="block text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {property.rules}
-              </span>
+              <Input defaultValue={property.rules} disabled className="block cursor-not-allowed text-2xl text-black dark:text-gray-400 mt-1 py-2"/>
             </Label>
           </div>}
         </div>

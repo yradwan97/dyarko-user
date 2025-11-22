@@ -74,8 +74,8 @@ export interface PayInvoicePayload {
 
 export const payInvoice = async (payload: PayInvoicePayload): Promise<PayInvoiceResponse> => {
   const response = await axiosClient.post<PayInvoiceResponse>(
-    `/invoices/${payload.invoiceId}/pay`,
-    { paymentMethod: payload.paymentMethod }
+    `/invoices/pay`,
+    { invoiceId: payload.invoiceId ,paymentMethod: payload.paymentMethod }
   );
   return response.data;
 };

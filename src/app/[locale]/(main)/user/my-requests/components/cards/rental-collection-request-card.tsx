@@ -24,6 +24,7 @@ export function RentalCollectionRequestCard({
   onApproveReject,
   isActionPending,
   pendingAction,
+  onCardClick,
 }: RentalCollectionRequestCardProps) {
   const t = useTranslations("User.MyRequests");
   const [imageError, setImageError] = useState(false);
@@ -64,7 +65,7 @@ export function RentalCollectionRequestCard({
   };
 
   return (
-    <div className="rounded-lg border bg-white p-4 hover:shadow-md transition-shadow border-gray-200 relative">
+    <div onClick={() => onCardClick(request._id)} className="rounded-lg border bg-white p-4 hover:shadow-md transition-shadow border-gray-200 relative">
       {/* Status Badge - Top Right (EN) / Top Left (AR) */}
       {request.tenantStatus && (
         <div className={cn(

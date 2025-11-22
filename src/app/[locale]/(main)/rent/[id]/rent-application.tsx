@@ -157,6 +157,7 @@ export default function RentApplication({ propertyId }: RentApplicationProps) {
             setTimeRange={setTimeRange}
             selectedTimeSlotIndices={selectedTimeSlotIndices}
             setSelectedTimeSlotIndices={setSelectedTimeSlotIndices}
+            selectedRentType={selectedRentType}
             onNext={handleNext}
           />
         )}

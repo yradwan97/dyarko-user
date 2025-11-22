@@ -7,6 +7,14 @@
     "selectOption": "اختر خياراً",
     "helloSignIn": "مرحباً، سجل دخولك",
     "kwd": "د.ك",
+    "rent-types": {
+        "hourly": "ساعي",
+        "daily": "يومي",
+        "weekly": "أسبوعي",
+        "monthly": "شهري",
+        "weekdays": "أيام الأسبوع",
+        "holidays": "العطلات"
+      },
     "PaymentMethods": {
       "rent": "إيجار",
       "cash": "كاش",
@@ -1439,6 +1447,9 @@
         "cancel": "إلغاء",
         "confirm": "تأكيد"
       },
+      "payment-confirmation-title": "تأكيد الدفع",
+      "payment-confirmation-description": "هل أنت متأكد من المتابعة بدفع {amount} {currency}؟",
+      "confirm-payment": "تأكيد الدفع",
       "request-details": "تفاصيل الطلب",
       "request-details-suffix": "طلب",
       "status": "الحالة",

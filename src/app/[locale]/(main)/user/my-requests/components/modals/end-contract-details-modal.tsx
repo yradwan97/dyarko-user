@@ -1,10 +1,11 @@
 "use client";
 
-import { Calendar, DollarSign, Phone } from "lucide-react";
+import { Calendar, Clock, DollarSign, MessageSquare, Phone } from "lucide-react";
 import Typography from "@/components/shared/typography";
 import { cn } from "@/lib/utils";
 import { BaseModalProps } from "./types";
 import { BaseDetailsModal } from "./base-modal";
+import { Textarea } from "@/components/ui/textarea";
 
 export function EndContractDetailsModal(props: BaseModalProps) {
   return (
@@ -13,9 +14,9 @@ export function EndContractDetailsModal(props: BaseModalProps) {
         <div className="space-y-4">
           {request.rent && (
             <>
-              <div className={cn("flex items-center gap-2 text-gray-600", locale === "ar" && "flex-row-reverse")}>
+              <div className={cn("flex items-center gap-2 text-gray-600")}>
                 <Calendar className="h-4 w-4 shrink-0" />
-                <div>
+                <div className="flex gap-2">
                   <Typography variant="body-sm" as="span" className="font-medium">
                     {t("check-in-out-date")}:
                   </Typography>
@@ -25,35 +26,28 @@ export function EndContractDetailsModal(props: BaseModalProps) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                {request.rent.rentType && (
-                  <div className={cn(locale === "ar" && "text-right")}>
+              {request.rent.rentType && (
+                <div className={cn("flex items-center gap-2 text-gray-600")}>
+                  <Clock className="h-4 w-4 shrink-0" />
+                  <div className="flex gap-2">
                     <Typography variant="body-sm" as="p" className="font-medium text-gray-700">
                       {t("rent-period")}:
                     </Typography>
-                    <Typography variant="body-sm" as="p" className="text-gray-600">
-                      {request.rent.rentType}
+                    <Typography variant="body-sm" as="p" className="text-gray-600 capitalize">
+                      {t(`price-type-${request.rent.rentType}`)}
                     </Typography>
                   </div>
-                )}
-                <div className={cn(locale === "ar" && "text-right")}>
-                  <Typography variant="body-sm" as="p" className="font-medium text-gray-700">
-                    {t("rent-type")}:
-                  </Typography>
-                  <Typography variant="body-sm" as="p" className="text-gray-600">
-                    {request.rent.rentType || "Monthly"}
-                  </Typography>
                 </div>
-              </div>
+              )}
 
               {request.rent.amount && (
-                <div className={cn("flex items-center gap-2 text-gray-600", locale === "ar" && "flex-row-reverse")}>
+                <div className={cn("flex items-center gap-2 text-gray-600")}>
                   <DollarSign className="h-4 w-4 shrink-0" />
                   <div>
                     <Typography variant="body-sm" as="span" className="font-medium">
                       {t("rent-amount")}:
                     </Typography>
-                    <Typography variant="body-sm" as="span" className="ml-2">
+                    <Typography variant="body-sm" as="span">
                       {request.rent.amount} {currency}
                     </Typography>
                   </div>
@@ -61,7 +55,7 @@ export function EndContractDetailsModal(props: BaseModalProps) {
               )}
 
               {request.mobileNumber && (
-                <div className={cn("flex items-center gap-2 text-gray-600", locale === "ar" && "flex-row-reverse")}>
+                <div className={cn("flex items-center gap-2 text-gray-600")}>
                   <Phone className="h-4 w-4 shrink-0" />
                   <div>
                     <Typography variant="body-sm" as="span" className="font-medium">
@@ -70,6 +64,18 @@ export function EndContractDetailsModal(props: BaseModalProps) {
                     <Typography variant="body-sm" as="span" className="ml-2">
                       {request.mobileNumber}
                     </Typography>
+                  </div>
+                </div>
+              )}
+
+              {request.reason && (
+                <div className={cn("flex items-center gap-2 text-gray-600")}>
+                  <MessageSquare className="h-4 w-4 shrink-0" />
+                  <div>
+                    <Typography variant="body-sm" as="span" className="font-medium">
+                      {t("reason")}:
+                    </Typography>
+                    <Textarea rows={3} defaultValue={request.reason} disabled/>
                   </div>
                 </div>
               )}

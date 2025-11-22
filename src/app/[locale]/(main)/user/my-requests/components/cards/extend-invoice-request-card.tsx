@@ -4,24 +4,17 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Typography from "@/components/shared/typography";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
 import { cn, getProxiedImageUrl } from "@/lib/utils";
 import { RequestCardProps } from "./types";
 import { formatDate, getStatusColor } from "./shared-utils";
 
-interface ExtendInvoiceRequestCardProps extends RequestCardProps {
-  onPayInvoice: (invoiceId: string, amount: number) => void;
-  isPaymentPending: boolean;
-}
+interface ExtendInvoiceRequestCardProps extends RequestCardProps {}
 
 export function ExtendInvoiceRequestCard({
   request,
   locale,
   onCardClick,
   getCurrency,
-  onPayInvoice,
-  isPaymentPending,
 }: ExtendInvoiceRequestCardProps) {
   const t = useTranslations("User.MyRequests");
   const [imageError, setImageError] = useState(false);
@@ -151,26 +144,6 @@ export function ExtendInvoiceRequestCard({
           </div>
         </div>
       </div>
-
-      {request.status?.toLowerCase() === "rejected" && (
-        <div className="mt-4 pt-4 border-t border-gray-200">
-          {request.invoice?._id ? (
-            <Button
-              onClick={(e) => {
-                e.stopPropagation();
-                onPayInvoice(request.invoice._id, request.invoice.amount);
-              }}
-              className="w-full bg-main-600 hover:bg-main-700 text-white font-semibold"
-            >
-              {isPaymentPending ? <Spinner className="h-4 w-4" /> : t("pay-now")}
-            </Button>
-          ) : (
-            <Typography variant="body-sm" as="p" className="text-gray-600 text-center p-3 bg-red-50 border border-red-200 rounded">
-              {t("invoice-not-available")}
-            </Typography>
-          )}
-        </div>
-      )}
     </div>
   );
 }

@@ -21,7 +21,7 @@ export function RentDetailsModal(props: BaseModalProps) {
   const router = useRouter();
 
   // Fetch request data at top level to avoid conditional hook calls
-  const { data } = useRequestDetails(props.endpoint, props.requestId);
+  const { data } = useRequestDetails(props.endpoint || "", props.requestId || null);
   const request = data?.data;
   const property = data?.data?.property;
 

@@ -38,18 +38,26 @@ export function BaseDetailsModal({
   requestId,
   endpoint,
   requestType,
+  request: requestProp,
   children,
 }: BaseDetailsModalProps) {
   const t = useTranslations("User.MyRequests");
   const locale = useLocale();
   const { data: countries } = useCountries();
-  const { data, isLoading } = useRequestDetails(endpoint, requestId);
+
+  // Only fetch if request object is not provided
+  // The hook will handle enabling/disabling based on endpoint and requestId
+  const shouldFetch = !requestProp && requestId && endpoint;
+  const { data, isLoading } = useRequestDetails(
+    endpoint || "",
+    requestProp ? null : (requestId || null)
+  );
   const [imageError, setImageError] = useState(false);
 
   // Reset image error when request changes
   useEffect(() => {
     setImageError(false);
-  }, [requestId]);
+  }, [requestId, requestProp]);
 
   const getModalTitle = () => {
     const typeLabels: Record<string, string> = {
@@ -69,7 +77,10 @@ export function BaseDetailsModal({
 
   const getCurrency = (countryCode?: string) => getCountryCurrency(countries || [], countryCode);
 
-  if (!data?.data) {
+  // Use provided request object or fetched data
+  const request = requestProp || data?.data;
+
+  if (!request) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -91,8 +102,6 @@ export function BaseDetailsModal({
       </Dialog>
     );
   }
-
-  const request = data.data;
 
   // Handle different property structures
   const isExtendInvoice = requestType === "extend-invoices";
@@ -147,7 +156,7 @@ export function BaseDetailsModal({
           <DialogTitle className="text-center">{getModalTitle()}</DialogTitle>
         </DialogHeader>
 
-        {isLoading ? (
+        {isLoading && shouldFetch ? (
           <div className="flex justify-center py-12">
             <Spinner className="h-12 w-12 text-main-400" />
           </div>

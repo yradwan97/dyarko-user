@@ -1,7 +1,5 @@
 "use client";
 
-import { useTranslations } from "next-intl";
-
 import {
   Select,
   SelectContent,
@@ -17,7 +15,6 @@ interface CustomSelectProps {
   containerClass?: string;
   selected: Governorate | undefined;
   setSelected: (value: Governorate) => void;
-  isGov?: boolean;
   disabled?: boolean;
 }
 
@@ -26,10 +23,8 @@ export default function CustomSelect({
   containerClass,
   selected,
   setSelected,
-  isGov,
   disabled
 }: CustomSelectProps) {
-  const t = useTranslations("General.Regions");
 
   const handleChange = (value: string) => {
     const selectedItem = values.find((v) => v.id === value);
@@ -49,14 +44,14 @@ export default function CustomSelect({
       >
         <SelectValue>
           <div className="hidden sm:flex">
-            {selected && (isGov ? t(selected.id) : selected.icon)}
+            {selected && selected.icon}
           </div>
         </SelectValue>
       </SelectTrigger>
       <SelectContent>
         {values.map((value, index) => (
           <SelectItem key={index} value={value.id}>
-            {isGov ? t(value.id) : value.icon}
+            {value.icon}
           </SelectItem>
         ))}
       </SelectContent>

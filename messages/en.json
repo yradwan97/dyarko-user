@@ -7,6 +7,14 @@
     "selectOption": "Select an option",
     "helloSignIn": "Hello, Sign in",
     "kwd": "KWD",
+    "rent-types": {
+      "hourly": "Hourly",
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "weekdays": "Weekdays",
+      "holidays": "Holidays"
+    },
     "PaymentMethods": {
       "rent": "Rent",
       "cash": "Cash",
@@ -1393,6 +1401,9 @@
         "cancel": "Cancel",
         "confirm": "Confirm"
       },
+      "payment-confirmation-title": "Confirm Payment",
+      "payment-confirmation-description": "Are you sure you want to proceed with the payment of {amount} {currency}?",
+      "confirm-payment": "Confirm Payment",
       "request-details": "Request Details",
       "request-details-suffix": "Request",
       "status": "Status",

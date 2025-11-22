@@ -13,6 +13,7 @@ export function PersonImage({ person, size = 40 }: { person: { image?: string; n
   }, [person.image]);
 
   const hasValidImage = person.image && (person.image.startsWith('/') || person.image.startsWith('http'));
+  console.log('PersonImage render:', { person, size, imageError, hasValidImage });
 
   if (hasValidImage && !imageError) {
     return (

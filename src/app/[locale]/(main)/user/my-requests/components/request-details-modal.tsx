@@ -13,9 +13,13 @@ import {
 interface RequestDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  requestId: string | null;
-  endpoint: string;
+  requestId?: string | null;
+  endpoint?: string;
   requestType: string;
+  request?: any;
+  // Extend Invoice specific props
+  onPayInvoice?: (invoiceId: string, paymentMethod: string) => Promise<void>;
+  isPaymentPending?: boolean;
 }
 
 export default function RequestDetailsModal({
@@ -24,12 +28,16 @@ export default function RequestDetailsModal({
   requestId,
   endpoint,
   requestType,
+  request,
+  onPayInvoice,
+  isPaymentPending,
 }: RequestDetailsModalProps) {
   const modalProps = {
     isOpen,
     onClose,
     requestId,
     endpoint,
+    request,
   };
 
   switch (requestType) {
@@ -46,7 +54,7 @@ export default function RequestDetailsModal({
       return <DisclaimerDetailsModal {...modalProps} />;
 
     case "extend-invoices":
-      return <ExtendInvoiceDetailsModal {...modalProps} />;
+      return <ExtendInvoiceDetailsModal {...modalProps} onPayInvoice={onPayInvoice} isPaymentPending={isPaymentPending} />;
 
     case "end-contracts":
       return <EndContractDetailsModal {...modalProps} />;

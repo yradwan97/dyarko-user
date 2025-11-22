@@ -13,7 +13,6 @@ import PaginationControls from "@/components/shared/pagination-controls";
 import { cn } from "@/lib/utils";
 import AdDetailsDialog from "@/components/dialogs/ad-details-dialog";
 import InstallmentDetailsDialog from "@/components/dialogs/installment-details-dialog";
-import PaymentMethodDialog from "@/components/dialogs/payment-method-dialog";
 import RequestDetailsModal from "./components/request-details-modal";
 import { usePayInvoice } from "@/hooks/use-invoices";
 import { toast } from "sonner";
@@ -63,9 +62,6 @@ export default function MyRequestsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedAdId, setSelectedAdId] = useState<string | null>(null);
   const [selectedInstallmentId, setSelectedInstallmentId] = useState<string | null>(null);
-  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
-  const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
-  const [selectedInvoiceAmount, setSelectedInvoiceAmount] = useState<number | null>(null);
   const [confirmationDialog, setConfirmationDialog] = useState<{
     open: boolean;
     action: "approve" | "reject" | null;
@@ -79,6 +75,7 @@ export default function MyRequestsPage() {
   });
   const [requestDetailsId, setRequestDetailsId] = useState<string | null>(null);
   const [requestDetailsOpen, setRequestDetailsOpen] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState<any>(null);
 
   // Payment mutation for extend invoices
   const payInvoiceMutation = usePayInvoice();
@@ -157,20 +154,12 @@ export default function MyRequestsPage() {
     }
   };
 
-  // Handle payment for rejected extend invoices
-  const handlePayInvoice = (invoiceId: string, amount: number) => {
-    setSelectedInvoiceId(invoiceId);
-    setSelectedInvoiceAmount(amount);
-    setPaymentDialogOpen(true);
-  };
-
-  const handleConfirmPayment = async (paymentMethod: string) => {
-    if (!selectedInvoiceId) return;
-
+  // Handle payment for rejected extend invoices from modal
+  const handlePayInvoiceFromModal = async (invoiceId: string, paymentMethod: string) => {
     try {
       const response = await payInvoiceMutation.mutateAsync({
         paymentMethod,
-        invoiceId: selectedInvoiceId,
+        invoiceId,
       });
 
       if (response.data?.PayUrl) {
@@ -284,8 +273,6 @@ export default function MyRequestsPage() {
               setRequestDetailsId(request._id);
               setRequestDetailsOpen(true);
             }}
-            onPayInvoice={handlePayInvoice}
-            isPaymentPending={payInvoiceMutation.isPending}
           />
         );
 
@@ -311,7 +298,11 @@ export default function MyRequestsPage() {
             }
             isActionPending={updateUserStatusMutation.isPending}
             pendingAction={confirmationDialog.action}
-            onCardClick={() => console.log(request._id)}
+            onCardClick={() => {
+              setRequestDetailsId(request._id);
+              setSelectedRequest(request);
+              setRequestDetailsOpen(true);
+            }}
           />
         );
 
@@ -513,25 +504,20 @@ export default function MyRequestsPage() {
         onOpenChange={(open) => !open && setSelectedInstallmentId(null)}
       />
 
-      {/* Payment Method Dialog */}
-      <PaymentMethodDialog
-        open={paymentDialogOpen}
-        onOpenChange={setPaymentDialogOpen}
-        onConfirm={handleConfirmPayment}
-        amount={selectedInvoiceAmount || undefined}
-        currency="KWD"
-      />
-
       {/* Generic Request Details Modal */}
       <RequestDetailsModal
         isOpen={requestDetailsOpen}
         onClose={() => {
           setRequestDetailsOpen(false);
           setRequestDetailsId(null);
+          setSelectedRequest(null);
         }}
         requestId={requestDetailsId}
         endpoint={currentEndpoint}
         requestType={activeTab}
+        request={selectedRequest}
+        onPayInvoice={handlePayInvoiceFromModal}
+        isPaymentPending={payInvoiceMutation.isPending}
       />
 
       {/* Rental Collection Confirmation Dialog */}
