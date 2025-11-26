@@ -293,11 +293,6 @@ export default function MyRequestsPage() {
           <RentalCollectionRequestCard
             key={request._id}
             {...commonProps}
-            onApproveReject={(action, propertyId, title) =>
-              handleApproveReject(action, propertyId, title)
-            }
-            isActionPending={updateUserStatusMutation.isPending}
-            pendingAction={confirmationDialog.action}
             onCardClick={() => {
               setRequestDetailsId(request._id);
               setSelectedRequest(request);
@@ -518,6 +513,9 @@ export default function MyRequestsPage() {
         request={selectedRequest}
         onPayInvoice={handlePayInvoiceFromModal}
         isPaymentPending={payInvoiceMutation.isPending}
+        onApproveReject={handleApproveReject}
+        isActionPending={updateUserStatusMutation.isPending}
+        pendingAction={confirmationDialog.action}
       />
 
       {/* Rental Collection Confirmation Dialog */}
@@ -543,10 +541,10 @@ export default function MyRequestsPage() {
             <AlertDialogDescription className="text-gray-600 dark:text-gray-400">
               {confirmationDialog.action === "approve"
                 ? t("confirmation-tenant.approve.description", {
-                    property: confirmationDialog.propertyTitle,
+                    property: confirmationDialog.propertyTitle ?? "",
                   })
                 : t("confirmation-tenant.reject.description", {
-                    property: confirmationDialog.propertyTitle,
+                    property: confirmationDialog.propertyTitle ?? "",
                   })}
             </AlertDialogDescription>
           </AlertDialogHeader>

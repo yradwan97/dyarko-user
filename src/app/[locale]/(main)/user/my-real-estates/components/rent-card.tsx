@@ -1,11 +1,12 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import Image from "next/image";
 import { format } from "date-fns";
 import { MapPin, DollarSign } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import type { Rent } from "@/lib/services/api/rents";
 import { useCountryCurrency } from "@/hooks/use-country-currency";
 
@@ -18,6 +19,7 @@ export default function RentCard({ rent, onClick }: RentCardProps) {
   const t = useTranslations("User.MyRealEstates.RentCard");
   const tModal = useTranslations("User.MyRealEstates.RentDetailsModal");
   const tCategories = useTranslations("General.Categories");
+  const locale = useLocale();
   const { property, status, startDate, endDate, amount } = rent;
   const currency = useCountryCurrency(property.country);
 
@@ -39,25 +41,25 @@ export default function RentCard({ rent, onClick }: RentCardProps) {
     // Check if contract is terminated/cancelled
     if (normalizedStatus === "CANCELLED" || normalizedStatus === "TERMINATED") {
       return {
-        text: `• ${t("contractTerminated")}`,
+        text: `${t("contractTerminated")}`,
         color: "text-secondary-500 font-semibold",
-        bulletColor: null,
+        bulletColor: "text-secondary-500",
       };
     }
 
     // Check if rent has ended
     if (end < today) {
       return {
-        text: `• ${t("rentEnded")}`,
+        text: `${t("rentEnded")}`,
         color: "text-steelBlue-400 font-semibold",
-        bulletColor: null,
+        bulletColor: "text-steelBlue-400",
       };
     }
 
     // Check if rent is upcoming
     if (start > today) {
       return {
-        text: `${t("upcomingDue")}: ${formatDateLong(startDate)}`,
+        text: locale === "ar" ? `${formatDateLong(startDate)} :${t("upcomingDue")}` : `${t("upcomingDue")}: ${formatDateLong(startDate)}`,
         color: "text-main-600 font-semibold",
         bulletColor: "text-green-600",
       };
@@ -65,9 +67,9 @@ export default function RentCard({ rent, onClick }: RentCardProps) {
 
     // Default: show status from API
     return {
-      text: `• ${tModal(`status.${status.toLowerCase()}`)}`,
+      text: `${tModal(`status.${status.toLowerCase()}`)}`,
       color: getStatusColor(status),
-      bulletColor: null,
+      bulletColor: getStatusColor(status),
     };
   };
 
@@ -103,17 +105,17 @@ export default function RentCard({ rent, onClick }: RentCardProps) {
       </div>
 
       <CardContent className="p-4 space-y-3">
-        <div>
+        <div className={cn(locale === "ar" && "text-right")}>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            {t("code")}: {property.code}
+            {locale === "ar" ? `${property.code} :${t("code")}` : `${t("code")}: ${property.code}`}
           </p>
         </div>
 
-        <div className="space-y-2 text-sm">
+        <div className={cn("space-y-2 text-sm", locale === "ar" && "text-right")}>
           <h3 className="font-semibold text-base line-clamp-2 text-main-600 dark:text-white">
               {property.title}
             </h3>
-          <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+          <div className={cn("flex items-center gap-2 text-gray-600 dark:text-gray-400", locale === "ar" && "flex-row-reverse")}>
             <MapPin className="h-4 w-4 shrink-0" />
             <span className="line-clamp-1 capitalize">
               {property.city}, {property.country}
@@ -121,8 +123,7 @@ export default function RentCard({ rent, onClick }: RentCardProps) {
           </div>
 
           <div className="space-y-1">
-
-            <div className={`inline-block ${rentStatus.color}`}>
+            <div className={`flex gap-2 flex-row-reverse ${rentStatus.color}`}>
               {rentStatus.bulletColor ? (
                 <>
                   <span className={rentStatus.bulletColor}>• </span>
@@ -135,7 +136,7 @@ export default function RentCard({ rent, onClick }: RentCardProps) {
           </div>
 
           {amount && (
-            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+            <div className={cn("flex items-center gap-2 text-gray-600 dark:text-gray-400", locale === "ar" && "flex-row-reverse")}>
               <DollarSign className="h-4 w-4 shrink-0" />
               <span className="font-medium">
                 {amount} {currency}
@@ -144,7 +145,7 @@ export default function RentCard({ rent, onClick }: RentCardProps) {
           )}
         </div>
 
-        <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+        <div className={cn("pt-2 border-t border-gray-200 dark:border-gray-700", locale === "ar" && "text-right")}>
           <div className="inline-block px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">
             {tCategories(property.category)}
           </div>

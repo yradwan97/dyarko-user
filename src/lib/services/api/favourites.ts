@@ -1,3 +1,4 @@
+import { useSession } from "next-auth/react";
 import axiosClient from "../axios-client";
 import { Property } from "./properties";
 
@@ -38,6 +39,8 @@ export interface GetFavouritesResponse {
  */
 export const checkFavourite = async (propertyId: string): Promise<boolean> => {
   try {
+    const { data: session } = useSession()
+    if (!session) return false;
     const response = await axiosClient.get<FavouriteResponse>(
       `/favourites/${propertyId}`
     );
@@ -95,6 +98,8 @@ export const getFavourites = async (page: number = 1): Promise<{
  * Returns status 200 if favorited, 400 if not
  */
 export const checkCompanyFavourite = async (companyId: string): Promise<boolean> => {
+  const { data: session } = useSession()
+  if (!session) return false;
   try {
     const response = await axiosClient.get<FavouriteResponse>(
       `/favourites/${companyId}?type=COMPANY`

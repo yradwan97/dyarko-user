@@ -1,15 +1,31 @@
 "use client";
 
-import { Calendar, DollarSign, Phone } from "lucide-react";
+import { Calendar, DollarSign, Phone, Check, X } from "lucide-react";
 import Typography from "@/components/shared/typography";
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { BaseModalProps } from "./types";
 import { BaseDetailsModal } from "./base-modal";
 
-export function RentalCollectionDetailsModal(props: BaseModalProps) {
+interface RentalCollectionDetailsModalProps extends BaseModalProps {
+  onApproveReject?: (action: "approve" | "reject", propertyId: string, propertyTitle: string) => void;
+  isActionPending?: boolean;
+  pendingAction?: "approve" | "reject" | null;
+}
+
+export function RentalCollectionDetailsModal({
+  onApproveReject,
+  isActionPending = false,
+  pendingAction = null,
+  ...props
+}: RentalCollectionDetailsModalProps) {
   return (
     <BaseDetailsModal {...props} requestType="rental-collection">
-      {({ request, locale, t, formatDate, currency }) => (
+      {({ request, locale, t, formatDate, currency, property }) => {
+        const propertyTitle = property?.title || request.title || request.name || t("request-title");
+
+        return (
         <div className="space-y-4">
           {request.rentDetails && (
             <>
@@ -79,8 +95,51 @@ export function RentalCollectionDetailsModal(props: BaseModalProps) {
               )}
             </>
           )}
+
+          {/* Accept/Reject Buttons */}
+          {request.tenantStatus?.toUpperCase() === "PENDING" && onApproveReject && (
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <div className={cn("flex gap-3", locale === "ar" && "flex-row-reverse")}>
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onApproveReject("approve", request._id, propertyTitle);
+                  }}
+                  disabled={isActionPending}
+                  className="flex-1 bg-main-600 hover:bg-main-700 text-white font-semibold"
+                >
+                  {isActionPending && pendingAction === "approve" ? (
+                    <Spinner className="h-4 w-4" />
+                  ) : (
+                    <>
+                      <Check className={cn("h-4 w-4", locale === "ar" ? "ml-2" : "mr-2")} />
+                      {t("approve")}
+                    </>
+                  )}
+                </Button>
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onApproveReject("reject", request._id, propertyTitle);
+                  }}
+                  disabled={isActionPending}
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold"
+                >
+                  {isActionPending && pendingAction === "reject" ? (
+                    <Spinner className="h-4 w-4" />
+                  ) : (
+                    <>
+                      <X className={cn("h-4 w-4", locale === "ar" ? "ml-2" : "mr-2")} />
+                      {t("reject")}
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
-      )}
+        );
+      }}
     </BaseDetailsModal>
   );
 }

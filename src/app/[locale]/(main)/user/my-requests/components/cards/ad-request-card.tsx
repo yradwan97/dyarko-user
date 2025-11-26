@@ -57,7 +57,7 @@ export function AdRequestCard({ request, locale, onCardClick, getCurrency }: Req
               {t("ad-description")}
             </Typography>
             <Typography variant="body-sm" as="span">
-              {request.description}
+              {`${request.description.substring(0, 100)}${request.description.length > 100 ? "..." : ""}`}
             </Typography>
           </div>
         )}

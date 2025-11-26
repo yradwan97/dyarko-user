@@ -123,7 +123,7 @@ export default function InstallmentDetailsDialog({
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return "";
-    return new Date(dateString).toLocaleDateString("en-US", {
+    return new Date(dateString).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -164,7 +164,7 @@ export default function InstallmentDetailsDialog({
     .join(", ");
 
   const price = getPropertyPrice(installment?.property as Property);
-  const priceDisplay = price ? formatPrice(price, currency) : t("price-not-available");
+  const priceDisplay = price ? formatPrice(price, currency, locale) : t("price-not-available");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -181,7 +181,7 @@ export default function InstallmentDetailsDialog({
           </div>
         ) : installment ? (
           <Tabs defaultValue="details" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className={`flex w-full ${locale === "ar" && "flex-row-reverse"} `}>
               <TabsTrigger value="details">{t("installment-details-tab")}</TabsTrigger>
               <TabsTrigger value="plan">{t("installment-plan-tab")}</TabsTrigger>
             </TabsList>
@@ -191,7 +191,7 @@ export default function InstallmentDetailsDialog({
 
               {installment.property && (
                 <>
-                  <Typography variant="h5" as="h5" className="font-bold flex items-center gap-2 capitalize">
+                  <Typography variant="h5" as="h5" className={`font-bold flex items-center gap-2 capitalize ${locale === "ar" && "flex-row-reverse"}`}>
                     <Home className="h-5 w-5 text-main-600" />
                     {t("property-information")}
                   </Typography>
@@ -212,11 +212,11 @@ export default function InstallmentDetailsDialog({
               {/* Owner Information */}
               {installment.owner && (
                 <div className="space-y-4 mt-4">
-                  <Typography variant="h5" as="h5" className="font-bold flex items-center gap-2 capitalize">
+                  <Typography variant="h5" as="h5" className={`font-bold flex items-center gap-2 capitalize ${locale === "ar" && "flex-row-reverse"}`}>
                     <User className="h-5 w-5 text-main-600" />
                     {t("owner-information")}
                   </Typography>
-                  <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <div className={`flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg ${locale === "ar" && "flex-row-reverse"}`}>
                     {installment.owner.image && (installment.owner.image.startsWith('/') || installment.owner.image.startsWith('http')) ? (
                       <Image
                         src={getProxiedImageUrl(installment.owner.image)}
@@ -231,17 +231,20 @@ export default function InstallmentDetailsDialog({
                       </div>
                     )}
                     <div className="flex-1">
-                      <Typography variant="body-md" as="p" className="font-semibold mb-1 capitalize">
-                        {installment.owner.name}
-                      </Typography>
+                      {installment.owner._id ? (
+                        <Link href={getLocalizedPath(`/companies/${installment.owner._id}`, locale)}>
+                          <Typography variant="body-md" as="p" className="font-semibold mb-1 capitalize text-main-600 hover:text-main-500 hover:underline transition-colors cursor-pointer">
+                            {installment.owner.name}
+                          </Typography>
+                        </Link>
+                      ) : (
+                        <Typography variant="body-md" as="p" className="font-semibold mb-1 capitalize">
+                          {installment.owner.name}
+                        </Typography>
+                      )}
                       <Typography variant="body-sm" as="p" className="text-gray-600 dark:text-gray-400 capitalize">
                         {installment.owner.phoneNumber}
                       </Typography>
-                    </div>
-                    <div>
-                      <span className={`inline-block rounded-full border px-4 py-1 text-sm font-medium capitalize ${getStatusColor(installment.ownerStatus)}`}>
-                        {installment.ownerStatus}
-                      </span>
                     </div>
                   </div>
                 </div>
@@ -249,13 +252,13 @@ export default function InstallmentDetailsDialog({
 
               {/* Installment Details */}
               <div className="space-y-4">
-                <Typography variant="h5" as="h5" className="font-bold flex items-center gap-2 capitalize">
+                <Typography variant="h5" as="h5" className={`font-bold flex items-center gap-2 capitalize ${locale === "ar" && "flex-row-reverse"}`}>
                   <FileText className="h-5 w-5 text-main-600" />
                   {t("installment-information")}
                 </Typography>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 items-center bg-gray-50 dark:bg-gray-800 rounded-lg">
                   {installment.amount && (
-                    <div>
+                    <div className="flex flex-col items-center">
                       <Typography variant="body-sm" as="p" className="text-gray-500 dark:text-gray-400 mb-1 capitalize">
                         {t("total-amount")}
                       </Typography>
@@ -266,7 +269,7 @@ export default function InstallmentDetailsDialog({
                     </div>
                   )}
                   {installment.installmentPeriod && (
-                    <div>
+                    <div className="flex flex-col items-center">
                       <Typography variant="body-sm" as="p" className="text-gray-500 dark:text-gray-400 mb-1 capitalize">
                         {t("installment-period")}
                       </Typography>
@@ -276,7 +279,7 @@ export default function InstallmentDetailsDialog({
                     </div>
                   )}
                   {installment.installmentType && (
-                    <div>
+                    <div className="flex flex-col items-center">
                       <Typography variant="body-sm" as="p" className="text-gray-500 dark:text-gray-400 mb-1 capitalize">
                         {t("installment-type")}
                       </Typography>
@@ -286,7 +289,7 @@ export default function InstallmentDetailsDialog({
                     </div>
                   )}
                   {installment.installmentPlan && (
-                    <div>
+                    <div className="flex flex-col items-center">
                       <Typography variant="body-sm" as="p" className="text-gray-500 dark:text-gray-400 mb-1 capitalize">
                         {t("installment-plan")}
                       </Typography>
@@ -296,7 +299,7 @@ export default function InstallmentDetailsDialog({
                     </div>
                   )}
                   {installment.startDate && (
-                    <div>
+                    <div className="flex flex-col items-center">
                       <Typography variant="body-sm" as="p" className="text-gray-500 dark:text-gray-400 mb-1 capitalize">
                         {t("start-date")}
                       </Typography>
@@ -307,7 +310,7 @@ export default function InstallmentDetailsDialog({
                     </div>
                   )}
                   {installment.endDate && (
-                    <div>
+                    <div className="flex flex-col items-center">
                       <Typography variant="body-sm" as="p" className="text-gray-500 dark:text-gray-400 mb-1 capitalize">
                         {t("end-date")}
                       </Typography>
@@ -317,7 +320,7 @@ export default function InstallmentDetailsDialog({
                       </Typography>
                     </div>
                   )}
-                  <div className="col-span-full">
+                  <div className="flex flex-col items-center">
                     <Typography variant="body-sm" as="p" className="text-gray-500 dark:text-gray-400 mb-1 capitalize">
                       {t("created-at")}
                     </Typography>
@@ -340,19 +343,19 @@ export default function InstallmentDetailsDialog({
                   {installmentSchedule.map((schedule) => (
                     <div
                       key={schedule.installmentNumber}
-                      className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
+                      className={`flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 ${locale === "ar" && "flex-row-reverse"} dark:border-gray-700 hover:shadow-md transition-shadow`}
                     >
-                      <div className="flex items-center gap-4">
+                      <div className={`flex items-center gap-4 ${locale === "ar" && "flex-row-reverse"}`}>
                         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-main-100">
                           <Typography variant="body-lg-medium" as="span" className="text-main-600 font-bold capitalize">
                             #{schedule.installmentNumber}
                           </Typography>
                         </div>
                         <div>
-                          <Typography variant="body-sm" as="p" className="text-gray-500 dark:text-gray-400 capitalize">
+                          <Typography variant="body-sm" as="p" className={`text-gray-500 flex ${locale === "ar" && "flex-row-reverse"} dark:text-gray-400 capitalize`}>
                             {t("payment-date")}
                           </Typography>
-                          <Typography variant="body-md" as="p" className="font-semibold flex items-center gap-1 capitalize">
+                          <Typography variant="body-md" as="p" className={`font-semibold flex ${locale === "ar" && "flex-row-reverse"} items-center gap-1 capitalize`}>
                             <Calendar className="h-4 w-4" />
                             {formatDate(schedule.date)}
                           </Typography>
@@ -440,12 +443,12 @@ export default function InstallmentDetailsDialog({
       <AlertDialog open={showConfirmation} onOpenChange={setShowConfirmation}>
         <AlertDialogContent className="bg-white dark:bg-gray-950">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-gray-900 dark:text-white">
+            <AlertDialogTitle className={" text-center text-gray-900 dark:text-white"}>
               {actionType === "APPROVED"
                 ? t("confirmation.approve.title")
                 : t("confirmation.reject.title")}
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-600 dark:text-gray-400">
+            <AlertDialogDescription className="text-start text-gray-600 dark:text-gray-400">
               {actionType === "APPROVED"
                 ? t("confirmation.approve.description")
                 : t("confirmation.reject.description")}

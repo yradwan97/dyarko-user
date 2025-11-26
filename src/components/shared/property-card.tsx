@@ -43,6 +43,7 @@ export default function PropertyCard({
 }: PropertyCardProps) {
   const locale = useLocale();
   const t = useTranslations("Properties.Details.Save");
+  const tGeneral = useTranslations("General.PaymentMethods");
   const queryClient = useQueryClient();
   const isRTL = locale === "ar";
   const imageSrc = image || "/no-apartment.png";
@@ -115,7 +116,7 @@ export default function PropertyCard({
                 badge.toLowerCase() === "rent" ? "bg-white/90 hover:bg-white/90" : "bg-steelBlue-100/90 hover:bg-steelBlue-100/90"
               )}
             >
-              {badge}
+              {tGeneral(badge)}
             </Badge>
           )}
           {secondaryBadge && (
@@ -130,7 +131,26 @@ export default function PropertyCard({
             </Badge>
           )}
         </div>
-        <CardContent className="p-4 relative">
+        <CardContent className={cn("p-4 flex items-start justify-between gap-2", isRTL && "flex-row-reverse")}>
+          {/* Content Stack */}
+          <div className={cn("flex-1 min-w-0 flex flex-col", isRTL && "items-end")}>
+            <div className={cn("mb-1 flex items-center gap-1.5", isRTL && "flex-row-reverse")}>
+              <h3 className="text-sm font-semibold text-main-600 dark:text-main-400 line-clamp-1 hover:underline transition-colors cursor-pointer">{name}</h3>
+              {isVerified && (
+                <CheckCircle2Icon className="h-4 w-4 shrink-0 text-steelBlue-500 dark:text-steelBlue-400" fill="currentColor" />
+              )}
+            </div>
+            <p className={cn("mb-2 text-xs text-gray-500 dark:text-gray-400 line-clamp-1", isRTL && "text-right")}>{location}</p>
+            <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+              <span className="text-base font-bold text-main-500 dark:text-main-400">{price}</span>
+              {propertyType && (
+                <Badge className="rounded-full border-0 bg-main-500 px-3 py-0.5 text-[11px] font-medium text-white hover:bg-main-600 capitalize">
+                  {propertyType}
+                </Badge>
+              )}
+            </div>
+          </div>
+
           {/* Favorite Button */}
           {propertyId && (
             <Button
@@ -138,10 +158,7 @@ export default function PropertyCard({
               size="icon"
               onClick={handleFavoriteClick}
               disabled={isCheckingFavorite}
-              className={cn(
-                "absolute top-3 h-8 w-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700",
-                isRTL ? "left-3" : "right-3"
-              )}
+              className="h-8 w-8 shrink-0 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               <HeartIcon
                 className={cn(
@@ -153,22 +170,6 @@ export default function PropertyCard({
               />
             </Button>
           )}
-
-          <div className="mb-2 flex items-center gap-1.5">
-            <h3 className="text-sm font-semibold text-main-500 dark:text-main-400">{name}</h3>
-            {isVerified && (
-              <CheckCircle2Icon className="h-4 w-4 shrink-0 text-steelBlue-500 dark:text-steelBlue-400" fill="currentColor" />
-            )}
-          </div>
-          <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">{location}</p>
-          <div className="flex items-center justify-between">
-            <span className="text-base font-bold text-main-500 dark:text-main-400">{price}</span>
-            {propertyType && (
-              <Badge className="rounded-full border-0 bg-main-500 px-3 py-0.5 text-[11px] font-medium text-white hover:bg-main-600 capitalize">
-                {propertyType}
-              </Badge>
-            )}
-          </div>
         </CardContent>
       </Card>
     );

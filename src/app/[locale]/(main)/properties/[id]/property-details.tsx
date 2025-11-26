@@ -130,7 +130,7 @@ export default function PropertyDetails({ id }: PropertyDetailsProps) {
           href={getLocalizedPath("/properties", locale)}
           className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-all hover:gap-3"
         >
-          <ChevronLeft className="h-5 w-5" />
+          <ChevronLeft className={`h-5 w-5 ${locale === "ar" ? "rotate-180" : "" }`} />
           {t("back")}
         </Link>
       </div>

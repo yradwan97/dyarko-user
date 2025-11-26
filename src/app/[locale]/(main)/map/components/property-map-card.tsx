@@ -12,6 +12,7 @@ import Typography from "@/components/shared/typography";
 import { Button } from "@/components/ui/button";
 import { checkFavourite, addFavourite, removeFavourite } from "@/lib/services/api/favourites";
 import { toast } from "sonner";
+import { formatPrice } from "@/lib/utils/property-pricing";
 
 interface PropertyMapCardProps {
   property: MapProperty;
@@ -86,11 +87,6 @@ export default function PropertyMapCard({
     return labels[offerType] || offerType;
   };
 
-  const formatPrice = (price: number | undefined | null) => {
-    if (!price) return tCommon("contact-for-price");
-    return `${price.toLocaleString()} ${tCommon("kwd")}`;
-  };
-
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 w-[380px] overflow-hidden">
       {/* Close Button */}
@@ -154,7 +150,7 @@ export default function PropertyMapCard({
         {/* Price */}
         <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
           <Typography variant="h5" as="p" className="font-bold text-main-600">
-            {formatPrice(property.price || property.dailyPrice || property.weeklyPrice || property.monthlyPrice || property.hourlyPrice)}
+            {formatPrice(property.price! || property.dailyPrice! || property.weeklyPrice! || property.monthlyPrice! || property.hourlyPrice!, "KWD", locale)}
           </Typography>
         </div>
 

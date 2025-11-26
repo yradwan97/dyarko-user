@@ -57,7 +57,8 @@ export default function CreateAdDialog({ open, onOpenChange }: CreateAdDialogPro
 
   // Get management config from provider
   const { config, currency } = useManagementConfigContext();
-  const adPrice = config?.userAd;
+  const adPrice = config?.userAd?.amount;
+  const adDuration = config?.userAd?.duration;
 
   // Fetch countries and cities
   const { data: countries, isLoading: countriesLoading } = useCountries();
@@ -242,7 +243,7 @@ export default function CreateAdDialog({ open, onOpenChange }: CreateAdDialogPro
 
               {/* Step 2 */}
               <div className={`flex gap-4`}>
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-main-600 text-white font-bold">
                     {locale === "ar" ? "٢" : "2"}
                   </div>
@@ -256,7 +257,7 @@ export default function CreateAdDialog({ open, onOpenChange }: CreateAdDialogPro
                   </p>
                     {adPrice && currency && (
                       <span className="font-semibold text-main-600">
-                        {" "}({adPrice} {currency})
+                        {" "}({adPrice} {currency} / {adDuration} {t("days")})
                       </span>
                     )}
                 </div>
@@ -264,7 +265,7 @@ export default function CreateAdDialog({ open, onOpenChange }: CreateAdDialogPro
 
               {/* Step 3 */}
               <div className={`flex gap-4 `}>
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-main-600 text-white font-bold">
                     {locale === "ar" ? "٣" : "3"}
                   </div>
@@ -495,7 +496,7 @@ export default function CreateAdDialog({ open, onOpenChange }: CreateAdDialogPro
                       htmlFor={method.key}
                       className="flex flex-1 cursor-pointer items-center gap-3"
                     >
-                      <div className="relative h-10 w-10 flex-shrink-0">
+                      <div className="relative h-10 w-10 shrink-0">
                         <Image
                           src={method.logo}
                           alt={method.name}

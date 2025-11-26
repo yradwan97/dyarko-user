@@ -231,3 +231,27 @@ export function useChangePassword() {
     },
   });
 }
+
+// Update Tour Status
+export function useUpdateTourStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      tourId,
+      status,
+    }: {
+      tourId: string;
+      status: "completed" | "cancelled";
+    }) => {
+      const response = await axiosClient.put(`/tours/${tourId}/user`, {
+        status,
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      // Invalidate all tour requests
+      queryClient.invalidateQueries({ queryKey: ["requests", "/tours"] });
+    },
+  });
+}

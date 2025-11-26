@@ -53,7 +53,12 @@
       "Bash(del \"C:\\Users\\Youssef\\projects\\dyarko-user\\src\\components\\sections\\new-about-us.tsx\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\src\\components\\sections\\new-featured-companies.tsx\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\src\\components\\sections\\new-newsletter-section.tsx\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\src\\components\\sections\\properties-filter-section.tsx\" \"C:\\Users\\Youssef\\projects\\dyarko-user\\src\\components\\sections\\properties-section.tsx\")",
       "Bash(git restore:*)",
       "Bash(del /s /q .next 2)",
-      "Bash(del \"C:\\Users\\Youssef\\projects\\dyarko-user\\src\\app\\[locale]\\(main)\\user\\my-requests\\components\\request-details-modal.tsx\")"
+      "Bash(del \"C:\\Users\\Youssef\\projects\\dyarko-user\\src\\app\\[locale]\\(main)\\user\\my-requests\\components\\request-details-modal.tsx\")",
+      "WebSearch",
+      "Bash(node --version:*)",
+      "Bash(del .eslintrc.json)",
+      "Bash(npm outdated:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []

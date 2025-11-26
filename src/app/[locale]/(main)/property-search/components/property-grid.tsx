@@ -33,7 +33,7 @@ export default function PropertyGrid({ properties, viewType }: PropertyGridProps
           .join(", ");
 
         const price = getPropertyPrice(property);
-        const priceDisplay = price ? formatPrice(price, currency) : t("price-not-available");
+        const priceDisplay = price ? formatPrice(price, currency, locale) : t("price-not-available");
 
         return (
           <Link key={property._id} href={`/${locale}/properties/${property._id}`}>

@@ -8,7 +8,7 @@ import Typography from "@/components/shared/typography";
 import Button from "@/components/shared/button";
 import CustomSelect from "@/components/shared/custom-select";
 import { DatePicker } from "@/components/ui/date-picker";
-import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
 import { useCities } from "@/hooks/use-cities";
 import { useCountryContext } from "@/components/providers/country-provider";
 import { formatPrice } from "@/lib/utils/property-pricing";
@@ -35,13 +35,15 @@ export default function SearchControl({ slug, onSearch, onReset }: SearchControl
   const searchParams = useSearchParams();
   const { selectedCountry } = useCountryContext();
 
+  console.log("currency in search control:", currency);
+
   // Get cities
   const { data: cities, isLoading: citiesLoading } = useCities(selectedCountry);
 
   // Filter states
   const [selectedCity, setSelectedCity] = useState<Governorate | undefined>();
   const [date, setDate] = useState<Date | null>(null);
-  const [priceRange, setPriceRange] = useState<[number, number]>([PRICE_RANGE.min, PRICE_RANGE.max]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 0]);
 
   // Convert cities to governorate format
   const cityOptions: Governorate[] = useMemo(() => {
@@ -86,8 +88,8 @@ export default function SearchControl({ slug, onSearch, onReset }: SearchControl
       filters.price_from = priceRange[0];
     }
 
-    // Add price_to only if it's not max
-    if (priceRange[1] < PRICE_RANGE.max) {
+    // Add price_to only if it's not 0
+    if (priceRange[1] > 0) {
       filters.price_to = priceRange[1];
     }
 
@@ -99,7 +101,7 @@ export default function SearchControl({ slug, onSearch, onReset }: SearchControl
     if (cityOptions.length > 0) {
       setSelectedCity(cityOptions[0]);
     }
-    setPriceRange([PRICE_RANGE.min, PRICE_RANGE.max]);
+    setPriceRange([0, 0]);
     onReset();
   };
 
@@ -140,25 +142,39 @@ export default function SearchControl({ slug, onSearch, onReset }: SearchControl
 
           {/* Price Range */}
           <div className="flex flex-col gap-2">
-            <div className="mb-2 flex items-center justify-between">
-              <Typography variant="body-md" as="p" className="text-gray-600">
-                {t("price")}
-              </Typography>
-              <Typography variant="body-sm" as="span" className="text-gray-500">
-                {formatPrice(priceRange[0], currency)} - {formatPrice(priceRange[1], currency)}
-              </Typography>
-            </div>
-            <Slider
-              min={PRICE_RANGE.min}
-              max={PRICE_RANGE.max}
-              step={PRICE_RANGE.step}
-              value={priceRange}
-              onValueChange={(value) => setPriceRange(value as [number, number])}
-              className="mt-2"
-            />
-            <div className="mt-1 flex justify-between text-xs text-gray-500">
-              <span>{formatPrice(PRICE_RANGE.min, currency)}</span>
-              <span>{formatPrice(PRICE_RANGE.max, currency)}</span>
+            <Typography variant="body-md" as="p" className="text-gray-600">
+              {t("price")}
+            </Typography>
+            <div className="flex items-center gap-2">
+              <div className="flex-1">
+                <Input
+                  type="number"
+                  min={PRICE_RANGE.min}
+                  step={100}
+                  value={priceRange[0] || ""}
+                  onChange={(e) => {
+                    const value = Math.max(PRICE_RANGE.min, Number(e.target.value) || 0);
+                    setPriceRange([value, priceRange[1]]);
+                  }}
+                  placeholder={t("min")}
+                  className={`h-12 ${locale === "ar" ? "text-right" : "text-left"}`}
+                />
+              </div>
+              <span className="text-gray-400">-</span>
+              <div className="flex-1">
+                <Input
+                  type="number"
+                  min={PRICE_RANGE.min}
+                  step={100}
+                  value={priceRange[1] || ""}
+                  onChange={(e) => {
+                    const value = Math.max(0, Number(e.target.value) || 0);
+                    setPriceRange([priceRange[0], value]);
+                  }}
+                  placeholder={t("max")}
+                  className={`h-12 ${locale === "ar" ? "text-right" : "text-left"}`}
+                />
+              </div>
             </div>
           </div>
         </div>

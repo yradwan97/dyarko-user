@@ -3,29 +3,17 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
-import { Check, X } from "lucide-react";
 import Typography from "@/components/shared/typography";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
 import { cn, getProxiedImageUrl } from "@/lib/utils";
 import { RequestCardProps } from "./types";
 import { formatDate, getStatusColor } from "./shared-utils";
-
-interface RentalCollectionRequestCardProps extends RequestCardProps {
-  onApproveReject: (action: "approve" | "reject", propertyId: string, propertyTitle: string) => void;
-  isActionPending: boolean;
-  pendingAction: "approve" | "reject" | null;
-}
 
 export function RentalCollectionRequestCard({
   request,
   locale,
   getCurrency,
-  onApproveReject,
-  isActionPending,
-  pendingAction,
   onCardClick,
-}: RentalCollectionRequestCardProps) {
+}: RequestCardProps) {
   const t = useTranslations("User.MyRequests");
   const [imageError, setImageError] = useState(false);
 
@@ -154,41 +142,6 @@ export function RentalCollectionRequestCard({
           )}
         </div>
       </div>
-
-      {request.tenantStatus?.toUpperCase() === "PENDING" && (
-        <div className="mt-4 pt-4 border-t border-gray-200">
-          <div className={cn("flex gap-3", locale === "ar" && "flex-row-reverse")}>
-            <Button
-              onClick={() => onApproveReject("approve", request._id, propertyTitle)}
-              disabled={isActionPending}
-              className="flex-1 bg-main-600 hover:bg-main-700 text-white font-semibold"
-            >
-              {isActionPending && pendingAction === "approve" ? (
-                <Spinner className="h-4 w-4" />
-              ) : (
-                <>
-                  <Check className={cn("h-4 w-4", locale === "ar" ? "ml-2" : "mr-2")} />
-                  {t("approve")}
-                </>
-              )}
-            </Button>
-            <Button
-              onClick={() => onApproveReject("reject", request._id, propertyTitle)}
-              disabled={isActionPending}
-              className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold"
-            >
-              {isActionPending && pendingAction === "reject" ? (
-                <Spinner className="h-4 w-4" />
-              ) : (
-                <>
-                  <X className={cn("h-4 w-4", locale === "ar" ? "ml-2" : "mr-2")} />
-                  {t("reject")}
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

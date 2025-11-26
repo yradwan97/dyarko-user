@@ -20,6 +20,10 @@ interface RequestDetailsModalProps {
   // Extend Invoice specific props
   onPayInvoice?: (invoiceId: string, paymentMethod: string) => Promise<void>;
   isPaymentPending?: boolean;
+  // Rental Collection specific props
+  onApproveReject?: (action: "approve" | "reject", propertyId: string, propertyTitle: string) => void;
+  isActionPending?: boolean;
+  pendingAction?: "approve" | "reject" | null;
 }
 
 export default function RequestDetailsModal({
@@ -31,6 +35,9 @@ export default function RequestDetailsModal({
   request,
   onPayInvoice,
   isPaymentPending,
+  onApproveReject,
+  isActionPending,
+  pendingAction,
 }: RequestDetailsModalProps) {
   const modalProps = {
     isOpen,
@@ -60,7 +67,7 @@ export default function RequestDetailsModal({
       return <EndContractDetailsModal {...modalProps} />;
 
     case "rental-collection":
-      return <RentalCollectionDetailsModal {...modalProps} />;
+      return <RentalCollectionDetailsModal {...modalProps} onApproveReject={onApproveReject} isActionPending={isActionPending} pendingAction={pendingAction} />;
 
     default:
       return null;

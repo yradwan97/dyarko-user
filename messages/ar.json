@@ -7,6 +7,7 @@
     "selectOption": "اختر خياراً",
     "helloSignIn": "مرحباً، سجل دخولك",
     "kwd": "د.ك",
+    "price-not-available": "السعر غير متاح",
     "rent-types": {
         "hourly": "ساعي",
         "daily": "يومي",
@@ -106,6 +107,8 @@
     "when": "تاريخ التوفر",
     "date-placeholder": "اختر التاريخ",
     "price": "نطاق السعر",
+    "min": "أدنى",
+    "max": "أقصى",
     "search": "بحث",
     "reset": "إعادة تعيين",
     "no-results": "لم يتم العثور على عقارات"
@@ -232,6 +235,7 @@
         "rent": "إيجار",
         "rent-price": "سعر الإيجار",
         "installment": "طلب تقسيط",
+        "request-installment": "طلب تقسيط",
         "buy": "التواصل مع المالك",
         "contact-owner": "التواصل مع المالك",
         "tent-group": "يتحدد السعر بناءً على اختيارك .",
@@ -251,7 +255,16 @@
           "email": "البريد الإلكتروني :",
           "mobile": "رقم الهاتف :",
           "call": "اتصل الآن"
-        }
+        },
+        "InstallmentModal": {
+          "title": "تأكيد طلب التقسيط",
+          "description": "هل أنت متأكد من تقديم طلب تقسيط لهذا العقار؟ سيقوم المالك بمراجعة طلبك والتواصل معك.",
+          "cancel": "إلغاء",
+          "confirm": "تأكيد الطلب",
+          "submitting": "جاري الإرسال..."
+        },
+        "installment-request-success": "تم تقديم طلب التقسيط بنجاح. سيقوم المالك بمراجعة طلبك.",
+        "installment-request-error": "فشل في تقديم طلب التقسيط. يرجى المحاولة مرة أخرى."
       },
       "Tour": {
         "Phone": {
@@ -1182,6 +1195,7 @@
     "price-type-placeholder": "اختر نوع السعر",
     "price-type-required": "نوع السعر مطلوب",
     "daily": "يومي",
+    "days": "أيام",
     "weekly": "أسبوعي",
     "monthly": "شهري",
     "submit": "متابعة",
@@ -1210,6 +1224,7 @@
     "filters": {
       "location": "الموقع",
       "more-filters": "المزيد من الفلاتر",
+      "min-price": "الحد الأدنى للسعر",
       "max-price": "الحد الأقصى للسعر",
       "enter-price": "أدخل الحد الأقصى للسعر",
       "property-type": "نوع العقار",
@@ -1491,7 +1506,6 @@
       "status-completed": "مكتمل",
       "status-confirmed": "مؤكد",
       "status-canceled": "ملغي",
-      "property-code": "كود العقار",
       "phone-number": "رقم الهاتف",
       "view-file": "عرض الملف",
       "comment": "التعليق",
@@ -1499,6 +1513,17 @@
       "cancel": "إلغاء",
       "complete": "إكمال",
       "ok": "حسناً",
+      "tour-completion-question": "هل أكملت هذه المعاينة؟",
+      "yes": "نعم",
+      "no": "لا",
+      "appearTo": "يظهر حتى تاريخ:",
+      "tour-completed-success": "تم تحديد المعاينة كمكتملة",
+      "tour-canceled-success": "تم تحديد المعاينة كملغاة",
+      "tour-update-failed": "فشل تحديث حالة المعاينة",
+      "tour-completion-confirm-title": "تأكيد إكمال المعاينة",
+      "tour-completion-confirm-description": "هل أنت متأكد أنك أكملت هذه المعاينة؟ لا يمكن التراجع عن هذا الإجراء.",
+      "tour-cancellation-confirm-title": "تأكيد إلغاء المعاينة",
+      "tour-cancellation-confirm-description": "هل أنت متأكد أنك تريد إلغاء هذه المعاينة؟ لا يمكن التراجع عن هذا الإجراء.",
       "installment-number": "رقم القسط",
       "due-date": "تاريخ الاستحقاق",
       "amount": "المبلغ",
@@ -1615,7 +1640,7 @@
         "dates": "فترة الإيجار",
         "contractTerminated": "تم إنهاء العقد",
         "rentEnded": "انتهى الإيجار",
-        "upcomingDue": "الاستحقاق القادم"
+        "upcomingDue": "تاريخ بداية الإيجار"
       },
       "InstallmentCard": {
         "code": "الكود",

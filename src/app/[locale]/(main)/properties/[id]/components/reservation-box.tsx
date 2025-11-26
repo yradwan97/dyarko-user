@@ -4,12 +4,26 @@ import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
 import { type Property } from "@/lib/services/api/properties";
+import { createInstallmentRequest } from "@/lib/services/api/installments";
 import { getLocalizedPath, cn } from "@/lib/utils";
-import { getPropertyPrice, getPropertyPeriod } from "@/lib/utils/property-pricing";
+import { getPropertyPrice, getPropertyPeriod, formatPrice } from "@/lib/utils/property-pricing";
 import { Button } from "@/components/ui/button";
 import { FileText, MapPin, Phone } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Spinner } from "@/components/ui/spinner";
+import { toast } from "sonner";
 import Image from "next/image";
 import ScheduleTour from "./schedule-tour";
 
@@ -26,8 +40,24 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
   const [confirmedUser, setConfirmedUser] = useState(false);
   const [isContactOwnerOpen, setIsContactOwnerOpen] = useState(false);
   const [isScheduleTourOpen, setIsScheduleTourOpen] = useState(false);
+  const [isInstallmentConfirmOpen, setIsInstallmentConfirmOpen] = useState(false);
 
   const t = useTranslations("Properties.Details.Reservations");
+
+  const installmentMutation = useMutation({
+    mutationFn: createInstallmentRequest,
+    onSuccess: () => {
+      toast.success(t("installment-request-success"));
+      setIsInstallmentConfirmOpen(false);
+    },
+    onError: () => {
+      toast.error(t("installment-request-error"));
+    },
+  });
+
+  const handleInstallmentConfirm = () => {
+    installmentMutation.mutate({ property: property._id });
+  };
   const tPrice = useTranslations("Properties.Price");
   const tCategories = useTranslations("General.Categories");
 
@@ -100,13 +130,13 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
     }
 
     if (property.offerType === "rent" && property.adType === "management") {
-      // Navigate to rent application page for management properties
       const href = decideSubmitButtonLinkHref();
       if (href) {
         router.push(href);
       }
+    } else if (property.offerType === "installment") {
+      setIsInstallmentConfirmOpen(true);
     } else {
-      // Show contact owner modal for all other cases (rent+ad, installment, sale, etc.)
       setIsContactOwnerOpen(true);
     }
   };
@@ -204,6 +234,41 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
         </DialogContent>
       </Dialog>
 
+      {/* Installment Confirmation Dialog */}
+      <AlertDialog open={isInstallmentConfirmOpen} onOpenChange={setIsInstallmentConfirmOpen}>
+        <AlertDialogContent className="bg-white dark:bg-gray-950">
+          <AlertDialogHeader>
+            <AlertDialogTitle className={cn("text-gray-900 dark:text-white", locale === "ar" && "text-right")}>
+              {t("InstallmentModal.title")}
+            </AlertDialogTitle>
+            <AlertDialogDescription className={cn("text-gray-600 dark:text-gray-400", locale === "ar" && "text-right")}>
+              {t("InstallmentModal.description")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className={locale === "ar" ? "flex-row-reverse gap-2" : ""}>
+            <AlertDialogCancel
+              className="text-gray-900 dark:text-white"
+              disabled={installmentMutation.isPending}
+            >
+              {t("InstallmentModal.cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleInstallmentConfirm}
+              disabled={installmentMutation.isPending}
+            >
+              {installmentMutation.isPending ? (
+                <>
+                  <Spinner className="h-4 w-4 me-2" />
+                  {t("InstallmentModal.submitting")}
+                </>
+              ) : (
+                t("InstallmentModal.confirm")
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Reservation Box */}
       <div className="sticky top-24 rounded-xl border-[1.5px] border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow dark:border-gray-700 dark:bg-gray-800">
         {isTentGroup ? (
@@ -223,7 +288,7 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
                 {property.offerType === "rent" ? t("rent-price") : t("price")}
               </span>
               <p className="text-lg font-bold text-yellow-600">
-                {price} {currency}
+                {price ? formatPrice(price, currency, locale) : "N/A"}
                 {property.offerType === "rent" && period && (
                   <sub>
                     <span className="text-xs text-gray-500 dark:text-gray-400">

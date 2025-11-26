@@ -1,7 +1,10 @@
 import axiosClient from "../axios-client";
 
 export interface ManagementConfig {
-  userAd: number;
+  userAd: {
+    amount: number;
+    duration: number;
+  };
   _id: string;
   uploadProperty: number;
   extendProperty: number;

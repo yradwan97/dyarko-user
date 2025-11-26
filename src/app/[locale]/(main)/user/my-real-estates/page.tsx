@@ -88,7 +88,7 @@ export default function MyRealEstatesPage() {
         className="w-full"
       >
         <TabsList className={cn("grid w-full grid-cols-2 max-w-md mx-auto", locale === "ar" && "flex-row-reverse")}>
-          <TabsTrigger value="rents" className="flex items-center gap-2">
+          <TabsTrigger value="rents" className={`flex ${locale === "ar" && "order-1"} items-center gap-2`}>
             <KeyRound className="h-4 w-4" />
             {t("tabs.rents")}
           </TabsTrigger>

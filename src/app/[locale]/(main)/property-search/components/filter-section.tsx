@@ -1,14 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Search, SlidersHorizontal } from "lucide-react";
 
 import Typography from "@/components/shared/typography";
 import CustomSelect from "@/components/shared/custom-select";
 import Button from "@/components/shared/button";
 import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
 import {
   Select,
   SelectContent,
@@ -68,6 +67,7 @@ export default function FilterSection({
   onApplyFilters,
 }: FilterSectionProps) {
   const t = useTranslations("PropertySearch");
+  const locale = useLocale();
   const currency = useCurrency();
   const [isFilterSideOpen, setIsFilterSideOpen] = useState(false);
   const sortOptions = getSortOptions(t);
@@ -131,33 +131,47 @@ export default function FilterSection({
         </div>
 
         {/* Second Row: Price Range and Buttons */}
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:gap-6">
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:gap-6 md:justify-between">
           {/* Price Range */}
-          <div className="flex-1">
-            <div className="mb-3 flex items-center justify-between">
-              <Typography variant="body-md" as="p" className="text-gray-600">
-                {t("filters.price-range")}
-              </Typography>
-              <Typography variant="body-sm" as="span" className="text-gray-500">
-                {formatPrice(priceRange[0], currency)} - {formatPrice(priceRange[1], currency)}
-              </Typography>
-            </div>
-            <Slider
-              min={currentRange.min}
-              max={currentRange.max}
-              step={1000}
-              value={priceRange}
-              onValueChange={(value) => setPriceRange(value as [number, number])}
-              className="mb-2"
-            />
-            <div className="flex justify-between text-xs text-gray-500">
-              <span>{formatPrice(currentRange.min, currency)}</span>
-              <span>{formatPrice(currentRange.max, currency)}</span>
+          <div >
+            <Typography variant="body-md" as="p" className="mb-2 text-gray-600">
+              {t("filters.price-range")}
+            </Typography>
+            <div className="flex items-center gap-2">
+              <div className="flex-1">
+                <Input
+                  type="number"
+                  min={currentRange.min}
+                  step={100}
+                  value={priceRange[0] || ""}
+                  onChange={(e) => {
+                    const value = Math.max(currentRange.min, Number(e.target.value) || 0);
+                    setPriceRange([value, priceRange[1]]);
+                  }}
+                  placeholder={t("filters.min-price")}
+                  className={`h-9 ${locale === "ar" ? "text-right" : "text-left"}`}
+                />
+              </div>
+              <span className="text-gray-400">-</span>
+              <div className="flex-1">
+                <Input
+                  type="number"
+                  min={currentRange.min}
+                  step={100}
+                  value={priceRange[1] || ""}
+                  onChange={(e) => {
+                    const value = Math.max(0, Number(e.target.value) || 0);
+                    setPriceRange([priceRange[0], value]);
+                  }}
+                  placeholder={t("filters.max-price")}
+                  className={`h-9 ${locale === "ar" ? "text-right" : "text-left"}`}
+                />
+              </div>
             </div>
           </div>
 
           {/* Buttons */}
-          <div className="flex gap-3 md:flex-shrink-0">
+          <div className="flex gap-3 md:shrink-0 ">
             {/* Submit Button */}
             <Button
               variant="primary"
@@ -172,7 +186,7 @@ export default function FilterSection({
             <Button
               variant="primary-outline"
               onClick={() => setIsFilterSideOpen(true)}
-              className="flex-1 md:flex-initial flex items-center justify-center gap-2 !p-3 md:h-12"
+              className="flex-1 md:flex-initial flex items-center justify-center gap-2 p-3! md:h-12"
             >
               <SlidersHorizontal className="h-4 w-4" />
               <span className="hidden md:inline">{t("filters.more-filters")}</span>

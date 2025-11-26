@@ -44,8 +44,9 @@ export default function PropertyListingContent({ slug }: PropertyListingContentP
       case "rent":
         return "RENT";
       case "cash":
+        return "cash";
       case "installment":
-        return "SALE";
+        return "installment";
       case "share":
       case "replacement":
         return undefined; // These might need specific handling

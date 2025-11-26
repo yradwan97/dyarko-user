@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
 
 import Typography from "@/components/shared/typography";
@@ -33,6 +33,7 @@ export default function CompanyProperties({
 }: CompanyPropertiesProps) {
   const t = useTranslations("Companies");
   const tGeneral = useTranslations("General");
+  const locale = useLocale();
   const currency = useCurrency();
 
   const renderSkeletons = () => (
@@ -87,7 +88,7 @@ export default function CompanyProperties({
             .join(", ");
 
           const price = getPropertyPrice(property);
-          const priceDisplay = price ? formatPrice(price, currency) : tGeneral("price-not-available");
+          const priceDisplay = price ? formatPrice(price, currency, locale) : tGeneral("price-not-available");
 
           return (
             <Link key={property._id} href={`/properties/${property._id}`}>

@@ -39,9 +39,9 @@ export const getPropertyPrice = (
   property: Property,
   getDiscountedPrice: boolean = false
 ): number | null => {
-  // Only rent properties have prices
+  // Non-rent properties use the price field directly
   if (property.offerType !== "rent") {
-    return null;
+    return property.price ? Number(property.price) : null;
   }
 
   // Calculate discount fraction (if applicable)
@@ -116,10 +116,15 @@ export const getPropertyPrice = (
  * Format price with currency
  * @param price - The price to format
  * @param currency - The currency code (default: "KWD")
+ * @param locale - The locale for formatting (default: "en-US")
  * @returns Formatted price string
  */
-export const formatPrice = (price: number, currency: string = "KWD"): string => {
-  return new Intl.NumberFormat("en-US", {
+export const formatPrice = (
+  price: number,
+  currency: string = "KWD",
+  locale: string = "en-US"
+): string => {
+  return new Intl.NumberFormat(locale, {
     style: "decimal",
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,

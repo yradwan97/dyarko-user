@@ -69,7 +69,7 @@ export default function SavedPropertiesPage() {
                 .join(", ");
 
               const price = getPropertyPrice(property);
-              const priceDisplay = price ? formatPrice(price, currency) : tGeneral("price-not-available");
+              const priceDisplay = price ? formatPrice(price, currency, locale) : tGeneral("price-not-available");
 
               return (
                 <Link

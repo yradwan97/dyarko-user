@@ -17,7 +17,7 @@ export function TourRequestCard({
   const [imageError, setImageError] = useState(false);
 
   const property = request.property;
-  const propertyTitle = property?.title || request.name || request.title || t("request-title");
+  const propertyTitle = property?.title || t("request-title");
   const propertyCode = property?.code || request.propertyCode;
   const propertyLocation = property
     ? `${property.city || ""}, ${property.region || ""}`.trim().replace(/^,|,$/g, "")

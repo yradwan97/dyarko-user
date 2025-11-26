@@ -88,7 +88,7 @@ export default function Step4Checkout({
     } else if (isTentBased && selectedTents.length > 0) {
       // For camp/booth: sum all selected tents' prices * number of days
       const totalTentPrice = selectedTents.reduce((sum, tent) => sum + Number(tent.price || 0), 0);
-      return totalTentPrice * selectedDates.length;
+      return totalTentPrice * (selectedDates.length - 1);
     } else if (isHotelApartment && selectedApartments.length > 0) {
       // For hotel apartments: sum all selected apartments' prices based on rent type
       const totalApartmentPrice = selectedApartments.reduce((sum, apartment) => {
@@ -105,7 +105,7 @@ export default function Step4Checkout({
       return totalApartmentPrice * selectedDates.length;
     } else {
       // For other properties: use property's daily/weekly/monthly price
-      const numberOfDays = selectedDates.length;
+      const numberOfDays = selectedDates.length - 1;
 
       if (selectedRentType === "daily") {
         return Number(property?.dailyPrice || 0) * numberOfDays;

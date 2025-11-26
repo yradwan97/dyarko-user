@@ -7,6 +7,7 @@
     "selectOption": "Select an option",
     "helloSignIn": "Hello, Sign in",
     "kwd": "KWD",
+    "price-not-available": "Price not available",
     "rent-types": {
       "hourly": "Hourly",
       "daily": "Daily",
@@ -106,6 +107,8 @@
     "when": "Available Date",
     "date-placeholder": "Select date",
     "price": "Price Range",
+    "min": "Min",
+    "max": "Max",
     "search": "Search",
     "reset": "Reset",
     "no-results": "No properties found"
@@ -236,6 +239,7 @@
         "rent": "Rent",
         "rent-price": "Rent Price",
         "installment": "Request Installment",
+        "request-installment": "Request Installment",
         "buy": "Contact Owner",
         "contact-owner": "Contact Owner",
         "tent-group": "Price based on tent selection.",
@@ -255,7 +259,16 @@
           "email": "Email Address:",
           "mobile": "Mobile Number:",
           "call": "Call Now"
-        }
+        },
+        "InstallmentModal": {
+          "title": "Confirm Installment Request",
+          "description": "Are you sure you want to submit an installment request for this property? The owner will review your request and contact you.",
+          "cancel": "Cancel",
+          "confirm": "Confirm Request",
+          "submitting": "Submitting..."
+        },
+        "installment-request-success": "Installment request submitted successfully. The owner will review your request.",
+        "installment-request-error": "Failed to submit installment request. Please try again."
       },
       "Tour": {
         "Phone": {
@@ -1164,6 +1177,7 @@
     "filters": {
       "location": "Location",
       "more-filters": "More Filters",
+      "min-price": "Min Price",
       "max-price": "Max Price",
       "enter-price": "Enter max price",
       "property-type": "Property Type",
@@ -1448,6 +1462,17 @@
       "cancel": "Cancel",
       "complete": "Complete",
       "ok": "OK",
+      "tour-completion-question": "Did you complete this tour?",
+      "yes": "Yes",
+      "no": "No",
+      "appearTo": "Appear To Date:",
+      "tour-completed-success": "Tour marked as completed",
+      "tour-canceled-success": "Tour marked as canceled",
+      "tour-update-failed": "Failed to update tour status",
+      "tour-completion-confirm-title": "Confirm Tour Completion",
+      "tour-completion-confirm-description": "Are you sure you completed this tour? This action cannot be undone.",
+      "tour-cancellation-confirm-title": "Confirm Tour Cancellation",
+      "tour-cancellation-confirm-description": "Are you sure you want to cancel this tour? This action cannot be undone.",
       "installment-number": "Installment #",
       "due-date": "Due Date",
       "tabs": {
@@ -1508,7 +1533,6 @@
       "installment-plan-tab": "Installment Plan",
       "property-information": "Property Information",
       "property-title": "Property Title",
-      "property-code": "Property Code",
       "location": "Location",
       "property-price": "Property Price",
       "owner-information": "Owner Information",
@@ -1977,6 +2001,7 @@
     "price-type-placeholder": "Select period",
     "price-type-required": "Price type is required",
     "daily": "Daily",
+    "days": "Days",
     "weekly": "Weekly",
     "monthly": "Monthly",
     "submit": "Submit",

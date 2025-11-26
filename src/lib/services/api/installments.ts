@@ -19,6 +19,7 @@ export interface InstallmentProperty extends Property {
 }
 
 export interface InstallmentOwner {
+  _id?: string;
   name: string;
   phoneNumber: string;
   image: string;
@@ -207,6 +208,26 @@ export const updateInstallmentUserStatus = async (
 ): Promise<UpdateInstallmentUserStatusResponse> => {
   const response = await axiosClient.put<UpdateInstallmentUserStatusResponse>(
     `/installments/${installmentId}/user`,
+    payload
+  );
+  return response.data;
+};
+
+export interface CreateInstallmentRequestPayload {
+  property: string;
+}
+
+export interface CreateInstallmentRequestResponse {
+  status: string;
+  message: string;
+  data: Installment;
+}
+
+export const createInstallmentRequest = async (
+  payload: CreateInstallmentRequestPayload
+): Promise<CreateInstallmentRequestResponse> => {
+  const response = await axiosClient.post<CreateInstallmentRequestResponse>(
+    `/installments`,
     payload
   );
   return response.data;

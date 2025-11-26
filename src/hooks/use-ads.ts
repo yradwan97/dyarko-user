@@ -20,6 +20,7 @@ export interface UserAd {
   description: string;
   price: number | { from: number; to: number };
   priceType: "daily" | "weekly" | "monthly";
+  appearTo: string;
   __v: number;
   comment: string | null;
 }

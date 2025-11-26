@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/sheet";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import {
@@ -70,7 +69,7 @@ export default function FilterSide({
   onSortChange,
   initialCity,
   initialSearch = "",
-  initialPriceRange = [0, 1000000],
+  initialPriceRange = [0, 0],
   initialOfferType = "RENT",
   initialCategory = "",
 }: FilterSideProps) {
@@ -135,8 +134,7 @@ export default function FilterSide({
 
   // Update price range when offer type changes
   useEffect(() => {
-    const range = PRICE_RANGES[offerType];
-    setPriceRange([range.min, range.max]);
+    setPriceRange([0, 0]);
   }, [offerType]);
 
   // Debounce search query
@@ -152,14 +150,14 @@ export default function FilterSide({
     const resetFilters: any = {
       offerType: "RENT",
       priceFrom: 0,
-      priceTo: 1000000,
+      priceTo: 0,
       search: "",
       city: "", // Remove city
     };
 
     // Reset local state
     setOfferType("RENT");
-    setPriceRange([0, 1000000]);
+    setPriceRange([0, 0]);
     setSelectedSort("recentlyAdded");
     setSearchQuery("");
     setSelectedCity("");
@@ -184,9 +182,15 @@ export default function FilterSide({
   const handleApply = () => {
     const filters: any = {
       offerType,
-      priceFrom: priceRange[0],
-      priceTo: priceRange[1],
     };
+
+    // Add price filters only if they're set
+    if (priceRange[0] > 0) {
+      filters.priceFrom = priceRange[0];
+    }
+    if (priceRange[1] > 0) {
+      filters.priceTo = priceRange[1];
+    }
 
     // Add sort only if it's not "recentlyAdded"
     if (selectedSort !== "recentlyAdded") {
@@ -386,25 +390,39 @@ export default function FilterSide({
 
             {/* Price Range */}
             <div className="px-1">
-              <div className="mb-5 flex items-center justify-between">
-                <Typography variant="body-md-bold" as="p">
-                  {t("price-range")}
-                </Typography>
-                <Typography variant="body-sm" as="span" className="text-gray-500">
-                  {formatPrice(priceRange[0], currency)} - {formatPrice(priceRange[1], currency)}
-                </Typography>
-              </div>
-              <Slider
-                min={currentRange.min}
-                max={currentRange.max}
-                step={1000}
-                value={priceRange}
-                onValueChange={(value) => setPriceRange(value as [number, number])}
-                className="mt-6"
-              />
-              <div className="mt-3 flex justify-between text-xs text-gray-500">
-                <span>{formatPrice(currentRange.min, currency)}</span>
-                <span>{formatPrice(currentRange.max, currency)}</span>
+              <Typography variant="body-md-bold" as="p" className="mb-3">
+                {t("price-range")}
+              </Typography>
+              <div className={`flex items-center gap-2`}>
+                <div className="flex-1">
+                  <Input
+                    type="number"
+                    min={currentRange.min}
+                    step={100}
+                    value={priceRange[0] || ""}
+                    onChange={(e) => {
+                      const value = Math.max(currentRange.min, Number(e.target.value) || 0);
+                      setPriceRange([value, priceRange[1]]);
+                    }}
+                    placeholder={t("min-price")}
+                    className={`h-11 ${locale === "ar" ? "text-right" : "text-left"}`}
+                  />
+                </div>
+                <span className="text-gray-400">-</span>
+                <div className="flex-1">
+                  <Input
+                    type="number"
+                    min={currentRange.min}
+                    step={100}
+                    value={priceRange[1] || ""}
+                    onChange={(e) => {
+                      const value = Math.max(0, Number(e.target.value) || 0);
+                      setPriceRange([priceRange[0], value]);
+                    }}
+                    placeholder={t("max-price")}
+                    className={`h-11 ${locale === "ar" ? "text-right" : "text-left"}`}
+                  />
+                </div>
               </div>
             </div>
 

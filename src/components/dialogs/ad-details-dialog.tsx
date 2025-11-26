@@ -218,6 +218,14 @@ export default function AdDetailsDialog({
                         )}
                       </div>
                     )}
+                  <div className="flex flex-row flex-wrap items-center mt-4 gap-x-4 gap-y-1 text-gray-600">
+                    <Typography variant="body-md-medium" as="span">
+                            {t("appearTo")}
+                          </Typography>{" "}
+                          <Typography variant="body-sm" as="span">
+                            {new Date(ad.appearTo).toLocaleString("en-GB")}
+                          </Typography>
+                          </div>
                 </div>
               </div>
             </div>

@@ -41,7 +41,7 @@ export default function SearchPageContent() {
   const [selectedCity, setSelectedCity] = useState<Governorate | undefined>();
   const [selectedSort, setSelectedSort] = useState("recentlyAdded");
   const [searchQuery, setSearchQuery] = useState("");
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000000]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 0]);
   const [offerType, setOfferType] = useState("RENT");
   const [advancedFilters, setAdvancedFilters] = useState<any>({});
 
@@ -49,7 +49,7 @@ export default function SearchPageContent() {
   const [appliedCity, setAppliedCity] = useState<Governorate | undefined>();
   const [appliedSort, setAppliedSort] = useState("recentlyAdded");
   const [appliedSearchQuery, setAppliedSearchQuery] = useState("");
-  const [appliedPriceRange, setAppliedPriceRange] = useState<[number, number]>([0, 1000000]);
+  const [appliedPriceRange, setAppliedPriceRange] = useState<[number, number]>([0, 0]);
   const [appliedOfferType, setAppliedOfferType] = useState("RENT");
 
   // Get category from URL query params
@@ -94,7 +94,7 @@ export default function SearchPageContent() {
 
     // Price range (use applied state)
     if (appliedPriceRange[0] > 0) params.priceFrom = Number(appliedPriceRange[0]);
-    if (appliedPriceRange[1] < 1000000) params.priceTo = Number(appliedPriceRange[1]);
+    if (appliedPriceRange[1] > 0) params.priceTo = Number(appliedPriceRange[1]);
 
     // Offer type (use applied state)
     if (appliedOfferType) params.offerType = appliedOfferType;

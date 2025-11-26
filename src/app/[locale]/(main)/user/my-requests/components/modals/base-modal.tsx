@@ -172,10 +172,10 @@ export function BaseDetailsModal({
                   <span
                     className={cn(
                       "inline-block rounded-full border px-3 py-1 text-xs font-medium whitespace-nowrap",
-                      getStatusColor(request.status)
+                      getStatusColor(isRentalCollection ? request.tenantStatus : request.status)
                     )}
                   >
-                    {getLocalizedStatus(request.status)}
+                    {getLocalizedStatus(isRentalCollection ? request.tenantStatus : request.status)}
                   </span>
                 )}
               </div>
