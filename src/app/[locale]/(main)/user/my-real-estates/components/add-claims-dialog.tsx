@@ -11,16 +11,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import ConfirmationDialog from "@/components/dialogs/confirmation-dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -290,30 +281,16 @@ export default function AddClaimsDialog({
     </Dialog>
 
     {/* Confirmation Alert Dialog */}
-    <AlertDialog open={showConfirmation} onOpenChange={setShowConfirmation}>
-      <AlertDialogContent className="bg-white dark:bg-gray-950">
-        <AlertDialogHeader>
-          <AlertDialogTitle className="text-gray-900 dark:text-white">
-            {tModal("confirmation.claims.title")}
-          </AlertDialogTitle>
-          <AlertDialogDescription className="text-gray-600 dark:text-gray-400">
-            {tModal("confirmation.claims.description")}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel className="text-gray-900 dark:text-white">
-            {tModal("confirmation.cancel")}
-          </AlertDialogCancel>
-          <AlertDialogAction onClick={handleConfirmedSubmit} disabled={addClaimsMutation.isPending}>
-            {addClaimsMutation.isPending ? (
-              <Spinner className="h-4 w-4" />
-            ) : (
-              tModal("confirmation.confirm")
-            )}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <ConfirmationDialog
+      open={showConfirmation}
+      onOpenChange={setShowConfirmation}
+      title={tModal("confirmation.claims.title")}
+      description={tModal("confirmation.claims.description")}
+      cancelText={tModal("confirmation.cancel")}
+      confirmText={tModal("confirmation.confirm")}
+      onConfirm={handleConfirmedSubmit}
+      isLoading={addClaimsMutation.isPending}
+    />
   </>
   );
 }

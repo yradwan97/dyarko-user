@@ -12,17 +12,7 @@ import { getPropertyPrice, getPropertyPeriod, formatPrice } from "@/lib/utils/pr
 import { Button } from "@/components/ui/button";
 import { FileText, MapPin, Phone } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Spinner } from "@/components/ui/spinner";
+import ConfirmationDialog from "@/components/dialogs/confirmation-dialog";
 import { toast } from "sonner";
 import Image from "next/image";
 import ScheduleTour from "./schedule-tour";
@@ -235,39 +225,18 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
       </Dialog>
 
       {/* Installment Confirmation Dialog */}
-      <AlertDialog open={isInstallmentConfirmOpen} onOpenChange={setIsInstallmentConfirmOpen}>
-        <AlertDialogContent className="bg-white dark:bg-gray-950">
-          <AlertDialogHeader>
-            <AlertDialogTitle className={cn("text-gray-900 dark:text-white", locale === "ar" && "text-right")}>
-              {t("InstallmentModal.title")}
-            </AlertDialogTitle>
-            <AlertDialogDescription className={cn("text-gray-600 dark:text-gray-400", locale === "ar" && "text-right")}>
-              {t("InstallmentModal.description")}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className={locale === "ar" ? "flex-row-reverse gap-2" : ""}>
-            <AlertDialogCancel
-              className="text-gray-900 dark:text-white"
-              disabled={installmentMutation.isPending}
-            >
-              {t("InstallmentModal.cancel")}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleInstallmentConfirm}
-              disabled={installmentMutation.isPending}
-            >
-              {installmentMutation.isPending ? (
-                <>
-                  <Spinner className="h-4 w-4 me-2" />
-                  {t("InstallmentModal.submitting")}
-                </>
-              ) : (
-                t("InstallmentModal.confirm")
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmationDialog
+        open={isInstallmentConfirmOpen}
+        onOpenChange={setIsInstallmentConfirmOpen}
+        title={t("InstallmentModal.title")}
+        description={t("InstallmentModal.description")}
+        cancelText={t("InstallmentModal.cancel")}
+        confirmText={t("InstallmentModal.confirm")}
+        onConfirm={handleInstallmentConfirm}
+        isLoading={installmentMutation.isPending}
+        loadingText={t("InstallmentModal.submitting")}
+        titleClassName={locale === "ar" ? "text-right" : ""}
+      />
 
       {/* Reservation Box */}
       <div className="sticky top-24 rounded-xl border-[1.5px] border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow dark:border-gray-700 dark:bg-gray-800">

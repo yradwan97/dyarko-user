@@ -11,16 +11,7 @@ import {
   DialogFooter,
   DialogDescription,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import ConfirmationDialog from "@/components/dialogs/confirmation-dialog";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { axiosClient } from "@/lib/services";
@@ -127,30 +118,16 @@ export default function DisclaimerRequestDialog({
       </Dialog>
 
       {/* Confirmation Alert Dialog */}
-      <AlertDialog open={showConfirmation} onOpenChange={setShowConfirmation}>
-        <AlertDialogContent className="bg-white dark:bg-gray-950">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-gray-900 dark:text-white">
-              {tModal("confirmation.disclaimer.title")}
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-600 dark:text-gray-400">
-              {tModal("confirmation.disclaimer.description")}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="text-gray-900 dark:text-white">
-              {tModal("confirmation.cancel")}
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmedSubmit} disabled={disclaimerMutation.isPending}>
-              {disclaimerMutation.isPending ? (
-                <Spinner className="h-4 w-4" />
-              ) : (
-                tModal("confirmation.confirm")
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmationDialog
+        open={showConfirmation}
+        onOpenChange={setShowConfirmation}
+        title={tModal("confirmation.disclaimer.title")}
+        description={tModal("confirmation.disclaimer.description")}
+        cancelText={tModal("confirmation.cancel")}
+        confirmText={tModal("confirmation.confirm")}
+        onConfirm={handleConfirmedSubmit}
+        isLoading={disclaimerMutation.isPending}
+      />
     </>
   );
 }

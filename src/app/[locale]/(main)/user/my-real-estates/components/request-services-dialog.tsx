@@ -11,16 +11,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import ConfirmationDialog from "@/components/dialogs/confirmation-dialog";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -199,64 +190,32 @@ export default function RequestServicesDialog({
       </Dialog>
 
       {/* Confirmation Dialog */}
-      <AlertDialog open={showConfirmation} onOpenChange={setShowConfirmation}>
-        <AlertDialogContent className="bg-white dark:bg-gray-950">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-gray-900 dark:text-white">
-              {t("confirmation.title")}
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-600 dark:text-gray-400">
-              {t("confirmation.description")}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-
-          {/* Selected Services Summary */}
-          <div className="space-y-2 my-4">
-            {selectedServicesData?.map((service) => {
-              const serviceName = locale === "ar" ? service.nameAr : service.nameEn;
-              return (
-                <div
-                  key={service._id}
-                  className="flex items-center justify-between text-sm p-2 bg-gray-50 dark:bg-gray-900 rounded"
-                >
-                  <span className="text-gray-900 dark:text-white">{serviceName}</span>
-                  {/* <span className="font-medium text-gray-900 dark:text-white">
-                    {service.price} {currency}
-                  </span> */}
-                </div>
-              );
-            })}
-            {/* <div className="flex items-center justify-between text-sm font-semibold pt-2 border-t border-gray-200 dark:border-gray-800">
-              <span className="text-gray-900 dark:text-white">{t("confirmation.total")}</span>
-              <span className="text-gray-900 dark:text-white">
-                {totalPrice} {currency}
-              </span>
-            </div> */}
-          </div>
-
-          <AlertDialogFooter>
-            <AlertDialogCancel
-              className="text-gray-900 dark:text-white"
-              disabled={requestServicesMutation.isPending}
-            >
-              {t("confirmation.cancel")}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleConfirm}
-              disabled={requestServicesMutation.isPending}
-            >
-              {requestServicesMutation.isPending ? (
-                <>
-                  <Spinner className="h-4 w-4 mr-2" />
-                  {t("confirmation.submitting")}
-                </>
-              ) : (
-                t("confirmation.confirm")
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmationDialog
+        open={showConfirmation}
+        onOpenChange={setShowConfirmation}
+        title={t("confirmation.title")}
+        description={t("confirmation.description")}
+        cancelText={t("confirmation.cancel")}
+        confirmText={t("confirmation.confirm")}
+        onConfirm={handleConfirm}
+        isLoading={requestServicesMutation.isPending}
+        loadingText={t("confirmation.submitting")}
+      >
+        {/* Selected Services Summary */}
+        <div className="space-y-2 my-4">
+          {selectedServicesData?.map((service) => {
+            const serviceName = locale === "ar" ? service.nameAr : service.nameEn;
+            return (
+              <div
+                key={service._id}
+                className="flex items-center justify-between text-sm p-2 bg-gray-50 dark:bg-gray-900 rounded"
+              >
+                <span className="text-gray-900 dark:text-white">{serviceName}</span>
+              </div>
+            );
+          })}
+        </div>
+      </ConfirmationDialog>
     </>
   );
 }

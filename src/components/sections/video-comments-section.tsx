@@ -9,16 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import ConfirmationDialog from "@/components/dialogs/confirmation-dialog";
 import {
   useVideoComments,
   useAddVideoComment,
@@ -282,29 +273,17 @@ export default function VideoCommentsSection({
       )}
 
       {/* Delete Comment Confirmation Dialog */}
-      <AlertDialog open={!!commentToDelete} onOpenChange={() => setCommentToDelete(null)}>
-        <AlertDialogContent className="bg-white dark:bg-gray-950">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-gray-900 dark:text-white">
-              {t("deleteConfirmation.title")}
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-600 dark:text-gray-400">
-              {t("deleteConfirmation.description")}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="text-gray-900 dark:text-white">
-              {t("deleteConfirmation.cancel")}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDeleteComment}
-              className="bg-red-500 hover:bg-red-600 text-white"
-            >
-              {t("deleteConfirmation.confirm")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmationDialog
+        open={!!commentToDelete}
+        onOpenChange={() => setCommentToDelete(null)}
+        title={t("deleteConfirmation.title")}
+        description={t("deleteConfirmation.description")}
+        cancelText={t("deleteConfirmation.cancel")}
+        confirmText={t("deleteConfirmation.confirm")}
+        onConfirm={confirmDeleteComment}
+        variant="destructive"
+        isLoading={deleteCommentMutation.isPending}
+      />
     </div>
   );
 }

@@ -164,3 +164,29 @@ export const createRentRequest = async (
   );
   return response.data;
 };
+
+export interface ValidateRentTimePayload {
+  startDate: string;
+  endDate: string;
+  rentType: string;
+  property: string;
+}
+
+export interface ValidateRentTimeResponse {
+  status: string;
+  message: string;
+  data: {
+    isValid: boolean;
+    message: string;
+  };
+}
+
+export const validateRentTime = async (
+  payload: ValidateRentTimePayload
+): Promise<ValidateRentTimeResponse> => {
+  const response = await axiosClient.post<ValidateRentTimeResponse>(
+    "/rents/validateTime",
+    payload
+  );
+  return response.data;
+};

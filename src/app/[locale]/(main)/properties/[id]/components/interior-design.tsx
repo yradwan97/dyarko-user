@@ -12,14 +12,26 @@ interface InteriorDesignProps {
 export default function InteriorDesign({ interiorDesign }: InteriorDesignProps) {
   const t = useTranslations("Properties.Details");
 
+  const isValidImageUrl = (url: string | undefined | null): boolean => {
+    if (!url || typeof url !== "string" || url.trim() === "") return false;
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const validInteriorDesign = isValidImageUrl(interiorDesign) ? interiorDesign : null;
+
   return (
     <div className="border-b border-gray-200 py-12 dark:border-gray-700">
       <HeadTitle text={t("interior")} />
 
-      {interiorDesign ? (
+      {validInteriorDesign ? (
         <div className="rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
           <Image
-            src={interiorDesign}
+            src={validInteriorDesign}
             alt="Interior Design"
             width={1200}
             height={800}

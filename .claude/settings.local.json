@@ -58,7 +58,8 @@
       "Bash(node --version:*)",
       "Bash(del .eslintrc.json)",
       "Bash(npm outdated:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(npm update:*)"
     ],
     "deny": [],
     "ask": []

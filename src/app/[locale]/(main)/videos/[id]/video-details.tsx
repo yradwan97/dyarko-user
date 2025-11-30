@@ -15,16 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import ConfirmationDialog from "@/components/dialogs/confirmation-dialog";
 import { useVideo, useVideos } from "@/hooks/use-videos";
 import VideoCard from "@/components/shared/video-card";
 import VideoCommentsSection from "@/components/sections/video-comments-section";
@@ -360,30 +351,21 @@ export default function VideoDetails({ videoId }: VideoDetailsProps) {
       </Dialog>
 
       {/* Report Confirmation Dialog */}
-      <AlertDialog open={showReportConfirmation} onOpenChange={setShowReportConfirmation}>
-        <AlertDialogContent className="bg-white dark:bg-gray-950">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-gray-900 dark:text-white">
-              {t("report.confirmTitle")}
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-600 dark:text-gray-400">
-              {t("report.confirmDescription")}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={cancelReport} disabled={isSubmittingReport} className="text-gray-900 dark:text-white">
-              {t("report.confirmCancel")}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmReport}
-              disabled={isSubmittingReport}
-              className="bg-main-500 hover:bg-main-500 text-white"
-            >
-              {isSubmittingReport ? t("report.submitting") : t("report.confirmSubmit")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmationDialog
+        open={showReportConfirmation}
+        onOpenChange={(open) => {
+          if (!open) cancelReport();
+          else setShowReportConfirmation(open);
+        }}
+        title={t("report.confirmTitle")}
+        description={t("report.confirmDescription")}
+        cancelText={t("report.confirmCancel")}
+        confirmText={t("report.confirmSubmit")}
+        onConfirm={confirmReport}
+        isLoading={isSubmittingReport}
+        loadingText={t("report.submitting")}
+        confirmButtonClassName="bg-main-500 hover:bg-main-500 text-white"
+      />
     </div>
   );
 }

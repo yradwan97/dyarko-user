@@ -9,8 +9,18 @@ import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import { checkFavourite, addFavourite, removeFavourite } from "@/lib/services/api/favourites";
 import { toast } from "sonner";
+
+export interface OtherPrice {
+  period: string;
+  price: string;
+}
 
 interface PropertyCardProps {
   variant?: "featured" | "list";
@@ -25,6 +35,8 @@ interface PropertyCardProps {
   propertyId?: string;
   isVerified?: boolean;
   priority?: boolean;
+  adType?: string;
+  otherPrices?: OtherPrice[];
 }
 
 export default function PropertyCard({
@@ -40,10 +52,13 @@ export default function PropertyCard({
   propertyId,
   isVerified = false,
   priority = false,
+  adType,
+  otherPrices = [],
 }: PropertyCardProps) {
   const locale = useLocale();
   const t = useTranslations("Properties.Details.Save");
   const tGeneral = useTranslations("General.PaymentMethods");
+  const tProperty = useTranslations("Properties");
   const queryClient = useQueryClient();
   const isRTL = locale === "ar";
   const imageSrc = image || "/no-apartment.png";
@@ -96,6 +111,8 @@ export default function PropertyCard({
   };
 
   if (variant === "featured") {
+    const isManaged = adType === "management";
+
     return (
       <Card className="group min-w-[220px] flex-shrink-0 overflow-hidden border-0 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] dark:bg-gray-800 dark:shadow-[0_2px_8px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_8px_16px_rgba(0,0,0,0.3)] p-0">
         <div className="relative h-44 w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
@@ -119,16 +136,18 @@ export default function PropertyCard({
               {tGeneral(badge)}
             </Badge>
           )}
-          {secondaryBadge && (
-            <Badge
-              variant="secondary"
+          {/* Management Ribbon */}
+          {isManaged && (
+            <div
               className={cn(
-                "absolute top-3 border-0 bg-main-500/90 px-2 py-0.5 text-[14px] text-white backdrop-blur-sm hover:bg-secondary-600 capitalize",
-                isRTL ? "left-3" : "right-3"
+                "absolute top-3 bg-gradient-to-r from-main-600 to-main-500 px-3 py-1 text-[11px] font-semibold text-white shadow-md",
+                isRTL
+                  ? "left-0 rounded-r-full"
+                  : "right-0 rounded-l-full"
               )}
             >
-              {secondaryBadge}
-            </Badge>
+              {tProperty("managed-by-dyarko")}
+            </div>
           )}
         </div>
         <CardContent className={cn("p-4 flex items-start justify-between gap-2", isRTL && "flex-row-reverse")}>
@@ -142,7 +161,38 @@ export default function PropertyCard({
             </div>
             <p className={cn("mb-2 text-xs text-gray-500 dark:text-gray-400 line-clamp-1", isRTL && "text-right")}>{location}</p>
             <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
-              <span className="text-base font-bold text-main-500 dark:text-main-400">{price}</span>
+              {otherPrices.length > 0 ? (
+                <HoverCard openDelay={200} closeDelay={100}>
+                  <HoverCardTrigger asChild>
+                    <span className="text-base font-bold text-main-500 dark:text-main-400 cursor-pointer hover:underline underline-offset-2">
+                      {price}
+                    </span>
+                  </HoverCardTrigger>
+                  <HoverCardContent
+                    className={cn("w-auto min-w-[140px] p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700", isRTL && "text-right")}
+                    align={isRTL ? "end" : "start"}
+                    side="top"
+                    sideOffset={8}
+                  >
+                    <ul className="space-y-1.5">
+                      {otherPrices.map((otherPrice, index) => (
+                        <li
+                          key={index}
+                          className={cn(
+                            "flex items-center justify-between gap-4 text-sm",
+                            isRTL && "flex-row-reverse"
+                          )}
+                        >
+                          <span className="text-gray-600 dark:text-gray-400">{otherPrice.period}</span>
+                          <span className="font-semibold text-main-500 dark:text-main-400">{otherPrice.price}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </HoverCardContent>
+                </HoverCard>
+              ) : (
+                <span className="text-base font-bold text-main-500 dark:text-main-400">{price}</span>
+              )}
               {propertyType && (
                 <Badge className="rounded-full border-0 bg-main-500 px-3 py-0.5 text-[11px] font-medium text-white hover:bg-main-600 capitalize">
                   {propertyType}
@@ -151,25 +201,35 @@ export default function PropertyCard({
             </div>
           </div>
 
-          {/* Favorite Button */}
-          {propertyId && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleFavoriteClick}
-              disabled={isCheckingFavorite}
-              className="h-8 w-8 shrink-0 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              <HeartIcon
-                className={cn(
-                  "h-5 w-5 transition-all",
-                  isFavorite
-                    ? "fill-red-500 text-red-500"
-                    : "text-gray-400 hover:text-red-500 dark:text-gray-500"
-                )}
-              />
-            </Button>
-          )}
+          {/* Right Column: Favorite Button + Category Badge */}
+          <div className={cn("flex flex-col items-center gap-2 shrink-0", isRTL && "items-center")}>
+            {propertyId && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleFavoriteClick}
+                disabled={isCheckingFavorite}
+                className="h-8 w-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <HeartIcon
+                  className={cn(
+                    "h-5 w-5 transition-all",
+                    isFavorite
+                      ? "fill-red-500 text-red-500"
+                      : "text-gray-400 hover:text-red-500 dark:text-gray-500"
+                  )}
+                />
+              </Button>
+            )}
+            {secondaryBadge && (
+              <Badge
+                variant="secondary"
+                className="border-0 bg-main-500/90 px-2 py-0.5 text-[11px] text-white backdrop-blur-sm hover:bg-main-600 capitalize whitespace-nowrap"
+              >
+                {secondaryBadge}
+              </Badge>
+            )}
+          </div>
         </CardContent>
       </Card>
     );

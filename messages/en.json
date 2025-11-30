@@ -146,6 +146,7 @@
     }
   },
   "Properties": {
+    "managed-by-dyarko": "Managed by Dyarko",
     "Wishlist": {
       "Success": {
         "saved": "Property saved",
@@ -175,6 +176,8 @@
       "day": "Day",
       "week": "Week",
       "month": "Month",
+      "weekdays": "Weekdays",
+      "holidays": "Holidays",
       "KWD": "KWD",
       "no-price": "Price is based on selection"
     },
@@ -1884,7 +1887,12 @@
       "fromTime": "From",
       "toTime": "To",
       "timeRangeNote": "Please select the start and end time for your court booking",
-      "next": "Next"
+      "next": "Next",
+      "validating": "Validating...",
+      "validationError": "Failed to validate dates. Please try again.",
+      "weekdaysValidationError": "Please select all 4 weekdays (Sunday to Wednesday)",
+      "holidaysValidationError": "Please select all 3 holiday days (Thursday to Saturday)",
+      "clearDates": "Clear"
     },
     "Step2_5": {
       "camp-layout": "Camp Layout",

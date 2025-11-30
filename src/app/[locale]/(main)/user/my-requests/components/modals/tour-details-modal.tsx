@@ -6,16 +6,7 @@ import { Calendar, Phone, MessageSquare, CheckCircle, XCircle } from "lucide-rea
 import Typography from "@/components/shared/typography";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import ConfirmationDialog from "@/components/dialogs/confirmation-dialog";
 import { cn } from "@/lib/utils";
 import { type BaseModalProps } from "./types";
 import { BaseDetailsModal } from "./base-modal";
@@ -185,7 +176,7 @@ export function TourDetailsModal(props: BaseModalProps) {
       </BaseDetailsModal>
 
       {/* Tour Completion Confirmation Dialog */}
-      <AlertDialog
+      <ConfirmationDialog
         open={confirmationDialog.open}
         onOpenChange={(open) =>
           !open &&
@@ -194,45 +185,27 @@ export function TourDetailsModal(props: BaseModalProps) {
             action: null,
           })
         }
-      >
-        <AlertDialogContent className="bg-white dark:bg-gray-950">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-gray-900 text-center dark:text-white">
-              {confirmationDialog.action === "completed"
-                ? tModal("tour-completion-confirm-title")
-                : tModal("tour-cancellation-confirm-title")}
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-600 dark:text-gray-400">
-              {confirmationDialog.action === "completed"
-                ? tModal("tour-completion-confirm-description")
-                : tModal("tour-cancellation-confirm-description")}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel
-              disabled={updateTourStatusMutation.isPending}
-              className="text-gray-900 dark:text-white"
-            >
-              {tModal("confirmation.cancel")}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => handleConfirmAction(props.request?._id || props.requestId || "")}
-              disabled={updateTourStatusMutation.isPending}
-              className={
-                confirmationDialog.action === "completed"
-                  ? "bg-main-600 hover:bg-main-600 text-white"
-                  : "bg-secondary-500 hover:bg-secondary-500 text-white"
-              }
-            >
-              {updateTourStatusMutation.isPending ? (
-                <Spinner className="h-4 w-4" />
-              ) : (
-                tModal("confirmation.confirm")
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        title={
+          confirmationDialog.action === "completed"
+            ? tModal("tour-completion-confirm-title")
+            : tModal("tour-cancellation-confirm-title")
+        }
+        description={
+          confirmationDialog.action === "completed"
+            ? tModal("tour-completion-confirm-description")
+            : tModal("tour-cancellation-confirm-description")
+        }
+        cancelText={tModal("confirmation.cancel")}
+        confirmText={tModal("confirmation.confirm")}
+        onConfirm={() => handleConfirmAction(props.request?._id || props.requestId || "")}
+        isLoading={updateTourStatusMutation.isPending}
+        titleClassName="text-center"
+        confirmButtonClassName={
+          confirmationDialog.action === "completed"
+            ? "bg-main-600 hover:bg-main-600 text-white"
+            : "bg-secondary-500 hover:bg-secondary-500 text-white"
+        }
+      />
     </>
   );
 }

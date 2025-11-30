@@ -17,16 +17,7 @@ import RequestDetailsModal from "./components/request-details-modal";
 import { usePayInvoice } from "@/hooks/use-invoices";
 import { toast } from "sonner";
 import { useCountries } from "@/hooks/use-countries";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import ConfirmationDialog from "@/components/dialogs/confirmation-dialog";
 import { useUpdatePropertyUserStatus } from "@/hooks/use-properties";
 import {
   AdRequestCard,
@@ -519,7 +510,7 @@ export default function MyRequestsPage() {
       />
 
       {/* Rental Collection Confirmation Dialog */}
-      <AlertDialog
+      <ConfirmationDialog
         open={confirmationDialog.open}
         onOpenChange={(open) =>
           !open &&
@@ -530,49 +521,26 @@ export default function MyRequestsPage() {
             propertyTitle: null,
           })
         }
-      >
-        <AlertDialogContent className="bg-white dark:bg-gray-950">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-gray-900 dark:text-white">
-              {confirmationDialog.action === "approve"
-                ? t("confirmation-tenant.approve.title")
-                : t("confirmation-tenant.reject.title")}
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-600 dark:text-gray-400">
-              {confirmationDialog.action === "approve"
-                ? t("confirmation-tenant.approve.description", {
-                    property: confirmationDialog.propertyTitle ?? "",
-                  })
-                : t("confirmation-tenant.reject.description", {
-                    property: confirmationDialog.propertyTitle ?? "",
-                  })}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel
-              disabled={updateUserStatusMutation.isPending}
-              className="text-gray-900 dark:text-white"
-            >
-              {t("confirmation.cancel")}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleConfirmAction}
-              disabled={updateUserStatusMutation.isPending}
-              className={
-                confirmationDialog.action === "approve"
-                  ? "bg-main-600 hover:bg-main-700 text-white"
-                  : "bg-red-600 hover:bg-red-700 text-white"
-              }
-            >
-              {updateUserStatusMutation.isPending ? (
-                <Spinner className="h-4 w-4" />
-              ) : (
-                t("confirmation.confirm")
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        title={
+          confirmationDialog.action === "approve"
+            ? t("confirmation-tenant.approve.title")
+            : t("confirmation-tenant.reject.title")
+        }
+        description={
+          confirmationDialog.action === "approve"
+            ? t("confirmation-tenant.approve.description", {
+                property: confirmationDialog.propertyTitle ?? "",
+              })
+            : t("confirmation-tenant.reject.description", {
+                property: confirmationDialog.propertyTitle ?? "",
+              })
+        }
+        cancelText={t("confirmation.cancel")}
+        confirmText={t("confirmation.confirm")}
+        onConfirm={handleConfirmAction}
+        isLoading={updateUserStatusMutation.isPending}
+        variant={confirmationDialog.action === "reject" ? "destructive" : "default"}
+      />
     </div>
   );
 }

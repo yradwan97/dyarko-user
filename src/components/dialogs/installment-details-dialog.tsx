@@ -11,16 +11,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import ConfirmationDialog from "@/components/dialogs/confirmation-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useInstallmentDetails, useUpdateInstallmentUserStatus } from "@/hooks/use-installments";
@@ -440,37 +431,26 @@ export default function InstallmentDetailsDialog({
       </DialogContent>
 
       {/* Confirmation Dialog */}
-      <AlertDialog open={showConfirmation} onOpenChange={setShowConfirmation}>
-        <AlertDialogContent className="bg-white dark:bg-gray-950">
-          <AlertDialogHeader>
-            <AlertDialogTitle className={" text-center text-gray-900 dark:text-white"}>
-              {actionType === "APPROVED"
-                ? t("confirmation.approve.title")
-                : t("confirmation.reject.title")}
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-start text-gray-600 dark:text-gray-400">
-              {actionType === "APPROVED"
-                ? t("confirmation.approve.description")
-                : t("confirmation.reject.description")}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel asChild>
-              <Button variant="outline" className="text-gray-900 dark:text-white">
-                {t("confirmation.cancel")}
-              </Button>
-            </AlertDialogCancel>
-            <AlertDialogAction asChild>
-              <Button
-                onClick={handleConfirmAction}
-                className="bg-main-600 text-white hover:bg-main-300 hover:text-main-500 font-semibold shadow-sm hover:shadow-md transition-all"
-              >
-                {t("confirmation.confirm")}
-              </Button>
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmationDialog
+        open={showConfirmation}
+        onOpenChange={setShowConfirmation}
+        title={
+          actionType === "APPROVED"
+            ? t("confirmation.approve.title")
+            : t("confirmation.reject.title")
+        }
+        description={
+          actionType === "APPROVED"
+            ? t("confirmation.approve.description")
+            : t("confirmation.reject.description")
+        }
+        cancelText={t("confirmation.cancel")}
+        confirmText={t("confirmation.confirm")}
+        onConfirm={handleConfirmAction}
+        isLoading={updateStatusMutation.isPending}
+        titleClassName="text-center"
+        confirmButtonClassName="bg-main-600 text-white hover:bg-main-300 hover:text-main-500 font-semibold shadow-sm hover:shadow-md transition-all"
+      />
     </Dialog>
   );
 }

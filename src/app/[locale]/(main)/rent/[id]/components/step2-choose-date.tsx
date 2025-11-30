@@ -1,12 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { type Property } from "@/lib/services/api/properties";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { axiosClient } from "@/lib/services/axios-client";
+import { validateRentTime } from "@/lib/services/api/rents";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { X } from "lucide-react";
 
 interface Step2ChooseDateProps {
   property: Property;
@@ -44,10 +47,13 @@ export default function Step2ChooseDate({
   onNext,
 }: Step2ChooseDateProps) {
   const t = useTranslations("Rent.Step2");
+  const locale = useLocale();
+  const isRTL = locale === "ar";
   const [bookedDates, setBookedDates] = useState<BookedDateRange[]>([]);
   const [bookedTimeSlots, setBookedTimeSlots] = useState<string[]>([]);
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [loading, setLoading] = useState(true);
+  const [validating, setValidating] = useState(false);
 
   const isCourt = property.category === "court";
 
@@ -161,23 +167,137 @@ export default function Step2ChooseDate({
     });
   };
 
+  // Helper to check if a date is a weekend day (Thursday=4, Friday=5, Saturday=6)
+  const isWeekendDay = (date: Date) => {
+    const day = date.getDay();
+    return day === 4 || day === 5 || day === 6; // Thursday, Friday, Saturday
+  };
+
+  // Helper to check if a date is a weekday (Sunday=0, Monday=1, Tuesday=2, Wednesday=3)
+  const isWeekday = (date: Date) => {
+    const day = date.getDay();
+    return day === 0 || day === 1 || day === 2 || day === 3; // Sunday to Wednesday
+  };
+
+  // Check if a date is available (not past, not booked)
+  const isDateAvailable = (date: Date): boolean => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const checkDate = new Date(date);
+    checkDate.setHours(0, 0, 0, 0);
+
+    if (checkDate < today) return false;
+    if (isDateBooked(date)) return false;
+
+    return true;
+  };
+
+  // Get all 4 weekdays (Sun-Wed) in the same week as the given date (only available ones)
+  const getWeekdaysInWeek = (date: Date): Date[] => {
+    const dates: Date[] = [];
+    const dayOfWeek = date.getDay();
+
+    // Find the Sunday of this week
+    const sunday = new Date(date);
+    sunday.setHours(0, 0, 0, 0);
+    sunday.setDate(date.getDate() - dayOfWeek);
+
+    // Add Sunday (0), Monday (1), Tuesday (2), Wednesday (3) - only if available
+    for (let i = 0; i <= 3; i++) {
+      const d = new Date(sunday);
+      d.setDate(sunday.getDate() + i);
+      if (isDateAvailable(d)) {
+        dates.push(d);
+      }
+    }
+
+    return dates;
+  };
+
+  // Get all 3 holiday days (Thu-Sat) in the same week as the given date (only available ones)
+  const getHolidaysInWeek = (date: Date): Date[] => {
+    const dates: Date[] = [];
+    const dayOfWeek = date.getDay();
+
+    // Find the Sunday of this week
+    const sunday = new Date(date);
+    sunday.setHours(0, 0, 0, 0);
+    sunday.setDate(date.getDate() - dayOfWeek);
+
+    // Add Thursday (4), Friday (5), Saturday (6) - only if available
+    for (let i = 4; i <= 6; i++) {
+      const d = new Date(sunday);
+      d.setDate(sunday.getDate() + i);
+      if (isDateAvailable(d)) {
+        dates.push(d);
+      }
+    }
+
+    return dates;
+  };
+
+  // Handle clearing selected dates
+  const handleClearDates = () => {
+    setSelectedDates([]);
+  };
+
   const isDateDisabled = (date: Date) => {
     const today = new Date(new Date().setHours(0, 0, 0, 0));
-    const isPastOrBooked = date < today || isDateBooked(date);
+    const checkDate = new Date(date);
+    checkDate.setHours(0, 0, 0, 0);
+    const isPastOrBooked = checkDate < today || isDateBooked(date);
+
+    if (isPastOrBooked) return true;
 
     // For weekly rent type, only allow dates in weekly increments from the start date
     if (selectedRentType === "weekly" && selectedDates.length > 0 && !isCourt) {
-      const startDate = new Date(selectedDates[0].setHours(0, 0, 0, 0));
-      const checkDate = new Date(date.setHours(0, 0, 0, 0));
+      const startDate = new Date(selectedDates[0]);
+      startDate.setHours(0, 0, 0, 0);
       const daysDiff = Math.floor((checkDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
 
       // Allow the start date itself, or dates that are exactly multiples of 7 days from start
       const isValidWeeklyIncrement = daysDiff === 0 || (daysDiff > 0 && daysDiff % 7 === 0);
 
-      return isPastOrBooked || !isValidWeeklyIncrement;
+      return !isValidWeeklyIncrement;
     }
 
-    return isPastOrBooked;
+    // For weekdays rent type: disable Thursday, Friday, Saturday (only allow Sun-Wed)
+    // Also disable if dates are already selected (user must clear first to select different week)
+    if (selectedRentType === "weekdays" && !isCourt) {
+      if (isWeekendDay(date)) return true;
+
+      // If we have selected dates, disable all other weekdays
+      if (selectedDates.length > 0) {
+        const isSelected = selectedDates.some(d => {
+          const selDate = new Date(d);
+          selDate.setHours(0, 0, 0, 0);
+          return selDate.getTime() === checkDate.getTime();
+        });
+        return !isSelected;
+      }
+
+      return false;
+    }
+
+    // For holidays rent type: enable only Thursday, Friday, Saturday
+    // Also disable if dates are already selected (user must clear first to select different week)
+    if (selectedRentType === "holidays" && !isCourt) {
+      if (isWeekday(date)) return true;
+
+      // If we have selected dates, disable all other holiday days
+      if (selectedDates.length > 0) {
+        const isSelected = selectedDates.some(d => {
+          const selDate = new Date(d);
+          selDate.setHours(0, 0, 0, 0);
+          return selDate.getTime() === checkDate.getTime();
+        });
+        return !isSelected;
+      }
+
+      return false;
+    }
+
+    return false;
   };
 
   // Handle time slot selection with sequential validation
@@ -274,6 +394,45 @@ export default function Step2ChooseDate({
     }
   }, [selectedTimeSlotIndices, timeSlots, isCourt, setTimeRange]);
 
+  // Format date as mm/dd/yyyy
+  const formatDateForApi = (date: Date): string => {
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${month}/${day}/${year}`;
+  };
+
+  // Handle next button click with validation for monthly rent type
+  const handleNextClick = async () => {
+    if (selectedRentType === "monthly" && selectedDates.length >= 2) {
+      setValidating(true);
+      try {
+        const startDate = selectedDates[0];
+        const endDate = selectedDates[selectedDates.length - 1];
+
+        const response = await validateRentTime({
+          startDate: formatDateForApi(startDate),
+          endDate: formatDateForApi(endDate),
+          rentType: "monthly",
+          property: property._id,
+        });
+
+        if (response.data.isValid) {
+          onNext();
+        } else {
+          toast.error(`${response.data.message} (e.g. 15/10 - 15/11)`);
+        }
+      } catch (error) {
+        console.error("Error validating rent time:", error);
+        toast.error(t("validationError"));
+      } finally {
+        setValidating(false);
+      }
+    } else {
+      onNext();
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Calendar Section */}
@@ -302,6 +461,38 @@ export default function Step2ChooseDate({
 
                 setSelectedDates([date]);
                 setSelectedTimeSlotIndices([]);
+              }}
+              disabled={isDateDisabled}
+              className="rounded-lg border border-gray-200 dark:border-gray-700 w-fit p-6 scale-125"
+            />
+          ) : selectedRentType === "weekdays" || selectedRentType === "holidays" ? (
+            // Multiple selection calendar for weekdays/holidays - auto-select all days in the period
+            <Calendar
+              mode="multiple"
+              selected={selectedDates}
+              onSelect={(dates) => {
+                if (!dates || dates.length === 0) {
+                  // Don't allow deselection by clicking - must use clear button
+                  return;
+                }
+
+                // If we already have dates selected, don't allow changes (must clear first)
+                if (selectedDates.length > 0) {
+                  return;
+                }
+
+                // Get the clicked date (the new one)
+                const clickedDate = dates[dates.length - 1];
+
+                if (selectedRentType === "weekdays") {
+                  // Auto-select all 4 weekdays in this week
+                  const weekdays = getWeekdaysInWeek(clickedDate);
+                  setSelectedDates(weekdays);
+                } else if (selectedRentType === "holidays") {
+                  // Auto-select all 3 holiday days in this week
+                  const holidays = getHolidaysInWeek(clickedDate);
+                  setSelectedDates(holidays);
+                }
               }}
               disabled={isDateDisabled}
               className="rounded-lg border border-gray-200 dark:border-gray-700 w-fit p-6 scale-125"
@@ -434,25 +625,41 @@ export default function Step2ChooseDate({
         </div>
       )}
 
-      {/* Selected Dates Count */}
+      {/* Selected Dates Count with Clear Button */}
       {selectedDates.length > 0 && !isCourt && (
-        <div className="bg-main-50 dark:bg-main-900/20 rounded-xl p-4 border border-main-200 dark:border-main-800">
+        <div className={cn(
+          "bg-main-50 dark:bg-main-900/20 rounded-xl p-4 border border-main-200 dark:border-main-800 flex items-center justify-between",
+          isRTL && "flex-row-reverse"
+        )}>
           <p className="text-sm font-medium text-gray-900 dark:text-white">
             {t("selectedDates")}: {selectedDates.length}
           </p>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleClearDates}
+            className={cn(
+              "text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 gap-1",
+              isRTL && "flex-row-reverse"
+            )}
+          >
+            <X className="h-4 w-4" />
+            {t("clearDates")}
+          </Button>
         </div>
       )}
 
       {/* Next Button */}
       <Button
-        onClick={onNext}
+        onClick={handleNextClick}
         disabled={
           selectedDates.length === 0 ||
-          (isCourt && selectedTimeSlotIndices.length === 0)
+          (isCourt && selectedTimeSlotIndices.length === 0) ||
+          validating
         }
         className="w-full h-12 bg-gray-900 hover:bg-gray-800 dark:bg-gray-100 dark:hover:bg-gray-200 text-white dark:text-gray-900 font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {t("next")}
+        {validating ? t("validating") : t("next")}
       </Button>
     </div>
   );

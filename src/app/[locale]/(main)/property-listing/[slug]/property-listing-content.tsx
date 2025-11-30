@@ -10,8 +10,8 @@ import Button from "@/components/shared/button";
 import PropertyGrid from "@/app/[locale]/(main)/property-search/components/property-grid";
 import { Spinner } from "@/components/ui/spinner";
 import PaginationControls from "@/components/shared/pagination-controls";
-import { getProperties, type GetPropertiesParams } from "@/lib/services/api/properties";
-import { useQuery } from "@tanstack/react-query";
+import { type GetPropertiesParams } from "@/lib/services/api/properties";
+import { useProperties } from "@/hooks/use-properties";
 import SearchControl from "./search-control";
 import { useCountryContext } from "@/components/providers/country-provider";
 
@@ -73,10 +73,7 @@ export default function PropertyListingContent({ slug }: PropertyListingContentP
   }, [slug, page, filters, selectedCountry]);
 
   // Fetch properties
-  const { data: propertiesData, isLoading } = useQuery({
-    queryKey: ["property-listing", slug, apiParams],
-    queryFn: () => getProperties(apiParams),
-  });
+  const { data: propertiesData, isLoading } = useProperties(apiParams);
 
   // Reset page when filters change
   useEffect(() => {

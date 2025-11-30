@@ -9,16 +9,7 @@ import { cn } from "@/lib/utils";
 import { type BaseModalProps } from "./types";
 import { BaseDetailsModal } from "./base-modal";
 import PaymentMethodDialog from "@/components/dialogs/payment-method-dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import ConfirmationDialog from "@/components/dialogs/confirmation-dialog";
 
 interface ExtendInvoiceDetailsModalProps extends BaseModalProps {
   onPayInvoice?: (invoiceId: string, paymentMethod: string) => Promise<void>;
@@ -157,7 +148,7 @@ export function ExtendInvoiceDetailsModal(props: ExtendInvoiceDetailsModalProps)
           />
 
           {/* Payment Confirmation Dialog */}
-          <AlertDialog
+          <ConfirmationDialog
             open={confirmationDialogOpen}
             onOpenChange={(open) => {
               if (!isPaymentPending) {
@@ -167,40 +158,16 @@ export function ExtendInvoiceDetailsModal(props: ExtendInvoiceDetailsModalProps)
                 }
               }
             }}
-          >
-            <AlertDialogContent className="bg-white dark:bg-gray-950">
-              <AlertDialogHeader>
-                <AlertDialogTitle className="text-gray-900 dark:text-white">
-                  {t("payment-confirmation-title")}
-                </AlertDialogTitle>
-                <AlertDialogDescription className="text-gray-600 dark:text-gray-400">
-                  {t("payment-confirmation-description", {
-                    amount: invoiceData?.amount || 0,
-                    currency,
-                  })}
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel
-                  disabled={isPaymentPending}
-                  className="text-gray-900 dark:text-white"
-                >
-                  {t("cancel")}
-                </AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleConfirmPayment}
-                  disabled={isPaymentPending}
-                  className="bg-main-600 hover:bg-main-700 text-white"
-                >
-                  {isPaymentPending ? (
-                    <Spinner className="h-4 w-4" />
-                  ) : (
-                    t("confirm-payment")
-                  )}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+            title={t("payment-confirmation-title")}
+            description={t("payment-confirmation-description", {
+              amount: invoiceData?.amount || 0,
+              currency,
+            })}
+            cancelText={t("cancel")}
+            confirmText={t("confirm-payment")}
+            onConfirm={handleConfirmPayment}
+            isLoading={isPaymentPending}
+          />
         </>
       )}
     </BaseDetailsModal>

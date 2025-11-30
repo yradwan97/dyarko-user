@@ -76,7 +76,7 @@ export default function CreateAdDialog({ open, onOpenChange }: CreateAdDialogPro
     priceFrom: z.string().min(1, t("price-from-required")),
     priceTo: z.string().min(1, t("price-to-required")),
     priceType: z.enum(["daily", "weekly", "monthly"], {
-      required_error: t("price-type-required"),
+      error: t("price-type-required"),
     }),
   });
 
@@ -325,7 +325,7 @@ export default function CreateAdDialog({ open, onOpenChange }: CreateAdDialogPro
                     <div className="flex justify-between text-xs text-gray-500">
                       <FormMessage className="rtl:text-right" />
                       <span className="rtl:text-left">
-                        {field.value.length}/500
+                        {(field.value || "").length}/500
                       </span>
                     </div>
                   </FormItem>
