@@ -98,8 +98,6 @@ export const getFavourites = async (page: number = 1): Promise<{
  * Returns status 200 if favorited, 400 if not
  */
 export const checkCompanyFavourite = async (companyId: string): Promise<boolean> => {
-  const { data: session } = useSession()
-  if (!session) return false;
   try {
     const response = await axiosClient.get<FavouriteResponse>(
       `/favourites/${companyId}?type=COMPANY`

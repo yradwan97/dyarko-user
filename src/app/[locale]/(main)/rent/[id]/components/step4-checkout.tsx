@@ -206,10 +206,10 @@ export default function Step4Checkout({
 
       // Add selected apartments for hotel apartment properties
       if (property.category === "hotelapartment" && selectedApartments.length > 0) {
-        payload.apartments = selectedApartments.map((apartment) => ({
+        payload.apartments = JSON.stringify(selectedApartments.map((apartment) => ({
           type: apartment.type || "apartment",
           units: apartment.quantity || 1,
-        }));
+        })))
       }
 
       // Submit the rent request based on rent management type
