@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { KeyIcon } from "@/components/icons";
 import Typography from "@/components/shared/typography";
@@ -13,20 +14,44 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useCities } from "@/hooks/use-cities";
+import { useProperties } from "@/hooks/use-properties";
 import { useCountryContext } from "@/components/providers/country-provider";
-import { getLocalizedPath } from "@/lib/utils";
+import { getLocalizedPath, cn } from "@/lib/utils";
+import { formatPrice, getPropertyPrice, getPropertyPeriod, getOtherPrices } from "@/lib/utils/property-pricing";
+import { useCurrency } from "@/hooks/use-currency";
 import { BuildingIcon } from "lucide-react";
+import PropertyCard from "@/components/shared/property-card";
 
 export default function PropertiesFilterSection() {
   const t = useTranslations("HomePage.Properties");
   const tGeneral = useTranslations("General");
+  const tProperty = useTranslations("Properties");
+  const tPrice = useTranslations("Properties.Price");
   const locale = useLocale();
   const router = useRouter();
+  const isRTL = locale === "ar";
+  const currency = useCurrency();
   const { selectedCountry } = useCountryContext();
   const { data: cities, isLoading: citiesLoading } = useCities(selectedCountry);
   const [activeTab, setActiveTab] = useState<"rent" | "installment">("rent");
   const [selectedCity, setSelectedCity] = useState<string>("");
+
+  // Fetch properties based on selected city and active tab
+  const { data: propertiesData, isLoading: propertiesLoading } = useProperties({
+    city: selectedCity || undefined,
+    country: selectedCountry || undefined,
+    offerType: activeTab === "rent" ? "RENT" : "INSTALLMENT",
+    size: 10,
+  });
 
   const tabstyle = "flex items-center px-3 sm:px-5 cursor-pointer text-sm md:text-lg";
 
@@ -115,6 +140,82 @@ export default function PropertiesFilterSection() {
             {tGeneral("browse")}
           </Button>
         </div>
+      </div>
+      {/* Property Carousel */}
+      <div className="container mx-auto pb-20">
+        {propertiesLoading ? (
+          <div className="flex gap-4 overflow-hidden">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="min-w-[280px] shrink-0">
+                <Skeleton className="h-44 w-full rounded-t-lg" />
+                <div className="p-4 space-y-2">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-3 w-1/2" />
+                  <Skeleton className="h-5 w-1/3" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : propertiesData?.data?.data && propertiesData.data.data.length > 0 ? (
+          <Carousel
+            opts={{
+              align: "start",
+              loop: propertiesData.data.data.length > 3,
+            }}
+            className="w-full"
+          >
+            <CarouselContent className="-ml-4">
+              {propertiesData.data.data.map((property) => {
+                const price = getPropertyPrice(property);
+                const period = getPropertyPeriod(property);
+                const periodText = period ? ` / ${tPrice(period)}` : "";
+                const displayPrice = price
+                  ? `${formatPrice(price, currency, locale)}${periodText}`
+                  : tGeneral("price-not-available");
+                const otherPrices = getOtherPrices(property, period, currency, locale, tPrice);
+
+                return (
+                  <CarouselItem
+                    key={property._id}
+                    className="pl-4 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
+                  >
+                    <Link href={getLocalizedPath(`/properties/${property._id}`, locale)}>
+                      <PropertyCard
+                        variant="featured"
+                        image={property.image}
+                        name={property.title}
+                        location={`${isRTL ? property.region : property.region}, ${property.city}`}
+                        price={displayPrice}
+                        badge={property.offerType?.toLowerCase()}
+                        propertyType={
+                          locale === "ar"
+                            ? tGeneral(`Categories.${property.category}`)
+                            : property.category
+                        }
+                        propertyId={property._id}
+                        isVerified={property.isVerified}
+                        adType={property.adType}
+                        otherPrices={otherPrices}
+                      />
+                    </Link>
+                  </CarouselItem>
+                );
+              })}
+            </CarouselContent>
+            <CarouselPrevious className={cn(
+              "hidden md:flex",
+              isRTL ? "-right-12" : "-left-12"
+            )} />
+            <CarouselNext className={cn(
+              "hidden md:flex",
+              isRTL ? "-left-12" : "-right-12"
+            )} />
+          </Carousel>
+        ) : (
+          <div className="text-center py-10 text-gray-500">
+            {t("no-properties")}
+          </div>
+        )}
       </div>
     </section>
   );

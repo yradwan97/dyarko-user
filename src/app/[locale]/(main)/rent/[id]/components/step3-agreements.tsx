@@ -1,11 +1,13 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
+import Link from "next/link";
 import { Property } from "@/lib/services/api/properties";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { getLocalizedPath } from "@/lib/utils";
 
 interface Step3AgreementsProps {
   property: Property;
@@ -28,6 +30,9 @@ export default function Step3Agreements({
   const locale = useLocale();
   const t = useTranslations("Rent.Step3");
 
+  const hasContract = !!property?.contract;
+  const hasRules = !!property?.rules;
+
   const handleCheckboxChange = (key: string, checked: boolean) => {
     setAgreedToTerms({
       ...agreedToTerms,
@@ -39,13 +44,21 @@ export default function Step3Agreements({
     setAgreedToTerms({
       termsAndConditions: checked,
       refundPolicy: checked,
-      contract: checked,
-      ownerRoles: checked,
+      contract: hasContract ? checked : true,
+      ownerRoles: hasRules ? checked : true,
     });
   };
 
-  const allChecked = Object.values(agreedToTerms).every((v) => v === true);
-  const someChecked = Object.values(agreedToTerms).some((v) => v === true) && !allChecked;
+  // Only check visible items for allChecked/someChecked
+  const visibleTerms = {
+    termsAndConditions: agreedToTerms.termsAndConditions,
+    refundPolicy: agreedToTerms.refundPolicy,
+    ...(hasContract && { contract: agreedToTerms.contract }),
+    ...(hasRules && { ownerRoles: agreedToTerms.ownerRoles }),
+  };
+
+  const allChecked = Object.values(visibleTerms).every((v) => v === true);
+  const someChecked = Object.values(visibleTerms).some((v) => v === true) && !allChecked;
 
   return (
     <div className="space-y-6">
@@ -66,12 +79,15 @@ export default function Step3Agreements({
               }
               className="mt-0.5"
             />
-            <Label
-              htmlFor="termsAndConditions"
-              className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer flex-1"
-            >
-              <span className="text-main-500 hover:underline">{t("termsAndConditions")}</span>
-            </Label>
+            <div className="text-sm font-medium text-gray-700 dark:text-gray-300 flex-1">
+              <Link
+                href={getLocalizedPath("/terms-conditions", locale)}
+                target="_blank"
+                className="text-main-500 hover:underline"
+              >
+                {t("termsAndConditions")}
+              </Link>
+            </div>
           </div>
 
           {/* Refund Policy */}
@@ -84,50 +100,60 @@ export default function Step3Agreements({
               }
               className="mt-0.5"
             />
-            <Label
-              htmlFor="refundPolicy"
-              className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer flex-1"
-            >
-              <span className="text-main-500 hover:underline">{t("refundPolicy")}</span>
-            </Label>
+            <div className="text-sm font-medium text-gray-700 dark:text-gray-300 flex-1">
+              <Link
+                href={getLocalizedPath("/refund-policy", locale)}
+                target="_blank"
+                className="text-main-500 hover:underline"
+              >
+                {t("refundPolicy")}
+              </Link>
+            </div>
           </div>
 
           {/* Contract */}
-          <div className="flex items-start gap-3 p-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-            <Checkbox
-              id="contract"
-              checked={agreedToTerms.contract}
-              onCheckedChange={(checked) =>
-                handleCheckboxChange("contract", checked as boolean)
-              }
-              className="mt-0.5"
-            />
-            <Label
-              htmlFor="contract"
-              className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer flex-1"
-            >
-              <span className="text-main-500 hover:underline">{t("contract")}</span>
-            </Label>
-          </div>
+          {hasContract && (
+            <div className="flex items-start gap-3 p-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+              <Checkbox
+                id="contract"
+                checked={agreedToTerms.contract}
+                onCheckedChange={(checked) =>
+                  handleCheckboxChange("contract", checked as boolean)
+                }
+                className="mt-0.5"
+              />
+              <div className="text-sm font-medium text-gray-700 dark:text-gray-300 flex-1">
+                <Link
+                  href={property.contract!}
+                  target="_blank"
+                  className="text-main-500 hover:underline"
+                >
+                  {t("contract")}
+                </Link>
+              </div>
+            </div>
+          )}
 
           {/* Owner Rules */}
-          {!!property?.rules && <div className="flex items-start gap-3 p-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-            <Checkbox
-              id="ownerRules"
-              checked={agreedToTerms.ownerRoles}
-              onCheckedChange={(checked) =>
-                handleCheckboxChange("ownerRoles", checked as boolean)
-              }
-              className="mt-0.5"
-            />
-            <Label
-              htmlFor="ownerRules"
-              className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer flex-1"
-            >
-              {t("ownerRoles")}
-              <Input defaultValue={property.rules} disabled className="block cursor-not-allowed text-2xl text-black dark:text-gray-400 mt-1 py-2"/>
-            </Label>
-          </div>}
+          {hasRules && (
+            <div className="flex items-start gap-3 p-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+              <Checkbox
+                id="ownerRules"
+                checked={agreedToTerms.ownerRoles}
+                onCheckedChange={(checked) =>
+                  handleCheckboxChange("ownerRoles", checked as boolean)
+                }
+                className="mt-0.5"
+              />
+              <Label
+                htmlFor="ownerRules"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer flex-1"
+              >
+                {t("ownerRoles")}
+                <Input defaultValue={property.rules} disabled className="block cursor-not-allowed text-2xl text-black dark:text-gray-400 mt-1 py-2"/>
+              </Label>
+            </div>
+          )}
         </div>
       </div>
 

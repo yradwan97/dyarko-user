@@ -107,6 +107,7 @@ export default function FilterSection({
               selected={selectedCity}
               setSelected={setSelectedCity}
               disabled={citiesLoading}
+              placeholder={t("filters.select-city")}
             />
           </div>
 

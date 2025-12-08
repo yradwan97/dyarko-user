@@ -3,7 +3,7 @@ import { Property } from "@/lib/services/api/properties";
 /**
  * Get the rental period for a property
  * @param property - The property object
- * @returns The rental period string (e.g., "day", "week", "month") or null
+ * @returns The rental period string (e.g., "day", "week", "month", "weekdays", "holidays") or null
  */
 export const getPropertyPeriod = (property: Property): string | null => {
   // Only rent properties have periods
@@ -15,6 +15,8 @@ export const getPropertyPeriod = (property: Property): string | null => {
   if (property.isDaily) return "day";
   if (property.isWeekly) return "week";
   if (property.isMonthly) return "month";
+  if (property.isWeekdays) return "weekdays";
+  if (property.isHolidays) return "holidays";
 
   // Court category uses hourly pricing
   if (property.category === "court") {
@@ -70,6 +72,10 @@ export const getPropertyPrice = (
     basePrice = property.weeklyPrice;
   } else if (property.isMonthly && property.monthlyPrice) {
     basePrice = property.monthlyPrice;
+  } else if (property.isWeekdays && property.weekdaysPrice) {
+    basePrice = property.weekdaysPrice;
+  } else if (property.isHolidays && property.holidaysPrice) {
+    basePrice = property.holidaysPrice;
   }
 
   // If we found a standard price, apply discount and return
@@ -130,3 +136,70 @@ export const formatPrice = (
     maximumFractionDigits: 2,
   }).format(price) + ` ${currency}`;
 };
+
+export interface OtherPrice {
+  period: string;
+  price: string;
+}
+
+/**
+ * Get all available prices for a property (excluding the primary displayed one)
+ * @param property - The property object
+ * @param primaryPeriod - The primary period being displayed (to exclude from other prices)
+ * @param currency - The currency code
+ * @param locale - The locale for formatting
+ * @param tPrice - Translation function for price periods
+ * @returns Array of other available prices
+ */
+export function getOtherPrices(
+  property: Property,
+  primaryPeriod: string | null,
+  currency: string,
+  locale: string,
+  tPrice: (key: string) => string
+): OtherPrice[] {
+  // Only rent properties have multiple price periods
+  if (property.offerType !== "rent") {
+    return [];
+  }
+
+  const prices: OtherPrice[] = [];
+
+  // Check each price period and add if available and not the primary
+  if (property.isDaily && property.dailyPrice && primaryPeriod !== "day") {
+    prices.push({
+      period: tPrice("day"),
+      price: formatPrice(property.dailyPrice, currency, locale),
+    });
+  }
+
+  if (property.isWeekly && property.weeklyPrice && primaryPeriod !== "week") {
+    prices.push({
+      period: tPrice("week"),
+      price: formatPrice(property.weeklyPrice, currency, locale),
+    });
+  }
+
+  if (property.isMonthly && property.monthlyPrice && primaryPeriod !== "month") {
+    prices.push({
+      period: tPrice("month"),
+      price: formatPrice(property.monthlyPrice, currency, locale),
+    });
+  }
+
+  if (property.isWeekdays && property.weekdaysPrice && primaryPeriod !== "weekdays") {
+    prices.push({
+      period: tPrice("weekdays"),
+      price: formatPrice(property.weekdaysPrice, currency, locale),
+    });
+  }
+
+  if (property.isHolidays && property.holidaysPrice && primaryPeriod !== "holidays") {
+    prices.push({
+      period: tPrice("holidays"),
+      price: formatPrice(property.holidaysPrice, currency, locale),
+    });
+  }
+
+  return prices;
+}

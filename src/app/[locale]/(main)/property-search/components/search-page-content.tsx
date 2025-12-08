@@ -131,12 +131,11 @@ export default function SearchPageContent() {
       : [];
   }, [cities, locale]);
 
-  // Initialize selected city when cities load or country changes
+  // Clear selected city when country changes
   useEffect(() => {
-    if (cityOptions.length > 0) {
-      setSelectedCity(cityOptions[0]);
-    }
-  }, [cityOptions]);
+    setSelectedCity(undefined);
+    setAppliedCity(undefined);
+  }, [selectedCountry]);
 
   // Reset page to 1 when applied filters change
   useEffect(() => {
@@ -220,14 +219,14 @@ export default function SearchPageContent() {
             <Button
               variant={viewType === "grid" ? "primary" : "primary-outline"}
               onClick={() => setViewType("grid")}
-              className="!p-3"
+              className="p-3!"
             >
               <Grid3x3 className="h-4 w-4" />
             </Button>
             <Button
               variant={viewType === "list" ? "primary" : "primary-outline"}
               onClick={() => setViewType("list")}
-              className="!p-3"
+              className="p-3!"
             >
               <List className="h-4 w-4" />
             </Button>

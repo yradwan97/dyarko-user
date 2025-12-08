@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 import { useLocale, useTranslations } from "next-intl";
 import { useQueryClient } from "@tanstack/react-query";
 import { HeartIcon, CheckCircle2Icon } from "lucide-react";
@@ -55,6 +56,7 @@ export default function PropertyCard({
   adType,
   otherPrices = [],
 }: PropertyCardProps) {
+  const { data: session } = useSession();
   const locale = useLocale();
   const t = useTranslations("Properties.Details.Save");
   const tGeneral = useTranslations("General.PaymentMethods");
@@ -66,13 +68,13 @@ export default function PropertyCard({
   const [isCheckingFavorite, setIsCheckingFavorite] = useState(false);
 
   useEffect(() => {
-    if (propertyId) {
+    if (propertyId && session) {
       checkFavoriteStatus();
     }
-  }, [propertyId]);
+  }, [propertyId, session]);
 
   const checkFavoriteStatus = async () => {
-    if (!propertyId) return;
+    if (!propertyId || !session) return;
 
     try {
       setIsCheckingFavorite(true);
@@ -208,7 +210,7 @@ export default function PropertyCard({
                 variant="ghost"
                 size="icon"
                 onClick={handleFavoriteClick}
-                disabled={isCheckingFavorite}
+                disabled={!session || isCheckingFavorite}
                 className="h-8 w-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 <HeartIcon
@@ -279,7 +281,7 @@ export default function PropertyCard({
             variant="ghost"
             size="icon-sm"
             onClick={handleFavoriteClick}
-            disabled={isCheckingFavorite}
+            disabled={!session || isCheckingFavorite}
             className="self-start hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             <HeartIcon

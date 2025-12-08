@@ -7,7 +7,7 @@ import { useProperty } from "@/hooks/use-properties";
 import { useCountries } from "@/hooks/use-countries";
 import { toast } from "sonner";
 import { axiosClient } from "@/lib/services/axios-client";
-import { addFavourite, removeFavourite } from "@/lib/services/api/favourites";
+import { addFavourite, removeFavourite, checkFavourite } from "@/lib/services/api/favourites";
 import { ChevronLeft, Share2, Heart, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { getLocalizedPath, cn } from "@/lib/utils";
@@ -44,19 +44,20 @@ export default function PropertyDetails({ id }: PropertyDetailsProps) {
     if (property) {
       // Create property view
       createPropertyView(id);
-      setLiked(property.isFavourite);
+      // Check favourite status
+      checkFavoriteStatus();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [property, id]);
 
-  // const checkFavoriteStatus = async () => {
-  //   try {
-  //     const isFavorited = await checkFavourite(id);
-  //     setLiked(isFavorited);
-  //   } catch (error) {
-  //     console.error("Failed to check favorite status:", error);
-  //   }
-  // };
+  const checkFavoriteStatus = async () => {
+    try {
+      const isFavorited = await checkFavourite(id);
+      setLiked(isFavorited);
+    } catch (error) {
+      console.error("Failed to check favorite status:", error);
+    }
+  };
 
   const createPropertyView = async (propertyId: string) => {
     try {

@@ -37,6 +37,7 @@ export default function PropertyListingContent({ slug }: PropertyListingContentP
     price_from: null as number | null,
     price_to: null as number | null,
   });
+  const [searchTrigger, setSearchTrigger] = useState(0);
 
   // Map slug to offerType
   const getOfferType = (slug: string): GetPropertiesParams["offerType"] | undefined => {
@@ -70,7 +71,8 @@ export default function PropertyListingContent({ slug }: PropertyListingContentP
     if (filters.price_to) params.priceTo = filters.price_to;
 
     return params;
-  }, [slug, page, filters, selectedCountry]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug, page, filters, selectedCountry, searchTrigger]);
 
   // Fetch properties
   const { data: propertiesData, isLoading } = useProperties(apiParams);
@@ -82,6 +84,8 @@ export default function PropertyListingContent({ slug }: PropertyListingContentP
 
   const handleSearch = (newFilters: any) => {
     setFilters(newFilters);
+    // Increment search trigger to force refetch even if filters haven't changed
+    setSearchTrigger((prev) => prev + 1);
   };
 
   const handleReset = () => {

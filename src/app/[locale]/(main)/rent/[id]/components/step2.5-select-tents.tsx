@@ -168,7 +168,7 @@ export default function Step25SelectTents({
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-lg transition-all flex items-center justify-center">
                   <span className="opacity-0 group-hover:opacity-100 text-white bg-black/50 px-3 py-1 rounded-lg text-sm font-medium transition-opacity">
-                    Click to enlarge
+                    {t("click-to-enlarge")}
                   </span>
                 </div>
               </button>
@@ -177,7 +177,7 @@ export default function Step25SelectTents({
         ) : (
           <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-8 bg-gray-50 dark:bg-gray-900 text-center">
             <p className="text-gray-500 dark:text-gray-400">
-              {t("no-layout-image") || "No layout image available"}
+              {t("no-layout-image")}
             </p>
           </div>
         )}
@@ -292,17 +292,32 @@ export default function Step25SelectTents({
                       {isExpanded && (
                         <div className="px-4 pb-4 space-y-2 border-t border-gray-100 dark:border-gray-700 pt-3">
                           <div className="flex justify-between text-sm">
-                            <span className="text-gray-600 dark:text-gray-400">{t("name") || "Name"}:</span>
+                            <span className="text-gray-600 dark:text-gray-400">{t("name")}:</span>
                             <span className="font-medium text-gray-900 dark:text-white">{tent.groupName}</span>
                           </div>
+                          {/* Size for booth, Capacity for camp */}
+                          {property.category === "booth" && tent.area && (
+                            <div className="flex justify-between text-sm">
+                              <span className="text-gray-600 dark:text-gray-400">{t("size")}:</span>
+                              <span className="font-medium text-gray-900 dark:text-white">{tent.area} m²</span>
+                            </div>
+                          )}
+                          {property.category === "camp" && property.groups?.[tent.groupIndex]?.capacity && (
+                            <div className="flex justify-between text-sm">
+                              <span className="text-gray-600 dark:text-gray-400">{t("capacity")}:</span>
+                              <span className="font-medium text-gray-900 dark:text-white">
+                                {property.groups[tent.groupIndex].capacity} {t("person")}
+                              </span>
+                            </div>
+                          )}
                           <div className="flex justify-between text-sm">
-                            <span className="text-gray-600 dark:text-gray-400">{t("price") || "Price"}:</span>
+                            <span className="text-gray-600 dark:text-gray-400">{t("price")}:</span>
                             <span className="font-medium text-gray-900 dark:text-white">
                               {tent.price || property.groups?.[tent.groupIndex]?.price || 0} {tCommon("kwd")}
                             </span>
                           </div>
                           <div className="flex justify-between text-sm">
-                            <span className="text-gray-600 dark:text-gray-400">{t("insurance") || "Insurance"}:</span>
+                            <span className="text-gray-600 dark:text-gray-400">{t("insurance")}:</span>
                             <span className="font-medium text-gray-900 dark:text-white">
                               {tent.insurance || property.insurancePrice || 0} {tCommon("kwd")}
                             </span>

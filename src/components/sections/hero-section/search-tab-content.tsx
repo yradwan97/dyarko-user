@@ -56,7 +56,7 @@ export function SearchTabContent({ tab, session }: SearchTabContentProps) {
   };
 
   return (
-    <div className="flex w-full flex-col gap-4 lg:flex-row lg:items-center">
+    <div className={`flex w-full flex-col gap-4 lg:flex-row ${locale === "ar" && "lg:flex-row-reverse"} lg:items-center`}>
       {/* Location */}
       <div className="w-full flex-1">
         <Typography variant="body-md" as="p" className="mb-2 text-gray-600">
@@ -92,20 +92,6 @@ export function SearchTabContent({ tab, session }: SearchTabContentProps) {
           className="h-10 border-gray-200 focus:border-main-400"
         />
       </div>
-
-      {/* Property Type - Only for rent/installment and logged in users */}
-      {/* {session && tab !== "buy" && propertyTypes && (
-        <div className="flex-1">
-          <Typography variant="body-md" as="p" className="mb-2 text-gray-600">
-            {t("type")}
-          </Typography>
-          <DropDownSelect
-            list={propertyTypes.map((type) => type.name)}
-            selectedValue={selectedPropertyType ? propertyTypes.indexOf(selectedPropertyType) : 0}
-            onSelect={(indx) => setSelectedPropertyType(propertyTypes[indx])}
-          />
-        </div>
-      )} */}
 
       {/* Search Button */}
       <div className="w-full lg:flex-1 lg:pt-8">

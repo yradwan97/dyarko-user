@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter, usePathname } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { HeartIcon, EyeIcon, MessageCircleIcon, ShareIcon, FlagIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,12 +18,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import ConfirmationDialog from "@/components/dialogs/confirmation-dialog";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useVideo, useVideos } from "@/hooks/use-videos";
 import VideoCard from "@/components/shared/video-card";
 import VideoCommentsSection from "@/components/sections/video-comments-section";
 import VideoPlayer from "@/components/shared/video-player";
 import { createVideoView, likeVideo } from "@/lib/services/api/reels";
-import { cn } from "@/lib/utils";
+import { cn, getLocalizedPath } from "@/lib/utils";
 import { toast } from "sonner";
 import { axiosClient } from "@/lib/services/axios-client";
 
@@ -30,9 +33,13 @@ interface VideoDetailsProps {
 }
 
 export default function VideoDetails({ videoId }: VideoDetailsProps) {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const pathname = usePathname();
   const locale = useLocale();
   const isRTL = locale === "ar";
   const t = useTranslations("VideoDetailPage");
+  const tGeneral = useTranslations("General");
 
   const { data: videoData, isLoading, isError } = useVideo(videoId);
   const { data: relatedVideos } = useVideos({ page: 1, size: 6 });
@@ -89,7 +96,17 @@ export default function VideoDetails({ videoId }: VideoDetailsProps) {
     }
   };
 
+  const redirectToLogin = () => {
+    const currentPath = encodeURIComponent(pathname);
+    router.push(getLocalizedPath(`/login?redirect=${currentPath}`, locale));
+  };
+
   const handleLikeToggle = async () => {
+    if (!session) {
+      redirectToLogin();
+      return;
+    }
+
     try {
       await likeVideo(videoId, isLiked);
       setIsLiked(!isLiked);
@@ -244,17 +261,29 @@ export default function VideoDetails({ videoId }: VideoDetailsProps) {
               </div>
 
               <div className="flex gap-2">
-                <Button
-                  variant={isLiked ? "default" : "outline"}
-                  size="sm"
-                  onClick={handleLikeToggle}
-                  className={cn("gap-2", isRTL && "flex-row-reverse")}
-                >
-                  <HeartIcon
-                    className={cn("h-4 w-4", isLiked && "fill-current")}
-                  />
-                  {formatCount(likeCount)}
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span>
+                      <Button
+                        variant={isLiked ? "default" : "outline"}
+                        size="sm"
+                        onClick={handleLikeToggle}
+                        disabled={!session}
+                        className={cn("gap-2", isRTL && "flex-row-reverse")}
+                      >
+                        <HeartIcon
+                          className={cn("h-4 w-4", isLiked && "fill-current")}
+                        />
+                        {formatCount(likeCount)}
+                      </Button>
+                    </span>
+                  </TooltipTrigger>
+                  {!session && (
+                    <TooltipContent side="bottom">
+                      {tGeneral("login-required")}
+                    </TooltipContent>
+                  )}
+                </Tooltip>
                 <Button
                   variant="outline"
                   size="sm"
@@ -264,15 +293,27 @@ export default function VideoDetails({ videoId }: VideoDetailsProps) {
                   <ShareIcon className="h-4 w-4" />
                   {t("share")}
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleReportClick}
-                  className={cn("gap-2", isRTL && "flex-row-reverse")}
-                >
-                  <FlagIcon className="h-4 w-4" />
-                  {t("report.title")}
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleReportClick}
+                        disabled={!session}
+                        className={cn("gap-2", isRTL && "flex-row-reverse")}
+                      >
+                        <FlagIcon className="h-4 w-4" />
+                        {t("report.title")}
+                      </Button>
+                    </span>
+                  </TooltipTrigger>
+                  {!session && (
+                    <TooltipContent side="bottom">
+                      {tGeneral("login-required")}
+                    </TooltipContent>
+                  )}
+                </Tooltip>
               </div>
             </div>
 

@@ -511,10 +511,12 @@ export default function Step2ChooseDate({
                   return;
                 }
 
-                // Generate all dates between from and to
+                // Generate all dates between from and to (inclusive)
                 const dates: Date[] = [];
                 const current = new Date(range.from);
-                const end = range.to || range.from;
+                current.setHours(0, 0, 0, 0);
+                const end = new Date(range.to || range.from);
+                end.setHours(23, 59, 59, 999);
 
                 while (current <= end) {
                   dates.push(new Date(current));
@@ -546,6 +548,12 @@ export default function Step2ChooseDate({
               }
             </span>
           </div>
+          {selectedRentType === "monthly" && property?.minMonths && (
+            <div className="flex items-start gap-2 text-sm text-main-600 dark:text-main-400">
+              <span className="font-medium">{t("note")}:</span>
+              <span>{t("noteMinMonths", { months: property.minMonths })}</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -595,7 +603,7 @@ export default function Step2ChooseDate({
                       </svg>
                     )}
                     <span>
-                      {formatTime(slot.start)}
+                      {formatTime(slot.start)} - {formatTime(slot.end)}
                     </span>
                   </button>
                 );
@@ -632,7 +640,7 @@ export default function Step2ChooseDate({
           isRTL && "flex-row-reverse"
         )}>
           <p className="text-sm font-medium text-gray-900 dark:text-white">
-            {t("selectedDates")}: {selectedDates.length}
+            {t("selectedDates")}: {selectedDates.length > 1 ? selectedDates.length - 1 : 0}
           </p>
           <Button
             variant="ghost"
@@ -654,6 +662,7 @@ export default function Step2ChooseDate({
         onClick={handleNextClick}
         disabled={
           selectedDates.length === 0 ||
+          (!isCourt && selectedDates.length < 2) ||
           (isCourt && selectedTimeSlotIndices.length === 0) ||
           validating
         }

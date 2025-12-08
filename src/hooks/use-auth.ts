@@ -90,7 +90,15 @@ export function useLogin(redirectPath?: string | null) {
       // Check if there was actually an error
       if (data.hasError || data.error) {
         console.log("🔴 CLIENT: Login failed - error present:", data.error);
-        toast.error(t("errors.invalidCredentials"));
+        toast.error(t("errors.invalidCredentials"), {
+          duration: 5000,
+          position: "top-center",
+          style: {
+            background: "#ef4444",
+            color: "#ffffff",
+            border: "none",
+          },
+        });
         return;
       }
 
@@ -152,8 +160,7 @@ export function useSignup() {
     },
     onSuccess: (data) => {
       console.log("🟢 CLIENT: Signup successful, response data:", data);
-      toast.success(t("signupSuccess"));
-      router.push(getLocalizedPath("/login", locale));
+      // Don't redirect - let the component handle success via the success modal
     },
     onError: (error: unknown) => {
       console.error("🔴 CLIENT: Signup mutation error:", error);

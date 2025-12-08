@@ -56,7 +56,7 @@ export default function SearchControl({ slug, onSearch, onReset }: SearchControl
       : [];
   }, [cities, locale]);
 
-  // Initialize or update selected city when cities load or country changes
+  // Initialize selected city from URL params
   useEffect(() => {
     if (cityOptions.length > 0) {
       const cityParam = searchParams.get("city");
@@ -64,13 +64,15 @@ export default function SearchControl({ slug, onSearch, onReset }: SearchControl
         const city = cityOptions.find((c) => c.id === cityParam);
         if (city) {
           setSelectedCity(city);
-          return;
         }
       }
-      // Default to first city
-      setSelectedCity(cityOptions[0]);
     }
   }, [cityOptions, searchParams]);
+
+  // Clear selected city when country changes
+  useEffect(() => {
+    setSelectedCity(undefined);
+  }, [selectedCountry]);
 
   const handleSearch = () => {
     const filters: any = {};
@@ -98,9 +100,7 @@ export default function SearchControl({ slug, onSearch, onReset }: SearchControl
 
   const handleResetFilters = () => {
     setDate(null);
-    if (cityOptions.length > 0) {
-      setSelectedCity(cityOptions[0]);
-    }
+    setSelectedCity(undefined);
     setPriceRange([0, 0]);
     onReset();
   };
@@ -124,6 +124,7 @@ export default function SearchControl({ slug, onSearch, onReset }: SearchControl
               selected={selectedCity}
               setSelected={setSelectedCity}
               disabled={citiesLoading}
+              placeholder={t("select-city")}
             />
           </div>
 

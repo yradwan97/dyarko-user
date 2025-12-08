@@ -39,7 +39,7 @@ export default function RentApplication({ propertyId }: RentApplicationProps) {
   const [agreedToTerms, setAgreedToTerms] = useState({
     termsAndConditions: false,
     refundPolicy: false,
-    contract: false,
+    contract: !!property?.contract ? false : true,
     ownerRoles: !!property?.rules ? false : true,
   });
 
@@ -52,7 +52,15 @@ export default function RentApplication({ propertyId }: RentApplicationProps) {
 
   const handleBack = () => {
     if (currentStep > 1) {
+      // Clear selected dates when going back from step 2 to step 1
+      if (currentStep === 2) {
+        setSelectedDates([]);
+        setTimeRange({ from: "", to: "" });
+        setSelectedTimeSlotIndices([]);
+      }
       setCurrentStep(currentStep - 1);
+      // Smooth scroll to top
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       router.push(getLocalizedPath(`/properties/${propertyId}`, locale));
     }
@@ -65,6 +73,8 @@ export default function RentApplication({ propertyId }: RentApplicationProps) {
 
     if (currentStep < maxSteps) {
       setCurrentStep(currentStep + 1);
+      // Smooth scroll to top
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
@@ -122,7 +132,7 @@ export default function RentApplication({ propertyId }: RentApplicationProps) {
           <div className="flex items-center gap-4">
             <button
               onClick={handleBack}
-              className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className={`flex items-center justify-center w-10 h-10 rounded-full ${locale === "ar" && "rotate-180"} hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors`}
             >
               <ChevronLeft className="h-6 w-6" />
             </button>

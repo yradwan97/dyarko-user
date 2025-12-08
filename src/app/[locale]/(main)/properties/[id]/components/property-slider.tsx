@@ -149,7 +149,7 @@ export default function PropertySlider({ property }: PropertySliderProps) {
             {/* Scroll Up Button */}
             <button
               onClick={goToPrevious}
-              className="flex h-10 items-center justify-center rounded bg-gray-200 hover:bg-primary hover:text-white transition-colors dark:bg-gray-700 dark:hover:bg-primary"
+              className="flex h-10 items-center justify-center rounded bg-gray-300 cursor-pointer hover:bg-gray-200 transition-colors dark:bg-gray-700 dark:hover:bg-primary"
             >
               <ChevronUp className="h-5 w-5" />
             </button>
@@ -169,7 +169,7 @@ export default function PropertySlider({ property }: PropertySliderProps) {
             {/* Scroll Down Button */}
             <button
               onClick={goToNext}
-              className="flex h-10 items-center justify-center rounded bg-gray-200 hover:bg-primary hover:text-white transition-colors dark:bg-gray-700 dark:hover:bg-primary"
+              className="flex h-10 items-center justify-center rounded bg-gray-300 cursor-pointer hover:bg-gray-200 transition-colors dark:bg-gray-700 dark:hover:bg-primary"
             >
               <ChevronDown className="h-5 w-5" />
             </button>

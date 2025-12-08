@@ -9,6 +9,7 @@ import Image from "next/image";
 import Typography from "@/components/shared/typography";
 import Button from "@/components/shared/button";
 import { Rating } from "@/components/ui/rating";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Owner } from "@/lib/services/api/companies";
 import { checkCompanyFavourite, addCompanyFavourite, removeCompanyFavourite } from "@/lib/services/api/favourites";
 
@@ -40,6 +41,7 @@ export default function CompanyBanner({ owner }: CompanyBannerProps) {
   const router = useRouter();
   const pathname = usePathname();
   const t = useTranslations("Companies");
+  const tGeneral = useTranslations("General");
   const [isFavorite, setIsFavorite] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -120,14 +122,25 @@ export default function CompanyBanner({ owner }: CompanyBannerProps) {
             />
           </div>
           <div className="mt-2 md:mt-0">
-            <Button
-              variant={isFavorite ? "primary-outline" : "primary"}
-              className="!px-6 !py-2.5"
-              onClick={handleFavorite}
-              disabled={isLoading}
-            >
-              {isFavorite ? t("unfollow") : t("follow")}
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span>
+                  <Button
+                    variant={isFavorite ? "primary-outline" : "primary"}
+                    className="!px-6 !py-2.5"
+                    onClick={handleFavorite}
+                    disabled={!session || isLoading}
+                  >
+                    {isFavorite ? t("unfollow") : t("follow")}
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              {!session && (
+                <TooltipContent side="bottom">
+                  {tGeneral("login-required")}
+                </TooltipContent>
+              )}
+            </Tooltip>
           </div>
         </div>
       </div>

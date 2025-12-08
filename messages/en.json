@@ -72,7 +72,10 @@
       "long-text": "You don't need to consent as a condition of renting any property, or buying any other goods or services. Message/data rates may apply."
     },
     "browse": "Browse more properties",
+    "create-ad": "Create Ad",
+    "map": "Map",
     "login": "Login",
+    "login-required": "Please login first",
     "sign-up": "Sign Up",
     "profile": "Profile",
     "logout": "Logout",
@@ -104,6 +107,7 @@
     "title": "Browse Properties -",
     "description": "Find your perfect property from our extensive listings",
     "location": "Location",
+    "select-city": "Select city",
     "when": "Available Date",
     "date-placeholder": "Select date",
     "price": "Price Range",
@@ -440,7 +444,8 @@
     },
     "Properties": {
       "title-head": "Based on your location",
-      "title-desc": "Some of our picked properties near you location."
+      "title-desc": "Some of our picked properties near you location.",
+      "no-properties": "No properties found for the selected filters"
     },
     "Videos": {
       "title": "Related videos",
@@ -522,7 +527,7 @@
     "Page": {
       "main": "Welcome back!",
       "sub": "Welcome back! Please enter your details.",
-      "is-owner": "Are you a property owner ?",
+      "is-owner": "Are you a property owner?",
       "owner-link": "Go to owner portal",
       "no-account": "Don't have an account?",
       "sign-up": "Sign up for free"
@@ -610,6 +615,12 @@
       "required": "Password is required",
       "valid": "Minimum character length is 8"
     },
+    "ConfirmPassword": {
+      "label": "Confirm Password",
+      "placeholder": "Re-enter password",
+      "required": "Confirm password is required",
+      "mismatch": "Passwords do not match"
+    },
     "got-account": "Already have a user account?",
     "login": "Login Here",
     "is-owner": "Already have an owner account?",
@@ -630,7 +641,17 @@
     },
     "agree-terms": "Agree to terms and conditions",
     "agree-refund": "Agree to refund policies",
-    "agree-privacy": "Agree to privacy policies"
+    "agree-privacy": "Agree to privacy policies",
+    "SuccessModal": {
+      "title": "Sign Up Successful!",
+      "description": "Please check your email to verify your account.",
+      "resend-button": "Resend Confirmation Email",
+      "resend-countdown": "Resend in {time}",
+      "resending": "Sending...",
+      "resend-success": "Confirmation email sent successfully",
+      "resend-error": "Failed to resend confirmation email",
+      "close-button": "Got it"
+    }
   },
   "Companies": {
     "title": "Companies",
@@ -1200,6 +1221,7 @@
       "search-button": "Search",
       "city-label": "City",
       "city-placeholder": "Select city...",
+      "select-city": "Select city",
       "categories": "Categories",
       "bedrooms": "Bedrooms",
       "bathrooms": "Bathrooms",
@@ -1230,6 +1252,7 @@
       "change-password": "Change Password",
       "wallet": "Wallet",
       "saved": "Saved Properties",
+      "following": "Following",
       "my-requests": "My Requests",
       "my-real-estates": "My Real Estate",
       "transactions": "Transactions",
@@ -1370,6 +1393,12 @@
       "description": "Properties you've saved for later viewing",
       "no-properties": "No saved properties yet",
       "no-properties-description": "Start saving properties you're interested in to view them later"
+    },
+    "Following": {
+      "title": "Following Companies",
+      "description": "Companies you follow to stay updated on their listings",
+      "no-companies": "No companies followed yet",
+      "no-companies-description": "Start following companies to stay updated on their latest properties"
     },
     "MyRequests": {
       "title": "My Requests",
@@ -1880,6 +1909,7 @@
       "noteAvailableDate": "This unit becomes available for booking starting {date}",
       "noteUnavailableDate": "Unavailable units are likely booked for your chosen dates",
       "noteUnavailableSlots": "Unavailable slots are likely booked for your chosen date",
+      "noteMinMonths": "Minimum rental period is {months} months",
       "selectedDates": "Selected dates",
       "selectTimeRange": "Select Time Range",
       "selectTimeSlots": "Select Time Slots",
@@ -1897,6 +1927,8 @@
     "Step2_5": {
       "camp-layout": "Camp Layout",
       "no-tents": "No tents available in this property",
+      "no-layout-image": "No layout image available",
+      "click-to-enlarge": "Click to enlarge",
       "layout-note": "Click on available tents to select them. Unavailable tents are likely booked for your chosen dates.",
       "choose-tents": "Choose Tents",
       "tent-chosen": "Tent Chosen",
@@ -1905,6 +1937,8 @@
       "name": "Name",
       "price": "Price",
       "insurance": "Insurance",
+      "size": "Size",
+      "capacity": "Capacity",
       "camp-note": "Note: This is the camp's layout. The tents you select will match the same numbers and locations shown here",
       "details-note": "Note: You can check all tent details inside the camp details section",
       "select-type": "Select Type",
@@ -1962,7 +1996,12 @@
       "securityDepositNote": "Any security deposit will be held by Dyarko as a guarantee and refunded after your rental ends, per Terms & Conditions.",
       "commissionNote": "Any commission on your invoice comes from the agent or broker — not from Dyarko.",
       "completePurchase": "Complete Purchase",
-      "sendRequest": "Send Request"
+      "sendRequest": "Send Request",
+      "requestSuccess": "Rent request submitted successfully! We will notify you once the owner responds.",
+      "paymentSuccess": "Payment session initiated successfully!",
+      "requestError": "Failed to submit rent request. Please try again.",
+      "paymentError": "Failed to initiate payment session. Please try again.",
+      "popupBlocked": "Please allow popups to proceed with payment"
     }
   },
   "Map": {
@@ -1971,6 +2010,8 @@
     "no-properties": "No properties found in this area",
     "loading-cities": "Loading cities...",
     "no-cities-available": "No cities available",
+    "select-city": "Select a city",
+    "select-category": "Select a category",
     "select-category-first": "Please select a category first",
     "loading-classes": "Loading classes...",
     "no-classes-available": "No classes available for this category"

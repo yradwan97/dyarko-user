@@ -122,8 +122,6 @@ export default function CreateAdDialog({ open, onOpenChange }: CreateAdDialogPro
     createAdMutation.mutate(submitData, {
       onSuccess: (response: any) => {
         if (response.status === "success" && response.data?.PayUrl) {
-          toast.success(response.message || "Payment session initiated successfully!");
-
           // Close the dialog first
           handleClose();
 

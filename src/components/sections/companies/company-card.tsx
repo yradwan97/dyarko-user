@@ -9,6 +9,7 @@ import { Rating } from "@mui/material";
 
 import Typography from "@/components/shared/typography";
 import Button from "@/components/shared/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Owner } from "@/lib/services/api/companies";
 import { checkCompanyFavourite, addCompanyFavourite, removeCompanyFavourite } from "@/lib/services/api/favourites";
 
@@ -22,6 +23,7 @@ export default function CompanyCard({ owner, onFollowChange }: CompanyCardProps)
   const router = useRouter();
   const pathname = usePathname();
   const t = useTranslations("Companies");
+  const tGeneral = useTranslations("General");
   const [isFavorite, setIsFavorite] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -75,16 +77,27 @@ export default function CompanyCard({ owner, onFollowChange }: CompanyCardProps)
           alt={owner.name}
           className="h-[240px] w-full rounded-lg object-cover sm:w-[240px]"
         />
-        <Button
-          onClick={handleFavorite}
-          variant={isFavorite ? "primary-outline" : "primary"}
-          className="!absolute !right-2 !top-2 !rounded-md !px-2 !py-1 sm:!hidden"
-          disabled={isLoading}
-        >
-          <Typography variant="body-xs-medium" as="p">
-            {isFavorite ? t("unfollow") : t("follow")}
-          </Typography>
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="absolute right-2 top-2 sm:hidden">
+              <Button
+                onClick={handleFavorite}
+                variant={isFavorite ? "primary-outline" : "primary"}
+                className="!rounded-md !px-2 !py-1"
+                disabled={!session || isLoading}
+              >
+                <Typography variant="body-xs-medium" as="p">
+                  {isFavorite ? t("unfollow") : t("follow")}
+                </Typography>
+              </Button>
+            </span>
+          </TooltipTrigger>
+          {!session && (
+            <TooltipContent side="bottom">
+              {tGeneral("login-required")}
+            </TooltipContent>
+          )}
+        </Tooltip>
       </div>
 
       <div className="col-span-1 mb-1 flex-grow md:col-span-2">
@@ -112,14 +125,25 @@ export default function CompanyCard({ owner, onFollowChange }: CompanyCardProps)
       </div>
 
       <div className="relative col-span-1 hidden text-end sm:col-span-2 sm:block md:col-span-1">
-        <Button
-          variant={isFavorite ? "primary-outline" : "primary"}
-          className="!px-5 !py-2 font-bold"
-          onClick={handleFavorite}
-          disabled={isLoading}
-        >
-          {isFavorite ? t("unfollow") : t("follow")}
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span>
+              <Button
+                variant={isFavorite ? "primary-outline" : "primary"}
+                className="!px-5 !py-2 font-bold"
+                onClick={handleFavorite}
+                disabled={!session || isLoading}
+              >
+                {isFavorite ? t("unfollow") : t("follow")}
+              </Button>
+            </span>
+          </TooltipTrigger>
+          {!session && (
+            <TooltipContent side="bottom">
+              {tGeneral("login-required")}
+            </TooltipContent>
+          )}
+        </Tooltip>
       </div>
     </div>
   );

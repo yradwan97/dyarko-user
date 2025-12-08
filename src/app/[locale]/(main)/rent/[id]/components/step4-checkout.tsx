@@ -6,6 +6,7 @@ import { type Property, type PropertyService } from "@/lib/services/api/properti
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, Home, Wallet, Loader2 } from "lucide-react";
 import { format } from "date-fns";
+import { ar, enUS } from "date-fns/locale";
 import { useCountries } from "@/hooks/use-countries";
 import { useManagementConfig } from "@/hooks/use-management-config";
 import { createRent, createRentRequest } from "@/lib/services/api/rents";
@@ -28,6 +29,30 @@ interface Step4CheckoutProps {
   };
   pickupLocation: { lat: number; lng: number } | null;
 }
+
+// Helper function to format time string (handles both ISO strings and simple time strings)
+const formatTimeString = (timeStr: string): string => {
+  if (!timeStr) return "";
+
+  // Check if it's an ISO string
+  if (timeStr.includes("T") || timeStr.includes("-")) {
+    try {
+      const date = new Date(timeStr);
+      if (!isNaN(date.getTime())) {
+        return date.toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        });
+      }
+    } catch {
+      // Fall through to return original string
+    }
+  }
+
+  // Return as-is if it's already a formatted time string like "2:00 PM"
+  return timeStr;
+};
 
 export default function Step4Checkout({
   property,
@@ -218,7 +243,7 @@ export default function Step4Checkout({
         const response = await createRent(payload);
 
         if (response.status === "success" && response.data.PayUrl) {
-          toast.success(response.message || "Payment session initiated successfully!");
+          toast.success(t("paymentSuccess"));
 
           // Open payment URL in a new window
           const paymentWindow = window.open(
@@ -229,7 +254,7 @@ export default function Step4Checkout({
 
           if (!paymentWindow) {
             // If popup was blocked, show a message
-            toast.error("Please allow popups to proceed with payment");
+            toast.error(t("popupBlocked"));
             // Fallback: navigate to the payment URL in the same tab
             window.location.href = response.data.PayUrl;
           } else {
@@ -243,18 +268,18 @@ export default function Step4Checkout({
             }, 1000);
           }
         } else {
-          toast.error("Failed to initiate payment session");
+          toast.error(t("paymentError"));
         }
       } else {
         // Non-direct rent - create request only
         const response = await createRentRequest(payload);
 
         if (response.status === "success") {
-          toast.success(response.message || "Rent request submitted successfully!");
+          toast.success(t("requestSuccess"));
           // Redirect to property details or requests page
           router.push(`/${locale}/user/my-requests`);
         } else {
-          toast.error(response.message || "Failed to submit rent request");
+          toast.error(t("requestError"));
         }
       }
     } catch (error: any) {
@@ -283,15 +308,16 @@ export default function Step4Checkout({
             <Calendar className="h-5 w-5 text-gray-600 dark:text-gray-400" />
             <div className="flex-1">
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                {isCourt ? t("date") || "Date" : t("checkInOut")}
+                {isCourt ? t("date") : t("checkInOut")}
               </p>
               <p className="text-sm font-medium text-gray-900 dark:text-white">
                 {isCourt && checkInDate
-                  ? format(checkInDate, "dd MMM yyyy")
+                  ? format(checkInDate, "dd MMM yyyy", { locale: locale === "ar" ? ar : enUS })
                   : checkInDate && checkOutDate
-                  ? `${format(checkInDate, "dd MMM yyyy")} - ${format(
+                  ? `${format(checkInDate, "dd MMM yyyy", { locale: locale === "ar" ? ar : enUS })} - ${format(
                     checkOutDate,
-                    "dd MMM yyyy"
+                    "dd MMM yyyy",
+                    { locale: locale === "ar" ? ar : enUS }
                   )}`
                   : t("notSelected")}
               </p>
@@ -299,7 +325,7 @@ export default function Step4Checkout({
           </div>
 
           {/* Check-in Time */}
-          {(property.checkInTime || property.checkOutTime) && (
+          {(property.checkInTime || property.checkOutTime) && !isCourt && (
             <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
               <Clock className="h-5 w-5 text-gray-600 dark:text-gray-400" />
               <div className="flex-1">
@@ -308,8 +334,8 @@ export default function Step4Checkout({
                 </p>
                 <p className="text-sm font-medium text-gray-900 dark:text-white">
                   {property.checkInTime && property.checkOutTime
-                    ? `${property.checkInTime} - ${property.checkOutTime}`
-                    : property.checkInTime || property.checkOutTime || "N/A"}
+                    ? `${formatTimeString(property.checkInTime)} - ${formatTimeString(property.checkOutTime)}`
+                    : formatTimeString(property.checkInTime || property.checkOutTime || "") || "N/A"}
                 </p>
               </div>
             </div>
@@ -334,18 +360,10 @@ export default function Step4Checkout({
               <Clock className="h-5 w-5 text-gray-600 dark:text-gray-400" />
               <div className="flex-1">
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {t("timeRange") || "Time Range"}
+                  {t("timeRange")}
                 </p>
                 <p className="text-sm font-medium text-gray-900 dark:text-white">
-                  {new Date(timeRange.from).toLocaleTimeString("en-US", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: true,
-                  })} - {new Date(timeRange.to).toLocaleTimeString("en-US", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: true,
-                  })}
+                  {formatTimeString(timeRange.from)} - {formatTimeString(timeRange.to)}
                 </p>
               </div>
             </div>

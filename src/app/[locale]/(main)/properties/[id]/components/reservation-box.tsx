@@ -8,7 +8,7 @@ import { useMutation } from "@tanstack/react-query";
 import { type Property } from "@/lib/services/api/properties";
 import { createInstallmentRequest } from "@/lib/services/api/installments";
 import { getLocalizedPath, cn } from "@/lib/utils";
-import { getPropertyPrice, getPropertyPeriod, formatPrice } from "@/lib/utils/property-pricing";
+import { getPropertyPrice, getPropertyPeriod, formatPrice, getOtherPrices } from "@/lib/utils/property-pricing";
 import { Button } from "@/components/ui/button";
 import { FileText, MapPin, Phone } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -96,6 +96,7 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
 
   const price = getPropertyPrice(property);
   const period = getPropertyPeriod(property);
+  const otherPrices = getOtherPrices(property, period, currency, locale, tPrice);
 
   const decideSubmitButtonLinkHref = () => {
     if (property.offerType === "rent") {
@@ -247,33 +248,48 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
             {t("replace-with")} {tCategories(property.replaceWith || "")}
           </p>
         ) : (
-          <div
-            className="flex  justify-between"
-          >
+          <div className="space-y-3">
             <div
-              className="flex flex-col"
+              className="flex justify-between"
             >
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                {property.offerType === "rent" ? t("rent-price") : t("price")}
-              </span>
-              <p className="text-lg font-bold text-yellow-600">
-                {price ? formatPrice(price, currency, locale) : "N/A"}
-                {property.offerType === "rent" && period && (
-                  <sub>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {" "}
-                      / {tPrice(period)}
-                    </span>
-                  </sub>
-                )}
-              </p>
-            </div>
-            {property.minMonths && (
-              <div className="flex flex-col items-center">
-                <span className="text-center text-sm text-gray-500 dark:text-gray-400">
-                  {t("min-months")}
+              <div
+                className="flex flex-col"
+              >
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {property.offerType === "rent" ? t("rent-price") : t("price")}
                 </span>
-                <p className="text-yellow-600">{property.minMonths}</p>
+                <p className="text-lg font-bold text-yellow-600">
+                  {price ? formatPrice(price, currency, locale) : "N/A"}
+                  {property.offerType === "rent" && period && (
+                    <sub>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        {" "}
+                        / {tPrice(period)}
+                      </span>
+                    </sub>
+                  )}
+                </p>
+              </div>
+              {property.minMonths && (
+                <div className="flex flex-col items-center">
+                  <span className="text-center text-sm text-gray-500 dark:text-gray-400">
+                    {t("min-months")}
+                  </span>
+                  <p className="text-yellow-600">{property.minMonths}</p>
+                </div>
+              )}
+            </div>
+            {/* Other Prices */}
+            {otherPrices.length > 0 && (
+              <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+                {otherPrices.map((otherPrice, index) => (
+                  <span
+                    key={index}
+                    className="text-xs text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded"
+                  >
+                    {otherPrice.price} / {otherPrice.period}
+                  </span>
+                ))}
               </div>
             )}
           </div>

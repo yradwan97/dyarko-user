@@ -39,8 +39,6 @@ export interface GetFavouritesResponse {
  */
 export const checkFavourite = async (propertyId: string): Promise<boolean> => {
   try {
-    const { data: session } = useSession()
-    if (!session) return false;
     const response = await axiosClient.get<FavouriteResponse>(
       `/favourites/${propertyId}`
     );

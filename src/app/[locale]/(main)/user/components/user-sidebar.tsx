@@ -13,6 +13,7 @@ import {
   Receipt,
   HelpCircle,
   MessageCircle,
+  Heart,
 } from "lucide-react";
 
 import Typography from "@/components/shared/typography";
@@ -27,6 +28,7 @@ const navLinks = [
   { to: "/user/profile", text: "profile", icon: User },
   { to: "/user/change-password", text: "change-password", icon: Lock },
   { to: "/user/saved", text: "saved", icon: Bookmark },
+  { to: "/user/following", text: "following", icon: Heart },
   { to: "/user/my-requests", text: "my-requests", icon: FileText },
   { to: "/user/my-real-estates", text: "my-real-estates", icon: Home }
 ];

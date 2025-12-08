@@ -10,6 +10,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import Button from "@/components/shared/button";
 import Typography from "@/components/shared/typography";
@@ -97,9 +104,9 @@ export default function MapFiltersModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>{tGeneral("filters") || "Filters"}</DialogTitle>
-          <DialogDescription>
+        <DialogHeader className="text-center">
+          <DialogTitle className="text-center">{tGeneral("filters") || "Filters"}</DialogTitle>
+          <DialogDescription className="text-center">
             {tGeneral("filter-properties-description") || "Filter properties by category and class"}
           </DialogDescription>
         </DialogHeader>
@@ -110,34 +117,28 @@ export default function MapFiltersModal({
             <Typography variant="body-md-bold" as="p" className="mb-3">
               {tGeneral("city")} <span className="text-red-500">*</span>
             </Typography>
-            {citiesLoading ? (
-              <Typography variant="body-sm" as="p" className="text-gray-500">
-                {tMap("loading-cities")}
-              </Typography>
-            ) : cities && cities.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {cities.map((city) => (
-                  <Badge
-                    key={city.key}
-                    variant={selectedCity === city.key ? "default" : "outline"}
-                    className={`cursor-pointer transition-colors ${
-                      selectedCity === city.key
-                        ? "bg-main-500 text-white hover:bg-main-600"
-                        : "hover:bg-gray-100 dark:hover:bg-gray-800"
-                    }`}
-                    onClick={() =>
-                      setSelectedCity(selectedCity === city.key ? "" : city.key)
-                    }
-                  >
-                    {locale === "ar" ? city.cityAr : city.city}
-                  </Badge>
-                ))}
-              </div>
-            ) : (
-              <Typography variant="body-sm" as="p" className="text-gray-500">
-                {tMap("no-cities-available")}
-              </Typography>
-            )}
+            <Select
+              value={selectedCity}
+              onValueChange={setSelectedCity}
+              disabled={citiesLoading}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder={tMap("select-city")} />
+              </SelectTrigger>
+              <SelectContent>
+                {cities && cities.length > 0 ? (
+                  cities.map((city) => (
+                    <SelectItem key={city.key} value={city.key}>
+                      {locale === "ar" ? city.cityAr : city.city}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <div className="py-2 px-2 text-sm text-gray-500">
+                    {tMap("no-cities-available")}
+                  </div>
+                )}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Categories - Mandatory */}
@@ -145,24 +146,21 @@ export default function MapFiltersModal({
             <Typography variant="body-md-bold" as="p" className="mb-3">
               {tGeneral("category")} <span className="text-red-500">*</span>
             </Typography>
-            <div className="flex flex-wrap gap-2">
-              {categories?.map((category) => (
-                <Badge
-                  key={category.key}
-                  variant={selectedCategory === category.key ? "default" : "outline"}
-                  className={`cursor-pointer transition-colors ${
-                    selectedCategory === category.key
-                      ? "bg-main-500 text-white hover:bg-main-600"
-                      : "hover:bg-gray-100 dark:hover:bg-gray-800"
-                  }`}
-                  onClick={() =>
-                    setSelectedCategory(selectedCategory === category.key ? "" : category.key)
-                  }
-                >
-                  {t(category.key)}
-                </Badge>
-              ))}
-            </div>
+            <Select
+              value={selectedCategory}
+              onValueChange={setSelectedCategory}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder={tMap("select-category")} />
+              </SelectTrigger>
+              <SelectContent>
+                {categories?.map((category) => (
+                  <SelectItem key={category.key} value={category.key}>
+                    {t(category.key)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Classes - Mandatory */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useQueryClient } from "@tanstack/react-query";
 import { X, MapPin, Heart } from "lucide-react";
@@ -13,6 +13,16 @@ import { Button } from "@/components/ui/button";
 import { checkFavourite, addFavourite, removeFavourite } from "@/lib/services/api/favourites";
 import { toast } from "sonner";
 import { formatPrice } from "@/lib/utils/property-pricing";
+
+const isValidImageUrl = (url: string | undefined | null): boolean => {
+  if (!url) return false;
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+};
 
 interface PropertyMapCardProps {
   property: MapProperty;
@@ -31,6 +41,9 @@ export default function PropertyMapCard({
   const [isFavorite, setIsFavorite] = useState(false);
   const [isCheckingFavorite, setIsCheckingFavorite] = useState(false);
   const [imageError, setImageError] = useState(false);
+
+  const hasValidImage = useMemo(() => isValidImageUrl(property.image), [property.image]);
+  const imageSrc = hasValidImage && !imageError ? property.image! : "/no-apartment.png";
 
   useEffect(() => {
     if (property._id) {
@@ -100,7 +113,7 @@ export default function PropertyMapCard({
       {/* Property Image */}
       <div className="relative h-48 w-full">
         <Image
-          src={imageError || !property.image ? "/no-apartment.png" : property.image}
+          src={imageSrc}
           alt={property.title}
           fill
           className="object-cover"

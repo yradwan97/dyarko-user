@@ -8,6 +8,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { BellIcon, MenuIcon, ChevronDown, PlusCircle, Map } from "lucide-react";
 import { DropdownMenu, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import Navbar from "./header/navbar";
 import MobileSidebar from "./header/mobile-sidebar";
 import NotificationDropdown from "./header/notification-dropdown";
@@ -63,26 +64,40 @@ export default function Header() {
     >
       <LocalizationDropdown />
 
-      <button
-        onClick={() => setCreateAdOpen(true)}
-        className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
-      >
-        <PlusCircle className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-      </button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            onClick={() => setCreateAdOpen(true)}
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
+          >
+            <PlusCircle className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">
+          {t("create-ad")}
+        </TooltipContent>
+      </Tooltip>
 
-      <Link
-        href={getLocalizedPath("/map", locale)}
-        className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
-      >
-        <Map className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-      </Link>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Link
+            href={getLocalizedPath("/map", locale)}
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
+          >
+            <Map className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+          </Link>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">
+          {t("map")}
+        </TooltipContent>
+      </Tooltip>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700">
             <BellIcon className="relative z-10 h-5 w-5 text-gray-700 dark:text-gray-300" />
             {notificationCount > 0 && (
-              <span className="absolute -right-1 -top-1 z-20 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-medium text-white">
+              <span className="absolute -right-1 -top-1 z-20 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-medium text-white">
                 {notificationCount < 9 ? notificationCount : "9+"}
               </span>
             )}
@@ -101,7 +116,7 @@ export default function Header() {
       />
 
       <button
-        className="inline-block lg:hidden"
+        className="inline-block xl:hidden"
         onClick={() => setVisible(true)}
       >
         <MenuIcon className="h-6 w-6 text-gray-700 dark:text-gray-300" />
@@ -115,7 +130,7 @@ export default function Header() {
       "flex items-center gap-3",
       locale === "ar" ? "flex-row-reverse" : "flex-row"
     )}>
-      <div className="hidden md:flex items-center gap-3">
+      <div className="hidden xl:flex items-center gap-3">
         <LocalizationDropdown />
         <Popover>
           <PopoverTrigger asChild suppressHydrationWarning>
@@ -145,7 +160,7 @@ export default function Header() {
         </Popover>
       </div>
       <button
-        className="inline-block md:hidden"
+        className="inline-block xl:hidden"
         onClick={() => setVisible(true)}
       >
         <MenuIcon className="h-6 w-6 text-gray-700 dark:text-gray-300" />
@@ -177,8 +192,8 @@ export default function Header() {
 
         {/* Center navigation */}
         <nav className={cn(
-          "hidden flex-1 items-center justify-center lg:flex order-2",
-          locale === "ar" ? "lg:flex-row-reverse" : "lg:flex-row"
+          "hidden flex-1 items-center justify-center xl:flex order-2",
+          locale === "ar" ? "xl:flex-row-reverse" : "xl:flex-row"
         )}>
           <Navbar />
         </nav>

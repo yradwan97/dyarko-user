@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SearchTabContent } from "./search-tab-content";
 import type { Session } from "next-auth";
@@ -14,6 +14,7 @@ export function SearchTabs({ session }: SearchTabsProps) {
   const [activeTab, setActiveTab] = useState("rent");
   const [isMounted, setIsMounted] = useState(false);
   const tPayment = useTranslations("General.PaymentMethods");
+  const locale = useLocale();
 
   useEffect(() => {
     setIsMounted(true);
@@ -52,7 +53,7 @@ export function SearchTabs({ session }: SearchTabsProps) {
         </TabsList>
 
         <div className="relative">
-          <div className="absolute start-0 top-0 z-10 w-full max-w-full rounded-b-lg bg-white shadow-xl md:min-w-[500px] lg:min-w-[640px] xl:min-w-[700px]">
+          <div className={`absolute ${locale === "ar" ? "end-0" : "start-0"} top-0 z-10 w-full max-w-full rounded-b-lg bg-white shadow-xl md:min-w-[500px] lg:min-w-[640px]`}>
             <TabsContent value="rent" className="mt-0 p-4 md:p-6">
               <SearchTabContent tab="rent" session={session} />
             </TabsContent>

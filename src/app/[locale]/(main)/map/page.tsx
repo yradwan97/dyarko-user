@@ -44,6 +44,7 @@ export default function MapPage() {
   // Get center based on selected country
   const countryCenter = countryCenters[selectedCountry || "KW"] || countryCenters.KW;
   const [mapCenter, setMapCenter] = useState(countryCenter);
+  const [mapZoom, setMapZoom] = useState(8);
 
   // Fetch properties based on filters
   const { data: propertiesData, isLoading } = useMapProperties(
@@ -54,10 +55,27 @@ export default function MapPage() {
 
   const properties = propertiesData?.data || [];
 
-  // Update map center when country changes
+  // Center map on first property when properties load
+  useEffect(() => {
+    if (properties.length > 0) {
+      const firstProperty = properties.find((p: MapProperty) => p.lat && p.long);
+      if (firstProperty) {
+        setMapCenter({ lat: Number(firstProperty.lat), lng: Number(firstProperty.long) });
+        setMapZoom(7);
+      }
+    }
+  }, [properties]);
+
+  // Update map center and clear filters when country changes
   useEffect(() => {
     const newCenter = countryCenters[selectedCountry || "KW"] || countryCenters.KW;
     setMapCenter(newCenter);
+    // Clear all filters and reopen modal when country changes
+    setSelectedCategory("");
+    setSelectedClass("");
+    setSelectedCity("");
+    setSelectedProperty(null);
+    setIsFiltersOpen(true);
   }, [selectedCountry]);
 
   // Debug: Log properties to check lat/long
@@ -122,7 +140,7 @@ export default function MapPage() {
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
         center={mapCenter}
-        zoom={8}
+        zoom={mapZoom}
         options={{
           streetViewControl: false,
           mapTypeControl: false,

@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { Plus, ChevronDown } from "lucide-react";
 import { getOwnerReviews } from "@/lib/services/api/companies";
 import Typography from "@/components/shared/typography";
 import Button from "@/components/shared/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import SingleReview from "./single-review";
 import LeaveReview from "./leave-review";
 import { Spinner } from "@/components/ui/spinner";
@@ -16,9 +18,11 @@ interface CompanyReviewsProps {
 }
 
 export default function CompanyReviews({ ownerId }: CompanyReviewsProps) {
+  const { data: session } = useSession();
   const [visible, setVisible] = useState(false);
   const [limit, setLimit] = useState(3);
   const t = useTranslations("Companies.Details.Reviews");
+  const tGeneral = useTranslations("General");
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["owner-reviews", ownerId],
@@ -36,14 +40,26 @@ export default function CompanyReviews({ ownerId }: CompanyReviewsProps) {
           <Typography variant="h4" as="h4" className="text-xl text-black">
             {t("title")}
           </Typography>
-          <Button
-            variant="primary"
-            className="hidden items-center p-3! text-sm md:flex"
-            onClick={() => setVisible(true)}
-          >
-            {t("add")}
-            <Plus className="ml-2.5 h-4 w-4 stroke-white" />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="hidden md:inline-block">
+                <Button
+                  variant="primary"
+                  className="flex items-center p-3! text-sm"
+                  onClick={() => setVisible(true)}
+                  disabled={!session}
+                >
+                  {t("add")}
+                  <Plus className="ml-2.5 h-4 w-4 stroke-white" />
+                </Button>
+              </span>
+            </TooltipTrigger>
+            {!session && (
+              <TooltipContent side="bottom">
+                {tGeneral("login-required")}
+              </TooltipContent>
+            )}
+          </Tooltip>
         </div>
 
         <div className="p-4 md:p-10">
@@ -91,14 +107,26 @@ export default function CompanyReviews({ ownerId }: CompanyReviewsProps) {
             </>
           )}
 
-          <Button
-            variant="primary-outline"
-            className="mt-6 flex w-full items-center justify-center !p-3 text-sm md:hidden"
-            onClick={() => setVisible(true)}
-          >
-            <Plus className="mr-2 h-4 w-4 stroke-white" />
-            {t("add")}
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="block md:hidden">
+                <Button
+                  variant="primary-outline"
+                  className="mt-6 flex w-full items-center justify-center !p-3 text-sm"
+                  onClick={() => setVisible(true)}
+                  disabled={!session}
+                >
+                  <Plus className="mr-2 h-4 w-4 stroke-white" />
+                  {t("add")}
+                </Button>
+              </span>
+            </TooltipTrigger>
+            {!session && (
+              <TooltipContent side="top">
+                {tGeneral("login-required")}
+              </TooltipContent>
+            )}
+          </Tooltip>
         </div>
       </div>
 

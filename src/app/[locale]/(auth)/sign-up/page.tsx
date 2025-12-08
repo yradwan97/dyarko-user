@@ -32,6 +32,7 @@ import { useNationalities } from "@/hooks/use-nationalities";
 import { TermsModal } from "./components/terms-modal";
 import { PrivacyModal } from "./components/privacy-modal";
 import { RefundModal } from "./components/refund-modal";
+import { SignupSuccessModal } from "./components/signup-success-modal";
 import { useGetTermsAndConditions } from "./hooks/use-get-terms";
 import { useGetPrivacyPolicy } from "./hooks/use-get-privacy";
 import { useGetRefundPolicy } from "./hooks/use-get-refund";
@@ -41,9 +42,12 @@ export default function SignUpPage() {
   const locale = useLocale();
   const signupMutation = useSignup();
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(false);
   const [refundOpen, setRefundOpen] = useState(false);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [signupEmail, setSignupEmail] = useState("");
 
   // Fetch countries, nationalities, and policies
   const { data: countries, isLoading: countriesLoading } = useCountries();
@@ -71,6 +75,7 @@ export default function SignUpPage() {
         .min(1, t("Phone.required"))
         .regex(/^\d+$/, t("Phone.numbers-only")),
       password: z.string().min(1, t("Password.required")).min(8, t("Password.valid")),
+      confirmPassword: z.string().min(1, t("ConfirmPassword.required")),
     };
 
     // Add policy agreements only if they have items
@@ -96,6 +101,15 @@ export default function SignUpPage() {
           }
         }
       }
+
+      // Validate confirm password matches password
+      if (data.password && data.confirmPassword && data.password !== data.confirmPassword) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t("ConfirmPassword.mismatch"),
+          path: ["confirmPassword"],
+        });
+      }
     });
   }, [t, hasTerms, hasPolicies, hasRefund, terms, policies, refundPolicies, countries]);
 
@@ -115,6 +129,7 @@ export default function SignUpPage() {
       nationality: "",
       phoneNumber: "",
       password: "",
+      confirmPassword: "",
       // If policies exist with items, set to false (user must check), otherwise set to true (auto-checked)
       ...(hasTermsItems ? { termsAgree: false } : { termsAgree: true }),
       ...(hasPoliciesItems ? { privacyAgree: false } : { privacyAgree: true }),
@@ -139,14 +154,22 @@ export default function SignUpPage() {
   }, [selectedCountryCode, form]);
 
   const onSubmit = (data: SignupFormData) => {
-    signupMutation.mutate({
-      name: data.name,
-      email: data.email,
-      country: data.country,
-      nationality: data.nationality,
-      phoneNumber: data.phoneNumber,
-      password: data.password,
-    });
+    signupMutation.mutate(
+      {
+        name: data.name,
+        email: data.email,
+        country: data.country,
+        nationality: data.nationality,
+        phoneNumber: data.phoneNumber,
+        password: data.password,
+      },
+      {
+        onSuccess: () => {
+          setSignupEmail(data.email);
+          setSuccessModalOpen(true);
+        },
+      }
+    );
   };
 
   return (
@@ -319,6 +342,42 @@ export default function SignUpPage() {
             )}
           />
 
+          <FormField
+            control={form.control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-gray-700">{t("ConfirmPassword.label")}</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Input
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder={t("ConfirmPassword.placeholder")}
+                      className="h-12 pe-12"
+                      disabled={signupMutation.isPending}
+                      {...field}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute ltr:right-0 rtl:left-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      disabled={signupMutation.isPending}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-5 w-5 text-gray-400" />
+                      ) : (
+                        <Eye className="h-5 w-5 text-gray-400" />
+                      )}
+                    </Button>
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           {/* Terms and Conditions */}
           {hasTermsItems && (
             <FormField
@@ -454,6 +513,11 @@ export default function SignUpPage() {
       {hasTermsItems && <TermsModal isOpen={termsOpen} onClose={() => setTermsOpen(false)} terms={terms} />}
       {hasPoliciesItems && <PrivacyModal isOpen={privacyOpen} onClose={() => setPrivacyOpen(false)} policies={policies} />}
       {hasRefundItems && <RefundModal isOpen={refundOpen} onClose={() => setRefundOpen(false)} policies={refundPolicies} />}
+      <SignupSuccessModal
+        isOpen={successModalOpen}
+        onClose={() => setSuccessModalOpen(false)}
+        email={signupEmail}
+      />
     </div>
   );
 }

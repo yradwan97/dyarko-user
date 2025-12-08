@@ -80,10 +80,7 @@ export default function LocalizationDropdown({
           <SelectItem
             key={country.id}
             value={country.value}
-            className={cn(
-              "cursor-pointer",
-              locale === "ar" && "flex-row-reverse"
-            )}
+            className="cursor-pointer"
           >
             <div className="flex items-center gap-2">
               <Image

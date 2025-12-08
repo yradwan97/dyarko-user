@@ -16,6 +16,7 @@ interface CustomSelectProps {
   selected: Governorate | undefined;
   setSelected: (value: Governorate) => void;
   disabled?: boolean;
+  placeholder?: string;
 }
 
 export default function CustomSelect({
@@ -23,7 +24,8 @@ export default function CustomSelect({
   containerClass,
   selected,
   setSelected,
-  disabled
+  disabled,
+  placeholder
 }: CustomSelectProps) {
 
   const handleChange = (value: string) => {
@@ -42,10 +44,12 @@ export default function CustomSelect({
       <SelectTrigger
         className={cn(containerClass)}
       >
-        <SelectValue>
-          <div className="hidden sm:flex">
-            {selected && selected.icon}
-          </div>
+        <SelectValue placeholder={placeholder}>
+          {selected && (
+            <div className="hidden sm:flex">
+              {selected.icon}
+            </div>
+          )}
         </SelectValue>
       </SelectTrigger>
       <SelectContent>
