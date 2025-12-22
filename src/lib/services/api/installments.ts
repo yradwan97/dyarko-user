@@ -22,6 +22,7 @@ export interface InstallmentOwner {
   _id?: string;
   name: string;
   phoneNumber: string;
+  role: string;
   image: string;
 }
 

@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { getLocalizedPath } from "@/lib/utils";
+import { Textarea } from "@/components/ui/textarea";
 
 interface Step3AgreementsProps {
   property: Property;
@@ -136,7 +137,7 @@ export default function Step3Agreements({
 
           {/* Owner Rules */}
           {hasRules && (
-            <div className="flex items-start gap-3 p-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+            <div className="flex items-center gap-3 p-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <Checkbox
                 id="ownerRules"
                 checked={agreedToTerms.ownerRoles}
@@ -150,7 +151,7 @@ export default function Step3Agreements({
                 className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer flex-1"
               >
                 {t("ownerRoles")}
-                <Input defaultValue={property.rules} disabled className="block cursor-not-allowed text-2xl text-black dark:text-gray-400 mt-1 py-2"/>
+                <Textarea rows={4} defaultValue={property.rules} disabled className="block cursor-not-allowed text-2xl text-black dark:text-gray-400 mt-1 py-2"/>
               </Label>
             </div>
           )}

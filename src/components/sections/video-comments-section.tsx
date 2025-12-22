@@ -38,6 +38,7 @@ export default function VideoCommentsSection({
   const { data, isLoading, isError } = useVideoComments(videoId, {
     page: currentPage,
     size: 10,
+    enabled: !!session
   });
 
   const addCommentMutation = useAddVideoComment(videoId);

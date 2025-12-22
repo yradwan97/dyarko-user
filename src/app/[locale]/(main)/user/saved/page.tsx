@@ -86,6 +86,7 @@ export default function SavedPropertiesPage() {
                     propertyType={property.category}
                     propertyId={property._id}
                     isVerified={property.isVerified}
+                    isFavourite={true}
                   />
                 </Link>
               );

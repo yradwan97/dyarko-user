@@ -56,6 +56,7 @@ export interface Property {
   isFavourite: boolean;
   // Physical characteristics
   bedrooms?: number;
+  rooms?: number;
   bathrooms?: number;
   area?: number;
   // Rent-specific fields
@@ -97,6 +98,8 @@ export interface Property {
   hasPool?: boolean;
   // Documents
   contract?: string;
+  refundPolicy?: string;
+  purchaseContract?: string;
   interiorDesign?: string | null;
   reviews: any[];
   calendar: any[];
@@ -142,8 +145,8 @@ export interface GetPropertiesParams {
   isFeatured?: boolean;
   category?: string;
   type?: string;
-  priceFrom?: number;
-  priceTo?: number;
+  minPrice?: number;
+  maxPrice?: number;
   city?: string;
   country?: string;
   class?: string;
@@ -180,8 +183,8 @@ export const getProperties = async (
     isFeatured,
     category,
     type,
-    priceFrom,
-    priceTo,
+    minPrice,
+    maxPrice,
     city,
     country,
     sortBy,
@@ -215,12 +218,12 @@ export const getProperties = async (
     queryParams.append("type", type);
   }
 
-  if (priceFrom !== undefined) {
-    queryParams.append("priceFrom", priceFrom.toString());
+  if (minPrice !== undefined) {
+    queryParams.append("minPrice", minPrice.toString());
   }
 
-  if (priceTo !== undefined) {
-    queryParams.append("priceTo", priceTo.toString());
+  if (maxPrice !== undefined) {
+    queryParams.append("maxPrice", maxPrice.toString());
   }
 
   if (city) {
@@ -278,7 +281,7 @@ export const getProperties = async (
     queryParams.append("isHolidays", "true");
   }
 
-  const url = `/properties/?${queryParams.toString()}`;
+  const url = `/properties?${queryParams.toString()}`;
   const response = await noAuthAxios.get<PropertiesResponse>(url);
   return response.data;
 };
@@ -288,7 +291,7 @@ export const getPropertyById = async (id: string): Promise<Property> => {
     status: string;
     message: string;
     data: Property;
-  }>(`/properties/${id}/`);
+  }>(`/properties/${id}`);
   return response.data.data;
 };
 

@@ -247,6 +247,7 @@ export function BaseDetailsModal({
                 <div>
                   <Link
                     href={`/${locale}/companies/${request.owner._id}`}
+                    target="_blank"
                     className="font-medium text-main-600 hover:text-main-700 hover:underline"
                   >
                     <Typography variant="body-sm" as="span">

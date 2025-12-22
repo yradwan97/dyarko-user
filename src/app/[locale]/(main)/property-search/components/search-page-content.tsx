@@ -42,7 +42,7 @@ export default function SearchPageContent() {
   const [selectedSort, setSelectedSort] = useState("recentlyAdded");
   const [searchQuery, setSearchQuery] = useState("");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 0]);
-  const [offerType, setOfferType] = useState("RENT");
+  const [offerType, setOfferType] = useState("rent");
   const [advancedFilters, setAdvancedFilters] = useState<any>({});
 
   // Applied filters - used for API calls
@@ -50,7 +50,7 @@ export default function SearchPageContent() {
   const [appliedSort, setAppliedSort] = useState("recentlyAdded");
   const [appliedSearchQuery, setAppliedSearchQuery] = useState("");
   const [appliedPriceRange, setAppliedPriceRange] = useState<[number, number]>([0, 0]);
-  const [appliedOfferType, setAppliedOfferType] = useState("RENT");
+  const [appliedOfferType, setAppliedOfferType] = useState("rent");
 
   // Get category from URL query params
   const categoryParam = searchParams.get("category");
@@ -93,8 +93,9 @@ export default function SearchPageContent() {
     }
 
     // Price range (use applied state)
-    if (appliedPriceRange[0] > 0) params.priceFrom = Number(appliedPriceRange[0]);
-    if (appliedPriceRange[1] > 0) params.priceTo = Number(appliedPriceRange[1]);
+    const hasPriceFilter = appliedPriceRange[0] > 0 || appliedPriceRange[1] > 0;
+    if (appliedPriceRange[0] > 0) params.minPrice = Number(appliedPriceRange[0]);
+    if (appliedPriceRange[1] > 0) params.maxPrice = Number(appliedPriceRange[1]);
 
     // Offer type (use applied state)
     if (appliedOfferType) params.offerType = appliedOfferType;
@@ -104,11 +105,18 @@ export default function SearchPageContent() {
     if (advancedFilters.bathrooms) params.bathrooms = advancedFilters.bathrooms;
 
     // Time-based availability filters
+    const hasPeriodFilter = advancedFilters.isDaily || advancedFilters.isWeekly || advancedFilters.isMonthly || advancedFilters.isWeekdays || advancedFilters.isHolidays;
+
     if (advancedFilters.isDaily) params.isDaily = true;
     if (advancedFilters.isWeekly) params.isWeekly = true;
     if (advancedFilters.isMonthly) params.isMonthly = true;
     if (advancedFilters.isWeekdays) params.isWeekdays = true;
     if (advancedFilters.isHolidays) params.isHolidays = true;
+
+    // Default to isMonthly=true when price filter is set but no period is specified
+    if (hasPriceFilter && !hasPeriodFilter) {
+      params.isMonthly = true;
+    }
 
     return params;
   }, [appliedCity, appliedSort, appliedSearchQuery, appliedPriceRange, appliedOfferType, advancedFilters, page, selectedCountry, categoryParam]);
@@ -174,8 +182,8 @@ export default function SearchPageContent() {
 
     // Sync offer type
     if (advancedFilters.offerType && advancedFilters.offerType !== offerType) {
-      setOfferType(advancedFilters.offerType);
-      setAppliedOfferType(advancedFilters.offerType);
+      setOfferType(advancedFilters.offerType.toLowerCase());
+      setAppliedOfferType(advancedFilters.offerType.toLowerCase());
     }
   }, [advancedFilters, cityOptions]);
 

@@ -49,6 +49,23 @@ export function AxiosInterceptorProvider({ children }: PropsWithChildren) {
   };
 
   useEffect(() => {
+    // Request interceptor for noAuthAxios - attach token if available
+    const noAuthRequestInterceptor = noAuthAxios.interceptors.request.use(
+      (config) => {
+        config.headers["Accept-Language"] = locale;
+
+        // Attach auth token if session has accessToken
+        if (session?.user?.accessToken) {
+          config.headers["auth-token"] = `Bearer ${session.user.accessToken}`;
+        }
+
+        return config;
+      },
+      (error) => {
+        return Promise.reject(error);
+      }
+    );
+
     const requestInterceptor = axiosClient.interceptors.request.use(
       async (config) => {
         const currentAccessToken = session?.user?.accessToken;
@@ -211,6 +228,7 @@ export function AxiosInterceptorProvider({ children }: PropsWithChildren) {
     );
 
     return () => {
+      noAuthAxios.interceptors.request.eject(noAuthRequestInterceptor);
       axiosClient.interceptors.request.eject(requestInterceptor);
       axiosClient.interceptors.response.eject(responseInterceptor);
     };

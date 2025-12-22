@@ -34,7 +34,7 @@ export function useVideoComments(id: string, params: GetCommentsParams = {}) {
   return useQuery({
     queryKey: ["video-comments", id, params],
     queryFn: () => getVideoComments(id, params),
-    enabled: !!id,
+    enabled: !!id && params.enabled !== false,
     staleTime: 1000 * 60 * 2, // 2 minutes
   });
 }

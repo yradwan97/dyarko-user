@@ -175,6 +175,7 @@ export interface CommentsResponse {
 export interface GetCommentsParams {
   page?: number;
   size?: number;
+  enabled?: boolean;
 }
 
 // Comments API functions

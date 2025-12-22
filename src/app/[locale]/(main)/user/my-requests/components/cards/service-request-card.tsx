@@ -6,7 +6,9 @@ import Image from "next/image";
 import Typography from "@/components/shared/typography";
 import { cn, getProxiedImageUrl } from "@/lib/utils";
 import { RequestCardProps } from "./types";
-import { formatDate, getStatusColor } from "./shared-utils";
+import { formatDate } from "../modals/shared-utils";
+import {getStatusColor} from "./shared-utils"
+import { Calendar } from "lucide-react";
 
 export function ServiceRequestCard({
   request,
@@ -128,6 +130,13 @@ export function ServiceRequestCard({
               </div>
             </div>
           )}
+          {request.createdAt && (
+          <div className="flex items-center gap-2 text-gray-600">
+              <Typography variant="body-sm" as="p" className="text-gray-600">
+                {t("request-date")}: {formatDate(request.createdAt, locale)}
+            </Typography>
+          </div>
+        )}
         </div>
       </div>
     </div>

@@ -60,7 +60,11 @@
       "Bash(npm outdated:*)",
       "Bash(npx tsc:*)",
       "Bash(npm update:*)",
-      "Bash(npm ls:*)"
+      "Bash(npm ls:*)",
+      "WebFetch(domain:vercel.com)",
+      "Bash(npm view:*)",
+      "Bash(npm run build:check:*)",
+      "Bash(npx tsc --noEmit)"
     ],
     "deny": [],
     "ask": []

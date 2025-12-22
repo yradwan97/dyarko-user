@@ -1,18 +1,16 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Calendar, DollarSign, Phone, User, Wallet, FileText, MessageSquare } from "lucide-react";
+import { Calendar, DollarSign, Phone, User, Wallet, FileText, MessageSquare, Building, Tent } from "lucide-react";
 import Typography from "@/components/shared/typography";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { type BaseModalProps } from "./types";
 import { BaseDetailsModal } from "./base-modal";
-import { useManagementConfig } from "@/hooks/use-management-config";
 import PaymentMethodDialog from "@/components/dialogs/payment-method-dialog";
 import { proceedRentRequest, ProceedRentRequestPayload } from "@/lib/services/api/rents";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { format } from "date-fns";
 import { useRequestDetails } from "@/hooks/use-request-details";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -25,37 +23,26 @@ export function RentDetailsModal(props: BaseModalProps) {
   const request = data?.data;
   const property = data?.data?.property;
 
-  // Call useManagementConfig at top level with property country
-  const { data: managementConfig } = useManagementConfig(property?.country || '');
-
-  // Calculate rent period in months for display at top level
-  const rentPeriodMonths = useMemo(() => {
-    if (!request?.startDate || !request?.endDate) return 0;
-    const start = new Date(request.startDate);
-    const end = new Date(request.endDate);
-    const diffTime = Math.abs(end.getTime() - start.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return Math.floor(diffDays / 30);
-  }, [request?.startDate, request?.endDate]);
-
   // Calculate invoice amounts at top level
   const rentAmount = useMemo(() => {
     if (!property || !request?.rentType) return 0;
 
     const rentType = request.rentType.toLowerCase();
-    if (rentType === "daily") {
+     if (!!request.priceDetails) {
+      return Number(request.priceDetails.rent || 0);
+    } else if (rentType === "daily") {
       return Number(property.dailyPrice || 0);
     } else if (rentType === "weekly") {
       return Number(property.weeklyPrice || 0);
     } else if (rentType === "monthly") {
       return Number(property.monthlyPrice || 0);
-    }
+    } 
     return 0;
-  }, [property, request?.rentType]);
+  }, [property, request?.rentType, request?.priceDetails]);
 
   const insurance = useMemo(() => {
-    return Number(property?.insurancePrice || 0);
-  }, [property]);
+    return Number(request?.priceDetails?.insurance || 0);
+  }, [request]);
 
   const servicesTotal = useMemo(() => {
     if (!request?.services || request.services.length === 0) return 0;
@@ -65,13 +52,12 @@ export function RentDetailsModal(props: BaseModalProps) {
   }, [request?.services]);
 
   const tax = useMemo(() => {
-    if (!managementConfig?.data || managementConfig.data.length === 0) return 0;
-    return Number(managementConfig.data[0].tax || 0);
-  }, [managementConfig]);
+    return Number(request?.priceDetails?.tax || 0);
+  }, [request]);
 
   const total = useMemo(() => {
-    return rentAmount + insurance + servicesTotal + (Number(property?.commission) || 0) + tax;
-  }, [rentAmount, insurance, servicesTotal, property?.commission, tax]);
+    return rentAmount + insurance + servicesTotal + (Number(request?.priceDetails?.commission) || 0) + tax;
+  }, [request, rentAmount, insurance, servicesTotal, tax]);
 
   // Payment handler at top level
   const handlePayment = async (paymentMethod: string, request: any, locale: string) => {
@@ -130,6 +116,44 @@ export function RentDetailsModal(props: BaseModalProps) {
         return (
           <>
             <div className="space-y-4">
+              {/* Apartments */}
+              {request.apartments && request.apartments.length > 0 && (
+                <div className={cn("flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg", locale === "ar" && "flex-row-reverse")}>
+                  <Building className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                  <div className={cn("flex-1", locale === "ar" && "text-right")}>
+                    <Typography variant="body-sm" as="p" className="text-gray-500 dark:text-gray-400">
+                      {t("apartments")}
+                    </Typography>
+                    <div className="space-y-1">
+                      {request.apartments.map((apt: { type: string; units: number }, index: number) => (
+                        <Typography key={index} variant="body-sm" as="p" className="font-medium text-gray-900 dark:text-white">
+                          {apt.type}: {apt.units} {apt.units === 1 ? t("unit") : t("units")}
+                        </Typography>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Tents */}
+              {request.tents && request.tents.length > 0 && (
+                <div className={cn("flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg", locale === "ar" && "flex-row-reverse")}>
+                  <Tent className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                  <div className={cn("flex-1", locale === "ar" && "text-right")}>
+                    <Typography variant="body-sm" as="p" className="text-gray-500 dark:text-gray-400">
+                      {t("tents")}
+                    </Typography>
+                    <div className="space-y-1">
+                      {request.tents.map((tent: { type: string; units: number }, index: number) => (
+                        <Typography key={index} variant="body-sm" as="p" className="font-medium text-gray-900 dark:text-white">
+                          {tent.type}: {tent.units} {tent.units === 1 ? t("unit") : t("units")}
+                        </Typography>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Check-in & Check-out Date */}
                   <div className={cn("flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg", locale === "ar" && "flex-row-reverse")}>
                     <Calendar className="h-5 w-5 text-gray-600 dark:text-gray-400" />
@@ -145,17 +169,6 @@ export function RentDetailsModal(props: BaseModalProps) {
 
                   {/* Rent Period and Rent Type */}
                   <div className="grid grid-cols-2 gap-3">
-                    <div className={cn("flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg", locale === "ar" && "flex-row-reverse")}>
-                      <Wallet className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                      <div className={cn("flex-1", locale === "ar" && "text-right")}>
-                        <Typography variant="body-sm" as="p" className="text-gray-500 dark:text-gray-400">
-                          {t("rent-period")}
-                        </Typography>
-                        <Typography variant="body-sm" as="p" className="font-medium text-gray-900 dark:text-white">
-                          {rentPeriodMonths} {t("months")}
-                        </Typography>
-                      </div>
-                    </div>
 
                     <div className={cn("flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg", locale === "ar" && "flex-row-reverse")}>
                       <FileText className="h-5 w-5 text-gray-600 dark:text-gray-400" />
@@ -255,12 +268,12 @@ export function RentDetailsModal(props: BaseModalProps) {
                       )}
 
                       {/* Commission */}
-                      {property.commission && <div className={cn("flex justify-between items-center", locale === "ar" && "flex-row-reverse")}>
+                      {request?.priceDetails?.commission && <div className={cn("flex justify-between items-center", locale === "ar" && "flex-row-reverse")}>
                         <Typography variant="body-sm" as="span" className="text-gray-600 dark:text-gray-400">
                           {t("commission") || "Commission"}
                         </Typography>
                         <Typography variant="body-sm" as="span" className="font-medium text-gray-900 dark:text-white">
-                          {property?.commission} {currency}
+                          {request?.priceDetails?.commission} {currency}
                         </Typography>
                       </div>}
 

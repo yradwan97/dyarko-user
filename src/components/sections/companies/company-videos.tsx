@@ -2,7 +2,6 @@
 
 import { useTranslations } from "next-intl";
 
-import Typography from "@/components/shared/typography";
 import { Skeleton } from "@/components/ui/skeleton";
 import { type Video } from "@/lib/services/api/reels";
 import VideoCard from "@/components/shared/video-card";
@@ -28,18 +27,13 @@ export default function CompanyVideos({
   const t = useTranslations("Companies");
 
   const renderSkeletons = () => (
-    <div className="mb-16 mt-10">
-      <div className="mb-8 flex items-center justify-between">
-        <Typography variant="h2" as="h2" className="text-2xl text-gray-900 md:text-3xl">
-          {t("videos")}
-        </Typography>
-      </div>
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {[...Array(6)].map((_, i) => (
-          <div key={i} className="space-y-3">
+          <div key={i} className="space-y-2">
             <Skeleton className="aspect-video w-full rounded-lg" />
-            <Skeleton className="h-5 w-3/4" />
-            <Skeleton className="h-4 w-1/2" />
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-3 w-1/2" />
           </div>
         ))}
       </div>
@@ -55,17 +49,8 @@ export default function CompanyVideos({
   }
 
   return (
-    <div className="mb-16 mt-10">
-      <div className="mb-8 flex items-center justify-between">
-        <Typography variant="h2" as="h2" className="text-2xl text-gray-900 md:text-3xl">
-          {t("videos")}
-        </Typography>
-        <Typography variant="body-md" as="p" className="text-gray-600">
-          {total} {total === 1 ? t("video") : t("videos")}
-        </Typography>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {videos.map((video) => (
           <VideoCard key={video._id} video={video} />
         ))}

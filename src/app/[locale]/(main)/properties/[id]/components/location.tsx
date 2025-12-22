@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
 import HeadTitle from "./head-title";
 
@@ -25,13 +25,14 @@ interface LocationProps {
 }
 
 export default function Location({ coords }: LocationProps) {
+  const locale = useLocale();
   const t = useTranslations("Properties.Details");
   const { long, lat } = coords;
 
   return (
-    <div className="border-b border-gray-200 pt-12 dark:border-gray-700">
-      <HeadTitle text={t("map")} />
-      <div className="relative">
+    <div id="map-location" className="rounded-xl bg-gray-50 dark:bg-gray-800/50 p-6 mb-8" dir={locale === "ar" ? "rtl" : "ltr"}>
+      <HeadTitle text={t("map")} className="mb-6" />
+      <div className="relative rounded-lg overflow-hidden">
         <Map latitude={lat} longitude={long} />
       </div>
     </div>

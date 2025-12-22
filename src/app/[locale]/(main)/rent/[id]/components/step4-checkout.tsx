@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { type Property, type PropertyService } from "@/lib/services/api/properties";
 import { Button } from "@/components/ui/button";
@@ -8,8 +8,7 @@ import { Calendar, Clock, Home, Wallet, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import { useCountries } from "@/hooks/use-countries";
-import { useManagementConfig } from "@/hooks/use-management-config";
-import { createRent, createRentRequest } from "@/lib/services/api/rents";
+import { createRent, createRentRequest, type PriceDetails } from "@/lib/services/api/rents";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -69,9 +68,13 @@ export default function Step4Checkout({
   const locale = useLocale();
   const router = useRouter();
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isDirectRent = property.rentManagement === "direct";
+
+  const [isLoading, setIsLoading] = useState(isDirectRent);
+  const [payUrl, setPayUrl] = useState<string | null>(null);
+  const [priceDetails, setPriceDetails] = useState<PriceDetails | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const { data: countries } = useCountries();
-  const { data: managementConfig } = useManagementConfig(property.country);
 
   const currency = useMemo(() => {
     if (!property || !countries) return "KWD";
@@ -96,203 +99,131 @@ export default function Step4Checkout({
     ];
   }, [selectedDates]);
 
-  // Calculate rent amount based on property category
+  // Property category flags for UI display
   const isTentBased = property.category === "camp" || property.category === "booth";
   const isHotelApartment = property.category === "hotelapartment";
   const isCourt = property.category === "court";
 
-  const rentAmount = useMemo(() => {
-    if (isCourt && selectedRentType === "hourly" && timeRange && timeRange.from && timeRange.to) {
-      // For courts: calculate based on number of hours
-      // Hourly price comes from property.price field
-      const startTime = new Date(timeRange.from);
-      const endTime = new Date(timeRange.to);
-      const hours = Math.ceil((endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60));
-      const hourlyPrice = Number(property.price || 0);
-      return hourlyPrice * hours;
-    } else if (isTentBased && selectedTents.length > 0) {
-      // For camp/booth: sum all selected tents' prices * number of days
-      const totalTentPrice = selectedTents.reduce((sum, tent) => sum + Number(tent.price || 0), 0);
-      return totalTentPrice * (selectedDates.length - 1);
-    } else if (isHotelApartment && selectedApartments.length > 0) {
-      // For hotel apartments: sum all selected apartments' prices based on rent type
-      const totalApartmentPrice = selectedApartments.reduce((sum, apartment) => {
-        let price = 0;
-        if (selectedRentType === "daily") {
-          price = Number(apartment.dailyPrice || 0);
-        } else if (selectedRentType === "weekly") {
-          price = Number(apartment.weeklyPrice || 0);
-        } else if (selectedRentType === "monthly") {
-          price = Number(apartment.monthlyPrice || 0);
-        }
-        return sum + (price * (apartment.quantity || 1));
-      }, 0);
-      return totalApartmentPrice * selectedDates.length;
-    } else {
-      // For other properties: use property's daily/weekly/monthly price
-      const numberOfDays = selectedDates.length - 1;
-
-      if (selectedRentType === "daily") {
-        return Number(property?.dailyPrice || 0) * numberOfDays;
-      } else if (selectedRentType === "weekly") {
-        // Calculate number of weeks (minimum 1 week)
-        const numberOfWeeks = Math.ceil(numberOfDays / 7);
-        return Number(property?.weeklyPrice || 0) * numberOfWeeks;
-      } else if (selectedRentType === "monthly") {
-        // Calculate number of months (minimum 1 month)
-        const numberOfMonths = Math.ceil(numberOfDays / 30);
-        return Number(property?.monthlyPrice || 0) * numberOfMonths;
-      }
-
-      return 0;
+  // Build payload for API call
+  const buildPayload = useMemo(() => {
+    if (!property?._id || !selectedRentType || selectedDates.length === 0 || !checkInDate || !checkOutDate) {
+      return null;
     }
-  }, [isCourt, isTentBased, isHotelApartment, selectedTents, selectedApartments, selectedDates.length, selectedRentType, property, timeRange]);
 
-  const insurance = useMemo(() => {
-    if (isTentBased && selectedTents.length > 0) {
-      // For camp/booth: sum all selected tents' insurance
-      return selectedTents.reduce((sum, tent) => sum + Number(tent.insurance || 0), 0);
-    } else if (isHotelApartment) {
-      // For hotel apartments: use property's insurance price or 0
-      return property?.insurancePrice || 0;
+    const payload: any = {
+      property: property._id,
+      rentType: selectedRentType,
+    };
+
+    // For courts, use MM/DD/YYYY HH:mm format with start of first slot and end of last slot
+    if (property.category === "court" && timeRange && timeRange.from && timeRange.to) {
+      const startDateTime = new Date(timeRange.from);
+      const endDateTime = new Date(timeRange.to);
+      payload.startDate = format(startDateTime, "MM/dd/yyyy HH:mm");
+      payload.endDate = format(endDateTime, "MM/dd/yyyy HH:mm");
     } else {
-      // For other properties: use property's insurance price
-      return property?.insurancePrice || 0;
+      payload.startDate = format(checkInDate, "MM/dd/yyyy");
+      payload.endDate = format(checkOutDate, "MM/dd/yyyy");
     }
-  }, [isTentBased, isHotelApartment, selectedTents, property?.insurancePrice]);
 
-  const servicesTotal = selectedServices.reduce(((a, b) => a + Number(b.price)), 0);
+    // Add services only if there are any selected
+    if (selectedServices.length > 0) {
+      payload.services = selectedServices.map((service) => service._id);
+    }
 
-  // Get tax from management config
-  const tax = useMemo(() => {
-    if (!managementConfig?.data || managementConfig.data.length === 0) return 0;
-    return managementConfig.data[0].tax || 0;
-  }, [managementConfig]);
+    // Add pickup location for camper/movable properties
+    if (property.category === "camper" && (property as any).type === "movable" && pickupLocation) {
+      payload.lat = pickupLocation.lat.toString();
+      payload.long = pickupLocation.lng.toString();
+    }
 
-  const total = (rentAmount || 0) + (insurance || 0) + servicesTotal + tax;
+    // Add selected tents for camp/booth properties
+    if ((property.category === "camp" || property.category === "booth") && selectedTents.length > 0) {
+      payload.tents = selectedTents.map((tent) => tent._id);
+    }
 
-  const handleSubmit = async () => {
-    try {
-      setIsSubmitting(true);
+    // Add selected apartments for hotel apartment properties
+    if (property.category === "hotelapartment" && selectedApartments.length > 0) {
+      payload.apartments = selectedApartments.map((apartment) => ({
+        type: apartment.type || "apartment",
+        units: apartment.quantity || 1,
+      }));
+    }
 
-      // Validate required fields
-      if (!property?._id) {
-        toast.error("Property information is missing");
+    return payload;
+  }, [property, selectedRentType, selectedDates, checkInDate, checkOutDate, timeRange, selectedServices, pickupLocation, selectedTents, selectedApartments]);
+
+  // Call createRent API on component mount for direct rent properties
+  useEffect(() => {
+    const fetchRentData = async () => {
+      if (!isDirectRent || !buildPayload) {
+        setIsLoading(false);
         return;
       }
 
-      if (!selectedRentType) {
-        toast.error("Please select a rent type");
-        return;
-      }
+      setIsLoading(true);
+      setError(null);
 
-      if (selectedDates.length === 0 || !checkInDate || !checkOutDate) {
-        toast.error("Please select dates");
-        return;
-      }
-
-      // Prepare payload
-      const payload: any = {
-        property: property._id,
-        rentType: selectedRentType,
-      };
-
-      // For courts, use MM/DD/YYYY HH:mm format with start of first slot and end of last slot
-      // For other properties, use formatted dates (MM/DD/YYYY)
-      if (property.category === "court" && timeRange && timeRange.from && timeRange.to) {
-        // Format: "MM/DD/YYYY HH:mm"
-        const startDateTime = new Date(timeRange.from);
-        const endDateTime = new Date(timeRange.to);
-
-        payload.startDate = format(startDateTime, "MM/dd/yyyy HH:mm");
-        payload.endDate = format(endDateTime, "MM/dd/yyyy HH:mm");
-      } else {
-        const formattedStartDate = format(checkInDate, "MM/dd/yyyy");
-        const formattedEndDate = format(checkOutDate, "MM/dd/yyyy");
-        payload.startDate = formattedStartDate;
-        payload.endDate = formattedEndDate;
-      }
-
-      // Add services only if there are any selected
-      if (selectedServices.length > 0) {
-        payload.services = selectedServices.map((service) => service._id);
-      }
-
-      // Add pickup location for camper/movable properties
-      if (property.category === "camper" && (property as any).type === "movable" && pickupLocation) {
-        payload.lat = pickupLocation.lat.toString();
-        payload.long = pickupLocation.lng.toString();
-      }
-
-      // Add selected tents for camp/booth properties
-      if ((property.category === "camp" || property.category === "booth") && selectedTents.length > 0) {
-        payload.tents = selectedTents.map((tent) => tent._id);
-      }
-
-      // Add selected apartments for hotel apartment properties
-      if (property.category === "hotelapartment" && selectedApartments.length > 0) {
-        payload.apartments = JSON.stringify(selectedApartments.map((apartment) => ({
-          type: apartment.type || "apartment",
-          units: apartment.quantity || 1,
-        })))
-      }
-
-      // Submit the rent request based on rent management type
-      if (isDirectRent) {
-        // Direct rent - use payment flow
-        const response = await createRent(payload);
+      try {
+        console.log("Calling createRent with payload:", buildPayload);
+        const response = await createRent(buildPayload);
+        console.log("createRent response:", response);
 
         if (response.status === "success" && response.data.PayUrl) {
-          toast.success(t("paymentSuccess"));
-
-          // Open payment URL in a new window
-          const paymentWindow = window.open(
-            response.data.PayUrl,
-            "_blank",
-            "width=800,height=600,scrollbars=yes,resizable=yes"
-          );
-
-          if (!paymentWindow) {
-            // If popup was blocked, show a message
-            toast.error(t("popupBlocked"));
-            // Fallback: navigate to the payment URL in the same tab
-            window.location.href = response.data.PayUrl;
-          } else {
-            // Monitor the payment window
-            const checkWindowClosed = setInterval(() => {
-              if (paymentWindow.closed) {
-                clearInterval(checkWindowClosed);
-                // Redirect to property details after payment window is closed
-                router.push(`/${locale}/properties/${property._id}`);
-              }
-            }, 1000);
-          }
+          setPayUrl(response.data.PayUrl);
+          setPriceDetails(response.data.priceDetails);
         } else {
-          toast.error(t("paymentError"));
+          const errorMsg = "Failed to create rent";
+          setError(errorMsg);
+          toast.error(errorMsg);
         }
-      } else {
-        // Non-direct rent - create request only
-        const response = await createRentRequest(payload);
-
-        if (response.status === "success") {
-          toast.success(t("requestSuccess"));
-          // Redirect to property details or requests page
-          router.push(`/${locale}/user/my-requests`);
-        } else {
-          toast.error(t("requestError"));
-        }
+      } catch (err: any) {
+        console.error("Error creating rent:", err);
+        const errorMessage = err?.response?.data?.message || "Failed to create rent";
+        setError(errorMessage);
+        toast.error(errorMessage);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error: any) {
-      console.error("Error submitting rent:", error);
-      const errorMessage =
-        error?.response?.data?.message || "Failed to submit rent request";
-      toast.error(errorMessage);
-    } finally {
-      setIsSubmitting(false);
-    }
+    };
+
+    fetchRentData();
+  }, [isDirectRent, buildPayload]);
+
+  // Handle payment button click - for direct rent, open PayURL in new tab
+  const handlePayment = () => {
+    if (!payUrl) return;
+
+    // Open payment URL in a new tab
+    window.open(payUrl, "_blank");
   };
 
-  const isDirectRent = property.rentManagement === "direct";
+  // Handle non-direct rent request submission
+  const handleSubmit = async () => {
+    if (!buildPayload) {
+      toast.error(t("paymentError"));
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await createRentRequest(buildPayload);
+
+      if (response.status === "success") {
+        toast.success(t("requestSuccess"));
+        router.push(`/${locale}/user/my-requests?tab=rent`);
+      } else {
+        toast.error(t("requestError"));
+      }
+    } catch (err: any) {
+      console.error("Error submitting rent request:", err);
+      const errorMessage = err?.response?.data?.message || t("requestError");
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -377,7 +308,9 @@ export default function Step4Checkout({
                 {t("rentAmount")}
               </p>
               <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                {rentAmount} {currency}
+                {isDirectRent
+                  ? (priceDetails ? `${priceDetails.rent} ${currency}` : "—")
+                  : t("calculatedAtCheckout")}
               </p>
             </div>
           </div>
@@ -405,86 +338,111 @@ export default function Step4Checkout({
         </div>
       </div>
 
-      {/* Invoice Details */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
-          {t("invoiceDetails")}
-        </h2>
+      {/* Invoice Details - Only show for direct rent */}
+      {isDirectRent && (
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
+            {t("invoiceDetails")}
+          </h2>
 
-        <div className="space-y-3">
-          {/* Rent */}
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              {t("rent")} ({tCommon(`rent-types.${selectedRentType}`)})
-              {isCourt && timeRange && timeRange.from && timeRange.to && (
-                <> - {Math.ceil((new Date(timeRange.to).getTime() - new Date(timeRange.from).getTime()) / (1000 * 60 * 60))} {t("hours") || "hours"}</>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+              <span className="ml-2 text-sm text-gray-500">{tCommon("loading")}</span>
+            </div>
+          ) : error ? (
+            <div className="text-center py-8">
+              <p className="text-sm text-red-500">{error}</p>
+            </div>
+          ) : priceDetails ? (
+            <div className="space-y-3">
+              {/* Rent */}
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  {t("rent")} ({tCommon(`rent-types.${selectedRentType}`)})
+                  {isCourt && timeRange && timeRange.from && timeRange.to && (
+                    <> - {Math.ceil((new Date(timeRange.to).getTime() - new Date(timeRange.from).getTime()) / (1000 * 60 * 60))} {t("hours") || "hours"}</>
+                  )}
+                </span>
+                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                  {priceDetails.rent} {currency}
+                </span>
+              </div>
+
+              {/* Insurance */}
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  {t("insurance")}
+                </span>
+                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                  {priceDetails.insurance} {currency}
+                </span>
+              </div>
+
+              {/* Services */}
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  {t("services")}
+                </span>
+                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                  {priceDetails.services} {currency}
+                </span>
+              </div>
+
+              {/* Service breakdown */}
+              {selectedServices.length > 0 && (
+                selectedServices.map((service, index) => (
+                  <div key={index} className="pl-4 space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        {locale === "ar" ? service.nameAr : service.nameEn}
+                      </span>
+                      <span className="text-xs text-gray-600 dark:text-gray-400">
+                         {service.price} {currency}
+                      </span>
+                    </div>
+                  </div>
+                ))
               )}
-            </span>
-            <span className="text-sm font-medium text-gray-900 dark:text-white">
-              {rentAmount} {currency}
-            </span>
-          </div>
 
-          {/* Insurance */}
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              {t("insurance")}
-            </span>
-            <span className="text-sm font-medium text-gray-900 dark:text-white">
-              {insurance} {currency}
-            </span>
-          </div>
-
-          {/* Services */}
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              {t("services")}
-            </span>
-            <span className="text-sm font-medium text-gray-900 dark:text-white">
-              {servicesTotal} {currency}
-            </span>
-          </div>
-
-          {/* Service breakdown (placeholder) */}
-          {selectedServices.length > 0 && (
-            selectedServices.map((service, index) => (
-              <div key={index} className="pl-4 space-y-2">
+              {/* Commission */}
+              {priceDetails.commission > 0 && (
                 <div className="flex justify-between items-center">
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                    {locale === "ar" ? service.nameAr : service.nameEn}
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    {t("commission")}
                   </span>
-                  <span className="text-xs text-gray-600 dark:text-gray-400">
-                     {service.price} {currency}
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">
+                    {priceDetails.commission} {currency}
                   </span>
                 </div>
+              )}
+
+              {/* Tax */}
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  {t("tax")}
+                </span>
+                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                  {priceDetails.tax} {currency}
+                </span>
               </div>
-            ))
-          )}
 
-          {/* Tax */}
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              {t("tax")}
-            </span>
-            <span className="text-sm font-medium text-gray-900 dark:text-white">
-              {tax} {currency}
-            </span>
-          </div>
+              {/* Divider */}
+              <div className="border-t border-gray-200 dark:border-gray-700 my-4" />
 
-          {/* Divider */}
-          <div className="border-t border-gray-200 dark:border-gray-700 my-4" />
-
-          {/* Total */}
-          <div className="flex justify-between items-center">
-            <span className="text-base font-semibold text-gray-900 dark:text-white">
-              {t("total")}
-            </span>
-            <span className="text-base font-bold text-main-500">
-              {total} {tCommon("kwd")}
-            </span>
-          </div>
+              {/* Total */}
+              <div className="flex justify-between items-center">
+                <span className="text-base font-semibold text-gray-900 dark:text-white">
+                  {t("total")}
+                </span>
+                <span className="text-base font-bold text-main-500">
+                  {priceDetails.totalAmount} {currency}
+                </span>
+              </div>
+            </div>
+          ) : null}
         </div>
-      </div>
+      )}
 
       {/* Notes */}
       <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
@@ -498,11 +456,11 @@ export default function Step4Checkout({
 
       {/* Submit Button */}
       <Button
-        onClick={handleSubmit}
-        disabled={isSubmitting || selectedDates.length === 0 || !selectedRentType}
+        onClick={isDirectRent ? handlePayment : handleSubmit}
+        disabled={isDirectRent ? (isLoading || !payUrl) : (isLoading || !buildPayload)}
         className="w-full h-12 bg-gray-900 hover:bg-gray-800 dark:bg-gray-100 dark:hover:bg-gray-200 text-white dark:text-gray-900 font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isSubmitting ? (
+        {isLoading ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin mr-2" />
             {tCommon("loading")}

@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useSession } from "next-auth/react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Calendar, Home, Wrench, DollarSign, FileCheck, Megaphone, Clock, FileX, Wallet } from "lucide-react";
 
 import Typography from "@/components/shared/typography";
@@ -49,7 +50,19 @@ export default function MyRequestsPage() {
   const t = useTranslations("User.MyRequests");
   const locale = useLocale();
   const { data: session } = useSession();
-  const [activeTab, setActiveTab] = useState<TabType>("tours");
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState<TabType>("ads");
+
+  // Handle tab query parameter
+  useEffect(() => {
+    const tabParam = searchParams.get("tab");
+    if (tabParam && ["tours", "rent", "service", "installments", "disclaimers", "ads", "extend-invoices", "end-contracts", "rental-collection"].includes(tabParam)) {
+      setActiveTab(tabParam as TabType);
+      // Remove the query param from URL without triggering a navigation
+      router.replace(`/${locale}/user/my-requests`, { scroll: false });
+    }
+  }, [searchParams, router, locale]);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedAdId, setSelectedAdId] = useState<string | null>(null);
   const [selectedInstallmentId, setSelectedInstallmentId] = useState<string | null>(null);
@@ -390,6 +403,12 @@ export default function MyRequestsPage() {
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <TabsList className={cn("flex w-full flex-wrap gap-2 h-auto p-2", locale === "ar" && "flex-row-reverse")}>
           <TabsTrigger
+            value="ads"
+            className="px-4 py-2 cursor-pointer data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
+          >
+            {t("tabs.ads")}
+          </TabsTrigger>
+          <TabsTrigger
             value="tours"
             className="px-4 py-2 cursor-pointer data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
           >
@@ -402,16 +421,16 @@ export default function MyRequestsPage() {
             {t("tabs.rent")}
           </TabsTrigger>
           <TabsTrigger
-            value="service"
-            className="px-4 py-2 cursor-pointer data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
-          >
-            {t("tabs.service")}
-          </TabsTrigger>
-          <TabsTrigger
             value="installments"
             className="px-4 py-2 cursor-pointer data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
           >
             {t("tabs.installments")}
+          </TabsTrigger>
+          <TabsTrigger
+            value="service"
+            className="px-4 py-2 cursor-pointer data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
+          >
+            {t("tabs.service")}
           </TabsTrigger>
           <TabsTrigger
             value="disclaimers"
@@ -420,22 +439,10 @@ export default function MyRequestsPage() {
             {t("tabs.disclaimers")}
           </TabsTrigger>
           <TabsTrigger
-            value="ads"
-            className="px-4 py-2 cursor-pointer data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
-          >
-            {t("tabs.ads")}
-          </TabsTrigger>
-          <TabsTrigger
             value="extend-invoices"
             className="px-4 py-2 cursor-pointer data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
           >
             {t("tabs.extend-invoices")}
-          </TabsTrigger>
-          <TabsTrigger
-            value="end-contracts"
-            className="px-4 py-2 cursor-pointer data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
-          >
-            {t("tabs.end-contracts")}
           </TabsTrigger>
           <TabsTrigger
             value="rental-collection"
@@ -443,6 +450,13 @@ export default function MyRequestsPage() {
           >
             {t("tabs.rental-collection")}
           </TabsTrigger>
+          <TabsTrigger
+            value="end-contracts"
+            className="px-4 py-2 cursor-pointer data-[state=active]:bg-main-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-semibold transition-all"
+          >
+            {t("tabs.end-contracts")}
+          </TabsTrigger>
+          
         </TabsList>
 
         {/* Single Tab Content - dynamically renders based on activeTab */}

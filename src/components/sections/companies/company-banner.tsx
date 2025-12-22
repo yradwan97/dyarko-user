@@ -85,63 +85,98 @@ export default function CompanyBanner({ owner }: CompanyBannerProps) {
     }
   };
 
-  return (
-    <div className="relative mb-8">
-      {/* Banner Background */}
-      <div className="h-[200px] w-full bg-gradient-to-r from-main-100 to-main-50 md:h-[250px]"></div>
+  // Get owner type label
+  const getOwnerTypeLabel = () => {
+    if (owner.ownerType) {
+      return owner.ownerType.charAt(0).toUpperCase() + owner.ownerType.slice(1);
+    }
+    return t("owner");
+  };
 
-      {/* Company Info */}
-      <div className="container relative -mt-24 md:-mt-20">
-        <div className="flex flex-col items-center gap-4 md:flex-row md:items-end md:gap-6">
+  return (
+    <div className="relative mb-4">
+      {/* Banner Background */}
+      <div className="h-[100px] w-full bg-gradient-to-r from-main-100 to-main-50 md:h-[120px]"></div>
+
+      {/* Company Info - Centered Layout */}
+      <div className="container relative -mt-14 md:-mt-16">
+        <div className="flex flex-col items-center gap-2">
+          {/* Profile Image with Verified Badge */}
           <div className="relative">
             {hasValidImage && !imageError ? (
               <Image
                 src={owner.image!}
-                className="h-32 w-32 rounded-xl border-4 border-white object-cover shadow-lg md:h-40 md:w-40"
+                className="h-28 w-28 rounded-full border-4 border-white object-cover shadow-lg md:h-32 md:w-32"
                 alt={owner.name}
-                width={160}
-                height={160}
+                width={128}
+                height={128}
                 onError={() => setImageError(true)}
               />
             ) : (
-              <div className="flex h-32 w-32 items-center justify-center rounded-xl border-4 border-white bg-main-500 shadow-lg md:h-40 md:w-40">
-                <span className="text-3xl font-bold text-white md:text-4xl">
+              <div className="flex h-28 w-28 items-center justify-center rounded-full border-4 border-white bg-main-500 shadow-lg md:h-32 md:w-32">
+                <span className="text-2xl font-bold text-white md:text-3xl">
                   {initials}
                 </span>
               </div>
             )}
+            {owner.isVerified && (
+              <div className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-main-600 text-white shadow-md">
+                <svg
+                  className="h-4 w-4"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+            )}
           </div>
-          <div className="flex flex-grow flex-col items-center gap-2 text-center md:items-start md:text-left">
+
+          {/* Name and Type */}
+          <div className="flex flex-col items-center gap-1 text-center">
             <Typography variant="h3" as="h1" className="capitalize text-gray-900">
               {owner.name}
             </Typography>
+            <Typography variant="body-md" as="p" className="text-main-600">
+              {getOwnerTypeLabel()}
+            </Typography>
+          </div>
+
+          {/* Rating */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-gray-700">
+              {(owner.averageRating || owner.average_rating || 0).toFixed(1)}
+            </span>
             <Rating
               value={owner.averageRating || owner.average_rating || 0}
-              size="md"
-              showValue
+              size="sm"
             />
           </div>
-          <div className="mt-2 md:mt-0">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span>
-                  <Button
-                    variant={isFavorite ? "primary-outline" : "primary"}
-                    className="!px-6 !py-2.5"
-                    onClick={handleFavorite}
-                    disabled={!session || isLoading}
-                  >
-                    {isFavorite ? t("unfollow") : t("follow")}
-                  </Button>
-                </span>
-              </TooltipTrigger>
-              {!session && (
-                <TooltipContent side="bottom">
-                  {tGeneral("login-required")}
-                </TooltipContent>
-              )}
-            </Tooltip>
-          </div>
+
+          {/* Follow Button */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span>
+                <Button
+                  variant={isFavorite ? "primary-outline" : "primary"}
+                  className="!rounded-full !px-8 !py-2.5"
+                  onClick={handleFavorite}
+                  disabled={!session || isLoading}
+                >
+                  {isFavorite ? t("unfollow") : t("follow")}
+                </Button>
+              </span>
+            </TooltipTrigger>
+            {!session && (
+              <TooltipContent side="bottom">
+                {tGeneral("login-required")}
+              </TooltipContent>
+            )}
+          </Tooltip>
         </div>
       </div>
     </div>

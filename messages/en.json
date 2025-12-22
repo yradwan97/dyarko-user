@@ -7,6 +7,7 @@
     "selectOption": "Select an option",
     "helloSignIn": "Hello, Sign in",
     "kwd": "KWD",
+    "owner": "Owner",
     "price-not-available": "Price not available",
     "rent-types": {
       "hourly": "Hourly",
@@ -115,7 +116,14 @@
     "max": "Max",
     "search": "Search",
     "reset": "Reset",
-    "no-results": "No properties found"
+    "no-results": "No properties found",
+    "periods": {
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "weekdays": "Weekdays",
+      "holidays": "Holidays"
+    }
   },
   "Navbar": {
     "search": "search",
@@ -170,6 +178,7 @@
       "any-price": "Any Price",
       "beds": "Beds",
       "baths": "Baths",
+      "rooms": "Rooms",
       "replace-with": "replace with"
     },
     "SingleProperty": {
@@ -207,6 +216,7 @@
         "title": "Unit Features",
         "listed-on": "Listed on",
         "available-date": "Date available",
+        "available-at": "Available at",
         "year": "Year Built",
         "type": "Type",
         "city": "City",
@@ -221,7 +231,17 @@
         "has-beach": "Has beach",
         "has-pool": "Has pool",
         "yes": "Yes",
-        "no": "No"
+        "no": "No",
+        "class": "Class",
+        "offer-type": "Offer Type",
+        "for-rent": "For Rent",
+        "for-sale": "For Sale",
+        "furnished": "Furnished",
+        "finished": "Finished",
+        "finish-type": "Finish Type",
+        "rent-offer": "Rent Offer",
+        "paci-no": "PACI No.",
+        "commission": "Commission"
       },
       "Pricing": {
         "title": "Additional Fees",
@@ -254,6 +274,7 @@
         "cash": "Contact Owner",
         "shared": "Contact Owner",
         "replacement": "Contact Owner",
+        "tour-title": "Tour",
         "request-home-tour": "Request a home tour",
         "request-tour": "Request a tour",
         "tour-text": "It's free, with no obligation － cancel anytime.",
@@ -300,6 +321,7 @@
         "cancel": "Cancel"
       },
       "area": "Area",
+      "sqm": "m²",
       "area-unit-1": "m<sup>2</sup>",
       "status": "Status",
       "active": "Active",
@@ -309,6 +331,15 @@
       "not-finished": "Not Finished",
       "finishing": "Finishing",
       "about-this": "About this",
+      "properties": "Properties",
+      "property-details": "Property Details",
+      "property-information": "Property Information",
+      "see-more": "See more",
+      "see-less": "See less",
+      "files-attached": "Files Attached",
+      "contract": "Contract",
+      "refund-policy": "Refund Policy",
+      "purchase-contract": "Purchase Contract",
       "documents": "Attached Documents",
       "property-video": "Property Video",
       "listed-by": "Listed by property owner",
@@ -342,7 +373,52 @@
       "baths": "Baths",
       "price": "Price",
       "kwd": "KWD",
-      "no-data": "No data available"
+      "no-data": "No data available",
+      "tabs": {
+        "property-details": "Property Details",
+        "booth-details": "Booths Details",
+        "camp-details": "Camp Details",
+        "hotel-details": "Hotel Details",
+        "types-details": "Types Details"
+      },
+      "booth-map": "Booth Map",
+      "camp-map": "Camp Map",
+      "booths-number": "Booths Number",
+      "tents-number": "Tents Number",
+      "level": "Level",
+      "star": "Star",
+      "types-number": "Types No.",
+      "type": "Type",
+      "court-type": "Court Type",
+      "court-types": {
+        "football": "Football",
+        "basketball": "Basketball",
+        "tennis": "Tennis",
+        "volleyball": "Volleyball",
+        "beachball": "Beach Ball",
+        "padel": "Padel",
+        "squash": "Squash",
+        "badminton": "Badminton",
+        "hockey": "Hockey",
+        "handball": "Handball",
+        "futsal": "Futsal"
+      },
+      "bed": "Bed",
+      "bath": "Bath",
+      "unit-type": "Unit Type",
+      "person": "Person",
+      "day": "Day",
+      "week": "Week",
+      "month": "Month",
+      "no-apartments-available": "No apartments available",
+      "hotel-types-note": "Some hotel types may not be available at the time of booking, depending on the rental date and room availability.",
+      "group-name": "Group Name",
+      "group-booths": "Group Booths",
+      "group-tents": "Group Tents",
+      "details": "Details",
+      "note": "Note",
+      "color-number-note": "The color / Number chosen for each group represents the same units as those in the schematic diagram.",
+      "no-layout-note": "If no gallery layout appears, it means that the gallery founder has not uploaded the layout."
     }
   },
   "HomePage": {
@@ -463,12 +539,15 @@
         "desc": "Browse thousands of properties"
       },
       "Tabs": {
-        "tenants": "For tenants",
-        "owners": "For landlords"
+        "buyers": "For Buyers",
+        "tenants": "For Tenants"
       },
-      "main": "We make it easy for tenants and landlords.",
-      "sub": "Whether it’s selling your current home, getting financing, or buying a new home, we make it easy  and efficient. The best part? you’ll save a bunch of money and time with our services.",
-      "see-more": "See more"
+      "main-buyers": "Your next home is one click away.",
+      "sub-buyers": "Search smarter, explore verified listings and get all the details you need before making a decision.",
+      "main-tenants": "Find a home you’ll love.",
+      "sub-tenants": "Browse verified listings, compare prices and contact landlords directly — all in one place.",
+      "button-buyers": "See properties",
+      "button-tenants": "Start exploring"
     },
     "Newsletter": {
       "no-spam": "No Spam Promise",
@@ -663,6 +742,7 @@
     "next": "Next",
     "follow": "Follow",
     "unfollow": "Unfollow",
+    "developer": "Developer",
     "no-reviews": "No reviews",
     "about-placeholder": "We provide comprehensive property protection and liability coverage to ensure our customers enjoy a secure and worry-free life. Our insurance solutions are designed to safeguard your assets and enhance your peace of mind, offering you a better and more secure future.",
     "no-properties": "No properties available",
@@ -672,6 +752,47 @@
       "all": "All Properties",
       "rent": "For Rent",
       "installment": "For Sale (Installment)"
+    },
+    "Tabs": {
+      "info": "Info",
+      "properties": "Properties",
+      "reels": "Reels",
+      "no-reels": "No reels available"
+    },
+    "Info": {
+      "phone": "Phone Number",
+      "email": "E-mail",
+      "social-media": "Social Media",
+      "not-available": "Not available"
+    },
+    "Filters": {
+      "offer-type": "Offer Type",
+      "category": "Category",
+      "select-category": "Select category",
+      "select-category-first": "Select category first",
+      "no-categories": "No categories available",
+      "property-class": "Property Class",
+      "select-class": "Property class",
+      "no-classes": "No classes available",
+      "country": "Country",
+      "select-country": "Select country",
+      "no-countries": "No countries available",
+      "city": "City",
+      "select-city": "Select city",
+      "select-country-first": "Select country first",
+      "no-cities": "No cities available",
+      "price": "Price",
+      "rent-type": {
+        "daily": "Daily",
+        "weekly": "Weekly",
+        "monthly": "Monthly",
+        "weekdays": "Weekdays",
+        "holidays": "Holidays"
+      },
+      "from": "From ...",
+      "to": "To ...",
+      "rooms": "Rooms",
+      "clear-all": "Clear all"
     },
     "SingleCompany": {
       "unfollow": "Unfollow",
@@ -1474,6 +1595,7 @@
       "installment-type": "Installment Type",
       "installment-amount": "Installment Amount",
       "contract": "Contract",
+      "view-contract": "View Contract",
       "installment-plan": "Installment Plan",
       "disclaimer-file": "Disclaimer File",
       "extend-invoice-date": "Extend Invoice date",
@@ -1507,6 +1629,10 @@
       "tour-cancellation-confirm-description": "Are you sure you want to cancel this tour? This action cannot be undone.",
       "installment-number": "Installment #",
       "due-date": "Due Date",
+      "apartments": "Apartments",
+      "tents": "Tents",
+      "unit": "unit",
+      "units": "units",
       "tabs": {
         "tours": "Tours",
         "tour": "Tour",
@@ -1982,6 +2108,7 @@
       "timeRange": "Time Range:",
       "hours": "hours",
       "rentAmount": "Rent Amount:",
+      "calculatedAtCheckout": "Calculated at checkout",
       "notSelected": "Not selected",
       "selectedApartments": "Selected Apartments",
       "invoiceDetails": "Invoice Details",

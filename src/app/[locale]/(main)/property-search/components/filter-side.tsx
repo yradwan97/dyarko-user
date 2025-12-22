@@ -397,7 +397,7 @@ export default function FilterSide({
                 <div className="flex-1">
                   <Input
                     type="number"
-                    min={currentRange.min}
+                    min={0}
                     step={100}
                     value={priceRange[0] || ""}
                     onChange={(e) => {
@@ -412,7 +412,7 @@ export default function FilterSide({
                 <div className="flex-1">
                   <Input
                     type="number"
-                    min={currentRange.min}
+                    min={0}
                     step={100}
                     value={priceRange[1] || ""}
                     onChange={(e) => {

@@ -42,7 +42,7 @@ export default function PropertyGrid({ properties, viewType }: PropertyGridProps
         return (
           <Link key={property._id} href={`/${locale}/properties/${property._id}`}>
             <PropertyCard
-              variant="featured"
+              variant={viewType === "list" ? "list" : "featured"}
               image={getProxiedImageUrl(property.image || property.video)}
               name={property.title || "Property"}
               location={locationStr || t("location-not-specified")}
@@ -50,9 +50,11 @@ export default function PropertyGrid({ properties, viewType }: PropertyGridProps
               badge={property.offerType || undefined}
               isVerified={property.isVerified}
               secondaryBadge={property?.category}
+              propertyType={property?.category}
               propertyId={property._id}
               adType={property.adType}
               otherPrices={otherPrices}
+              isFavourite={property.isFavourite}
             />
           </Link>
         );

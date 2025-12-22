@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     const description = owner.about
       ? owner.about.substring(0, 160)
-      : `${ownerName} - ${text.professionalServices} ${owner.country}. ${ratingText} ${text.on} ${isArabic ? 'ديركو' : 'Dyarko'}.`;
+      : `${ownerName} - ${text.professionalServices} ${owner.country || 'Kuwait'}. ${ratingText} ${text.on} ${isArabic ? 'ديركو' : 'Dyarko'}.`;
 
     const title = isArabic
       ? `${ownerName} | ${text.realEstateCompany} | ديركو`
@@ -52,11 +52,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         ownerName || '',
         text.realEstateCompany,
         text.propertyManagement,
-        owner.country,
+        owner.country || '',
         'dyarko',
         'ديركو',
         isArabic ? 'عقارات' : 'real estate',
-      ],
+      ].filter(Boolean),
       openGraph: {
         title,
         description,

@@ -9,6 +9,7 @@ import Button from "@/components/shared/button";
 import CustomSelect from "@/components/shared/custom-select";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useCities } from "@/hooks/use-cities";
 import { useCountryContext } from "@/components/providers/country-provider";
 import { formatPrice } from "@/lib/utils/property-pricing";
@@ -44,6 +45,39 @@ export default function SearchControl({ slug, onSearch, onReset }: SearchControl
   const [selectedCity, setSelectedCity] = useState<Governorate | undefined>();
   const [date, setDate] = useState<Date | null>(null);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 0]);
+
+  // Period filters - default to none selected (only required when price filter is set)
+  const [periods, setPeriods] = useState({
+    isDaily: false,
+    isWeekly: false,
+    isMonthly: false,
+    isWeekdays: false,
+    isHolidays: false,
+  });
+
+  // Check if price filter is set
+  const hasPriceFilter = priceRange[0] > 0 || priceRange[1] > 0;
+
+  // Handle period change - ensure at least one is selected only when price filter is set
+  const handlePeriodChange = (period: keyof typeof periods, checked: boolean) => {
+    const newPeriods = { ...periods, [period]: checked };
+    const hasAtLeastOne = Object.values(newPeriods).some(v => v);
+
+    // If price filter is set and trying to uncheck the last period, prevent it
+    if (hasPriceFilter && !hasAtLeastOne) {
+      return;
+    }
+
+    setPeriods(newPeriods);
+  };
+
+  // Auto-select monthly when price filter is set and no period is selected
+  useEffect(() => {
+    const hasAnyPeriod = Object.values(periods).some(v => v);
+    if (hasPriceFilter && !hasAnyPeriod) {
+      setPeriods(prev => ({ ...prev, isMonthly: true }));
+    }
+  }, [hasPriceFilter]);
 
   // Convert cities to governorate format
   const cityOptions: Governorate[] = useMemo(() => {
@@ -95,6 +129,13 @@ export default function SearchControl({ slug, onSearch, onReset }: SearchControl
       filters.price_to = priceRange[1];
     }
 
+    // Add period filters
+    if (periods.isDaily) filters.isDaily = true;
+    if (periods.isWeekly) filters.isWeekly = true;
+    if (periods.isMonthly) filters.isMonthly = true;
+    if (periods.isWeekdays) filters.isWeekdays = true;
+    if (periods.isHolidays) filters.isHolidays = true;
+
     onSearch(filters);
   };
 
@@ -102,6 +143,13 @@ export default function SearchControl({ slug, onSearch, onReset }: SearchControl
     setDate(null);
     setSelectedCity(undefined);
     setPriceRange([0, 0]);
+    setPeriods({
+      isDaily: false,
+      isWeekly: false,
+      isMonthly: false,
+      isWeekdays: false,
+      isHolidays: false,
+    });
     onReset();
   };
 
@@ -177,6 +225,60 @@ export default function SearchControl({ slug, onSearch, onReset }: SearchControl
                 />
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Period Filters */}
+        <div className={`mt-4 flex flex-wrap gap-4 ${locale === "ar" ? "flex-row-reverse" : ""}`}>
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="isDaily"
+              checked={periods.isDaily}
+              onCheckedChange={(checked) => handlePeriodChange("isDaily", !!checked)}
+            />
+            <label htmlFor="isDaily" className="text-sm text-gray-600 cursor-pointer">
+              {t("periods.daily")}
+            </label>
+          </div>
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="isWeekly"
+              checked={periods.isWeekly}
+              onCheckedChange={(checked) => handlePeriodChange("isWeekly", !!checked)}
+            />
+            <label htmlFor="isWeekly" className="text-sm text-gray-600 cursor-pointer">
+              {t("periods.weekly")}
+            </label>
+          </div>
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="isMonthly"
+              checked={periods.isMonthly}
+              onCheckedChange={(checked) => handlePeriodChange("isMonthly", !!checked)}
+            />
+            <label htmlFor="isMonthly" className="text-sm text-gray-600 cursor-pointer">
+              {t("periods.monthly")}
+            </label>
+          </div>
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="isWeekdays"
+              checked={periods.isWeekdays}
+              onCheckedChange={(checked) => handlePeriodChange("isWeekdays", !!checked)}
+            />
+            <label htmlFor="isWeekdays" className="text-sm text-gray-600 cursor-pointer">
+              {t("periods.weekdays")}
+            </label>
+          </div>
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="isHolidays"
+              checked={periods.isHolidays}
+              onCheckedChange={(checked) => handlePeriodChange("isHolidays", !!checked)}
+            />
+            <label htmlFor="isHolidays" className="text-sm text-gray-600 cursor-pointer">
+              {t("periods.holidays")}
+            </label>
           </div>
         </div>
 

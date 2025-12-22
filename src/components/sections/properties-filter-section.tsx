@@ -196,6 +196,7 @@ export default function PropertiesFilterSection() {
                         isVerified={property.isVerified}
                         adType={property.adType}
                         otherPrices={otherPrices}
+                        isFavourite={property.isFavourite}
                       />
                     </Link>
                   </CarouselItem>

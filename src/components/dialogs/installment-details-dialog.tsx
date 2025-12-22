@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Calendar, DollarSign, User, Home, FileText, MapPin, Check, X } from "lucide-react";
+import { Calendar, DollarSign, User, Home, FileText, MapPin, Check, X, Phone, ExternalLink } from "lucide-react";
 import Image from "next/image";
 import {
   Dialog,
@@ -33,26 +33,52 @@ interface InstallmentDetailsDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+// Helper function to get initials from name
+const getInitials = (name?: string) => {
+  if (!name) return "";
+  return name
+    .split(" ")
+    .map((word) => word[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+};
+
+// Helper function to check if a string is a valid URL
+const isValidUrl = (str?: string) => {
+  if (!str) return false;
+  try {
+    new URL(str);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 // Helper function to calculate installment schedule
 const calculateInstallmentSchedule = (
-  amount: number,
-  installmentPeriod: number, // in months
+  amount: number, // Monthly installment amount
+  installmentPeriod: number, // Total period in months
   installmentType: string,
   startDate: string
 ) => {
   const schedules: { date: string; amount: number; installmentNumber: number }[] = [];
 
-  // Determine the frequency in months
+  // Determine the frequency in months (how often the user pays)
+  // Handles both camelCase and kebab-case formats from API
   const frequencyMap: Record<string, number> = {
     monthly: 1,
     quarterly: 3,
     semiAnnually: 6,
+    "semi-annually": 6,
     annually: 12,
   };
 
   const frequency = frequencyMap[installmentType] || 1;
+  // Number of payments = total period / frequency (e.g., 36 months / 6 = 6 semi-annual payments)
   const numberOfInstallments = Math.ceil(installmentPeriod / frequency);
-  const amountPerInstallment = amount / numberOfInstallments;
+  // Each payment aggregates multiple months (e.g., 6 months * 1500/month = 9000 per payment)
+  const amountPerInstallment = amount * frequency;
 
   const start = new Date(startDate);
 
@@ -195,6 +221,7 @@ export default function InstallmentDetailsDialog({
                       price={priceDisplay}
                       badge="installment"
                       propertyId={installment?.property._id}
+                      isFavourite={(installment.property as any).isFavourite}
                     />
                   </Link>
                 </>
@@ -218,26 +245,62 @@ export default function InstallmentDetailsDialog({
                       />
                     ) : (
                       <div className="h-15 w-15 rounded-full bg-main-100 flex items-center justify-center">
-                        <User className="h-8 w-8 text-main-600" />
+                        <Typography variant="body-lg-medium" as="span" className="text-main-600 font-bold">
+                          {getInitials(installment.owner.name)}
+                        </Typography>
                       </div>
                     )}
                     <div className="flex-1">
                       {installment.owner._id ? (
                         <Link href={getLocalizedPath(`/companies/${installment.owner._id}`, locale)}>
-                          <Typography variant="body-md" as="p" className="font-semibold mb-1 capitalize text-main-600 hover:text-main-500 hover:underline transition-colors cursor-pointer">
+                          <Typography variant="body-md" as="p" className="font-semibold capitalize text-main-600 hover:text-main-500 hover:underline transition-colors cursor-pointer">
                             {installment.owner.name}
                           </Typography>
                         </Link>
                       ) : (
-                        <Typography variant="body-md" as="p" className="font-semibold mb-1 capitalize">
+                        <Typography variant="body-md" as="p" className="font-semibold capitalize">
                           {installment.owner.name}
                         </Typography>
                       )}
-                      <Typography variant="body-sm" as="p" className="text-gray-600 dark:text-gray-400 capitalize">
-                        {installment.owner.phoneNumber}
-                      </Typography>
+                      {installment.owner.role && (
+                        <Typography variant="body-sm" as="p" className="text-gray-500 mb-2 dark:text-gray-400 capitalize">
+                          {installment.owner.role}
+                        </Typography>
+                      )}
+                      {installment.owner.phoneNumber && (
+                        <a
+                          href={`tel:${installment.owner.phoneNumber}`}
+                          className={`flex items-center gap-1 text-gray-600 dark:text-gray-400 hover:text-main-600 transition-colors ${locale === "ar" && "flex-row-reverse"}`}
+                        >
+                          <Phone className="h-4 w-4" />
+                          <Typography variant="body-sm" as="span">
+                            {installment.owner.phoneNumber}
+                          </Typography>
+                        </a>
+                      )}
                     </div>
                   </div>
+                </div>
+              )}
+
+              {/* Contract Link */}
+              {installment.contract && isValidUrl(installment.contract) && (
+                <div className="space-y-4 mt-4">
+                  <Typography variant="h5" as="h5" className={`font-bold flex items-center gap-2 capitalize ${locale === "ar" && "flex-row-reverse"}`}>
+                    <FileText className="h-5 w-5 text-main-600" />
+                    {t("contract")}
+                  </Typography>
+                  <a
+                    href={installment.contract}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`flex items-center gap-2 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg text-main-600 hover:text-main-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${locale === "ar" && "flex-row-reverse"}`}
+                  >
+                    <ExternalLink className="h-5 w-5" />
+                    <Typography variant="body-md" as="span" className="font-semibold underline">
+                      {t("view-contract")}
+                    </Typography>
+                  </a>
                 </div>
               )}
 
@@ -251,7 +314,7 @@ export default function InstallmentDetailsDialog({
                   {installment.amount && (
                     <div className="flex flex-col items-center">
                       <Typography variant="body-sm" as="p" className="text-gray-500 dark:text-gray-400 mb-1 capitalize">
-                        {t("total-amount")}
+                        {t("installment-amount")}
                       </Typography>
                       <Typography variant="body-md" as="p" className="font-semibold flex items-center gap-1 capitalize">
                         <DollarSign className="h-4 w-4" />
@@ -370,7 +433,7 @@ export default function InstallmentDetailsDialog({
                         {t("total-amount")}
                       </Typography>
                       <Typography variant="h4" as="p" className="font-bold text-main-600 capitalize">
-                        {installment?.amount?.toFixed(2)} {currency}
+                        {((installment?.amount || 0) * (installment?.installmentPeriod || 0)).toFixed(2)} {currency}
                       </Typography>
                     </div>
                     <div className="mt-2 flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 capitalize">

@@ -10,7 +10,8 @@ import { createInstallmentRequest } from "@/lib/services/api/installments";
 import { getLocalizedPath, cn } from "@/lib/utils";
 import { getPropertyPrice, getPropertyPeriod, formatPrice, getOtherPrices } from "@/lib/utils/property-pricing";
 import { Button } from "@/components/ui/button";
-import { FileText, MapPin, Phone } from "lucide-react";
+import { FileText, MapPin, Phone, ChevronRight } from "lucide-react";
+import Link from "next/link";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import ConfirmationDialog from "@/components/dialogs/confirmation-dialog";
 import { toast } from "sonner";
@@ -33,6 +34,7 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
   const [isInstallmentConfirmOpen, setIsInstallmentConfirmOpen] = useState(false);
 
   const t = useTranslations("Properties.Details.Reservations");
+  const tGeneral = useTranslations("General");
 
   const installmentMutation = useMutation({
     mutationFn: createInstallmentRequest,
@@ -149,6 +151,15 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
     return t("contact-owner");
   };
 
+  const getInitials = (name: string): string => {
+    if (!name) return "?";
+    const words = name.trim().split(" ").filter(Boolean);
+    if (words.length === 1) {
+      return words[0].charAt(0).toUpperCase();
+    }
+    return (words[0].charAt(0) + words[1].charAt(0)).toUpperCase();
+  };
+
   return (
     <>
       {/* Schedule Tour Modal */}
@@ -181,7 +192,7 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
               ) : (
                 <div className="flex h-24 w-24 items-center justify-center rounded-full bg-main-100 border-4 border-main-200">
                   <span className="text-3xl font-bold text-main-600">
-                    {property.owner.name?.[0]?.toUpperCase() || "U"}
+                    {getInitials(property.owner.name)}
                   </span>
                 </div>
               )}
@@ -248,79 +259,122 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
             {t("replace-with")} {tCategories(property.replaceWith || "")}
           </p>
         ) : (
-          <div className="space-y-3">
-            <div
-              className="flex justify-between"
-            >
-              <div
-                className="flex flex-col"
-              >
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  {property.offerType === "rent" ? t("rent-price") : t("price")}
-                </span>
-                <p className="text-lg font-bold text-yellow-600">
-                  {price ? formatPrice(price, currency, locale) : "N/A"}
-                  {property.offerType === "rent" && period && (
-                    <sub>
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
-                        {" "}
-                        / {tPrice(period)}
-                      </span>
-                    </sub>
-                  )}
-                </p>
+          <div className="space-y-4">
+            {/* All Prices Display */}
+            {property.offerType === "rent" && (
+              <div className="space-y-2">
+                {property.dailyPrice && (
+                  <div className={cn("flex items-center justify-between", locale === "ar" && "flex-row-reverse")}>
+                    <span className="text-gray-500 text-sm">{tPrice("day")}</span>
+                    <span className="text-main-600 font-bold">{formatPrice(property.dailyPrice, currency, locale)}</span>
+                  </div>
+                )}
+                {property.weeklyPrice && (
+                  <div className={cn("flex items-center justify-between", locale === "ar" && "flex-row-reverse")}>
+                    <span className="text-gray-500 text-sm">{tPrice("week")}</span>
+                    <span className="text-main-600 font-bold">{formatPrice(property.weeklyPrice, currency, locale)}</span>
+                  </div>
+                )}
+                {property.monthlyPrice && (
+                  <div className={cn("flex items-center justify-between", locale === "ar" && "flex-row-reverse")}>
+                    <span className="text-gray-500 text-sm">{tPrice("month")}</span>
+                    <span className="text-main-600 font-bold">{formatPrice(property.monthlyPrice, currency, locale)}</span>
+                  </div>
+                )}
+                {property.weekdaysPrice && (
+                  <div className={cn("flex items-center justify-between", locale === "ar" && "flex-row-reverse")}>
+                    <span className="text-gray-500 text-sm">{tPrice("weekdays")}</span>
+                    <span className="text-main-600 font-bold">{formatPrice(property.weekdaysPrice, currency, locale)}</span>
+                  </div>
+                )}
+                {property.holidaysPrice && (
+                  <div className={cn("flex items-center justify-between", locale === "ar" && "flex-row-reverse")}>
+                    <span className="text-gray-500 text-sm">{tPrice("holidays")}</span>
+                    <span className="text-main-600 font-bold">{formatPrice(property.holidaysPrice, currency, locale)}</span>
+                  </div>
+                )}
               </div>
-              {property.minMonths && (
-                <div className="flex flex-col items-center">
-                  <span className="text-center text-sm text-gray-500 dark:text-gray-400">
-                    {t("min-months")}
-                  </span>
-                  <p className="text-yellow-600">{property.minMonths}</p>
-                </div>
-              )}
-            </div>
-            {/* Other Prices */}
-            {otherPrices.length > 0 && (
-              <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-100 dark:border-gray-700">
-                {otherPrices.map((otherPrice, index) => (
-                  <span
-                    key={index}
-                    className="text-xs text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded"
-                  >
-                    {otherPrice.price} / {otherPrice.period}
-                  </span>
-                ))}
+            )}
+
+            {/* Non-rent price display */}
+            {property.offerType !== "rent" && price && (
+              <div className={cn("flex items-center gap-2", locale === "ar" && "flex-row-reverse")}>
+                <span className="text-main-600 font-bold text-lg">{formatPrice(price, currency, locale)}</span>
               </div>
+            )}
+
+            {/* Min Months if applicable */}
+            {property.minMonths && (
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {t("min-months")} {property.minMonths}
+              </p>
             )}
           </div>
         )}
 
+        {/* Main Action Button */}
         <Button
-          className="my-6 flex w-full items-center bg-main-600 text-white hover:bg-main-300 hover:text-main-500 justify-center gap-2 h-12 font-semibold shadow-sm hover:shadow-md transition-all"
+          className="mt-6 flex w-full items-center bg-main-600 text-white hover:bg-main-500 justify-center gap-2 h-12 font-semibold shadow-sm hover:shadow-md transition-all"
           onClick={handleMainSubmitButtonClick}
         >
           <FileText className="h-5 w-5" />
           <span className="font-bold">{getButtonText()}</span>
         </Button>
 
-        <div className="my-6 h-px bg-linear-to-r from-transparent via-gray-300 to-transparent dark:via-gray-600" />
+        {/* Tour Section */}
+        <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700" dir={locale === "ar" ? "rtl" : "ltr"}>
+          <p className="text-lg font-bold text-gray-900 dark:text-white mb-2">{t("tour-title")}</p>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">{t("request-home-tour")}</p>
 
-        <p className="my-6 text-center text-lg font-bold text-gray-800 dark:text-gray-200">{t("request-home-tour")}</p>
+          <Button
+            variant="outline"
+            className="flex w-full items-center justify-center gap-2 h-12 border-main-600 text-main-600 hover:bg-main-600 hover:text-white font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={() => setIsScheduleTourOpen(true)}
+            disabled={!session}
+          >
+            <MapPin className="h-5 w-5" />
+            <span className="font-bold">{t("request-tour")}</span>
+          </Button>
 
-        <Button
-          className="my-6 flex w-full items-center justify-center gap-2 h-12 bg-main-500/90 hover:bg-main-500/50 font-semibold shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          onClick={() => setIsScheduleTourOpen(true)}
-          disabled={!session}
+          {!session && (
+            <p className="mt-2 text-center text-xs text-gray-500 dark:text-gray-400">{t("login-to-schedule")}</p>
+          )}
+        </div>
+
+        {/* Owner Section */}
+        <Link
+          href={getLocalizedPath(`/companies/${property.owner._id}`, locale)}
+          className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between group cursor-pointer"
+          dir={locale === "ar" ? "rtl" : "ltr"}
         >
-          <MapPin className="h-5 w-5" />
-          <span className="font-bold text-white">{t("request-tour")}</span>
-        </Button>
-
-        {!session ? (
-          <p className="text-center text-xs text-gray-500 dark:text-gray-400">{t("login-to-schedule")}</p>
-        ) : (
-          <p className="text-center text-xs text-gray-500 dark:text-gray-400">{t("tour-text")}</p>
-        )}
+          <div className="flex items-center gap-3">
+            {validOwnerImage ? (
+              <Image
+                src={validOwnerImage}
+                alt={property.owner.name}
+                width={48}
+                height={48}
+                className="h-12 w-12 rounded-full object-cover"
+              />
+            ) : (
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-main-100">
+                <span className="text-lg font-bold text-main-600">
+                  {getInitials(property.owner.name)}
+                </span>
+              </div>
+            )}
+            <div>
+              <p className="font-bold text-gray-900 dark:text-white">
+                {property.owner.name || "Agent Name"}
+              </p>
+              <p className="text-sm text-main-600">{property.owner.role || tGeneral("owner")}</p>
+            </div>
+          </div>
+          <ChevronRight className={cn(
+            "h-5 w-5 text-gray-400 group-hover:text-main-600 transition-colors",
+            locale === "ar" && "rotate-180"
+          )} />
+        </Link>
       </div>
     </>
   );

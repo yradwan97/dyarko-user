@@ -1,16 +1,25 @@
 import axiosClient from "../axios-client";
 
+export interface OwnerSocialMedia {
+  facebook?: string;
+  X?: string;
+  linkedin?: string;
+  snapchat?: string;
+  instagram?: string;
+  _id?: string;
+}
+
 export interface Owner {
   _id: string;
   role: string;
   name: string;
   organizationName?: string;
   email: string;
-  status: string;
-  isConfirmed: boolean;
-  country: string;
+  status?: string;
+  isConfirmed?: boolean;
+  country?: string;
   phoneNumber: string;
-  points: number;
+  points?: number;
   deviceToken?: string;
   ownerType?: string;
   averageRating?: number;
@@ -18,12 +27,14 @@ export interface Owner {
   wallet?: number;
   totalBalance?: number;
   paidOutBalance?: number;
-  isVerified: boolean;
+  isVerified?: boolean;
   __v?: number;
   refundPolicy?: any[];
   iscompletedProfile?: boolean;
   image?: string | null;
   about?: string;
+  socialMedia?: OwnerSocialMedia;
+  isFavourite?: boolean;
   // Legacy field names for backward compatibility
   average_rating?: number;
   number_of_properties?: number;
@@ -157,9 +168,28 @@ export interface AddReviewParams {
   comment: string;
 }
 
-export const getOwnerReviews = async (ownerId: string): Promise<Review[]> => {
-  const response = await axiosClient.get<ReviewsResponse>(`/rates?owner=${ownerId}`);
-  return response.data.data.data;
+export interface GetOwnerReviewsParams {
+  ownerId: string;
+  page?: number;
+  size?: number;
+}
+
+export interface PaginatedReviews {
+  reviews: Review[];
+  itemsCount: number;
+  pages: number;
+}
+
+export const getOwnerReviews = async (params: GetOwnerReviewsParams): Promise<PaginatedReviews> => {
+  const { ownerId, page = 1, size = 8 } = params;
+  const response = await axiosClient.get<ReviewsResponse>(
+    `/rates?owner=${ownerId}&page=${page}&size=${size}`
+  );
+  return {
+    reviews: response.data.data.data,
+    itemsCount: response.data.data.itemsCount,
+    pages: response.data.data.pages,
+  };
 };
 
 export const addReview = async (params: AddReviewParams): Promise<void> => {
