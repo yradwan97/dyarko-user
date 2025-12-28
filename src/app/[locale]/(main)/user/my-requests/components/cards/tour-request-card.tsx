@@ -126,6 +126,18 @@ export function TourRequestCard({
               </div>
             </div>
           )}
+          {request.createdAt && (
+            <div className={cn("flex flex-row gap-3 text-gray-500 mt-1", locale === "ar" && "justify-end")}>
+              <div className={`flex items-center gap-1 ${locale === "ar" ? "flex-row-reverse" : ""}`}>
+                <Typography variant="body-sm-bold" as="p" className="text-gray-500">
+                  {t("request-date")}
+                </Typography>
+                <Typography variant="body-sm" as="p" className="text-gray-500">
+                  {formatDate(request.createdAt)}
+                </Typography>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

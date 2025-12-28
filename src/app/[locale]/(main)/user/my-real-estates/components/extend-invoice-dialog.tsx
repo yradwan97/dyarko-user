@@ -30,6 +30,8 @@ interface ExtendInvoiceDialogProps {
   invoiceId: string | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  minDate?: Date; // Current invoice's due date
+  maxDate?: Date; // Next invoice's due date (optional - if no next invoice)
 }
 
 interface ExtendInvoicePayload {
@@ -42,6 +44,8 @@ export default function ExtendInvoiceDialog({
   invoiceId,
   open,
   onOpenChange,
+  minDate,
+  maxDate,
 }: ExtendInvoiceDialogProps) {
   const t = useTranslations("User.MyRealEstates.ExtendInvoiceDialog");
   const queryClient = useQueryClient();
@@ -123,7 +127,15 @@ export default function ExtendInvoiceDialog({
                   mode="single"
                   selected={selectedDate}
                   onSelect={setSelectedDate}
-                  disabled={(date) => date < new Date()}
+                  disabled={(date) => {
+                    // Cannot pick a date before the invoice's due date
+                    if (minDate && date < minDate) return true;
+                    // Cannot pick a date after the next invoice's due date
+                    if (maxDate && date > maxDate) return true;
+                    // Fallback: cannot pick a date in the past
+                    if (!minDate && date < new Date()) return true;
+                    return false;
+                  }}
                   initialFocus
                 />
               </PopoverContent>

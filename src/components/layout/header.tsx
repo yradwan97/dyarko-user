@@ -18,6 +18,7 @@ import UserProfilePopover from "./header/user-profile-popover";
 import Button from "@/components/shared/button";
 import CreateAdDialog from "@/components/dialogs/create-ad-dialog";
 import { useGetNotifications, useMarkAllNotificationsRead } from "@/hooks/use-notifications";
+import { useGetUser } from "@/hooks/use-user";
 import type { Notification } from "@/types";
 import { cn, getLocalizedPath } from "@/lib/utils";
 
@@ -28,7 +29,11 @@ export default function Header() {
   const [createAdOpen, setCreateAdOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const { data: session } = useSession();
+  const { data: userData } = useGetUser();
   const [notificationCount, setNotificationCount] = useState(0);
+
+  // Get user profile from API (more up-to-date than session)
+  const userProfile = userData?.data;
   // const { data, isSuccess, refetch } = useGetNotifications();
   const markAllReadMutation = useMarkAllNotificationsRead();
 
@@ -110,9 +115,9 @@ export default function Header() {
       </DropdownMenu>
 
       <UserProfilePopover
-        userName={session?.user?.name || t("defaultUser")}
-        userEmail={session?.user?.email || undefined}
-        userImage={session?.user?.image || undefined}
+        userName={userProfile?.name || session?.user?.name || t("defaultUser")}
+        userEmail={userProfile?.email || session?.user?.email || undefined}
+        userImage={userProfile?.image || session?.user?.image || undefined}
       />
 
       <button

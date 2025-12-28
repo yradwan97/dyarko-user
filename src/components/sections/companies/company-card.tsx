@@ -12,6 +12,7 @@ import Button from "@/components/shared/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Owner } from "@/lib/services/api/companies";
 import { checkCompanyFavourite, addCompanyFavourite, removeCompanyFavourite } from "@/lib/services/api/favourites";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface CompanyCardProps {
   owner: Owner;
@@ -26,6 +27,7 @@ export default function CompanyCard({ owner, onFollowChange }: CompanyCardProps)
   const tGeneral = useTranslations("General");
   const [isFavorite, setIsFavorite] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const checkFavoriteStatus = async () => {
@@ -64,6 +66,7 @@ export default function CompanyCard({ owner, onFollowChange }: CompanyCardProps)
       console.error("Error toggling favorite:", error);
     } finally {
       setIsLoading(false);
+      queryClient.invalidateQueries({ queryKey: ["company-favourites"] });
     }
   };
 

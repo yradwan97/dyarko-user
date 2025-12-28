@@ -20,7 +20,7 @@ export default function ServicesSection() {
 
   return (
     <section className="py-20">
-      <div className="container relative justify-between bg-gradient-to-b from-main-100 to-white py-20 md:bg-none lg:flex lg:space-x-16">
+      <div className="container relative justify-between bg-linear-to-b from-main-100 to-white py-20 md:bg-none lg:flex lg:space-x-16">
         <div className="md:relative lg:w-5/12">
           <Image
             src="/assets/home-2.png"
@@ -41,14 +41,14 @@ export default function ServicesSection() {
             <Typography
               variant="body-md-tall"
               as="p"
-              className="!mb-14 whitespace-pre-wrap text-start leading-6 text-white lg:!mb-0 lg:w-4/5"
+              className="mb-14! whitespace-pre-wrap text-start leading-6 text-white lg:mb-0! lg:w-4/5"
             >
               {t("sub")}
             </Typography>
             <Button
               variant="primary"
               to={getLocalizedPath("/property-search", locale)}
-              className="mt-6 hidden w-fit px-4 !py-2 lg:block"
+              className="mt-6 hidden w-fit px-4 py-2! lg:block"
             >
               {t("browse")}
             </Button>
@@ -73,7 +73,7 @@ export default function ServicesSection() {
                 <Typography
                   variant="h4"
                   as="h4"
-                  className="!text-xl tracking-tight text-black"
+                  className="text-xl! tracking-tight text-black"
                 >
                   {t("Insurance.title")}
                 </Typography>
@@ -103,7 +103,7 @@ export default function ServicesSection() {
                 <Typography
                   variant="h4"
                   as="h4"
-                  className="!text-xl tracking-tight text-black"
+                  className="text-xl! tracking-tight text-black"
                 >
                   {t("Price.title")}
                 </Typography>
@@ -133,7 +133,7 @@ export default function ServicesSection() {
                 <Typography
                   variant="h4"
                   as="h4"
-                  className="!text-xl tracking-tight text-black"
+                  className="text-xl! tracking-tight text-black"
                 >
                   {t("Commission.title")}
                 </Typography>
@@ -163,7 +163,7 @@ export default function ServicesSection() {
                 <Typography
                   variant="h4"
                   as="h4"
-                  className="!text-xl tracking-tight text-black"
+                  className="text-xl! tracking-tight text-black"
                 >
                   {t("Control.title")}
                 </Typography>

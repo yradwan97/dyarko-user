@@ -47,19 +47,21 @@ export default function CountryDropdown() {
           </SelectValue>
         </SelectTrigger>
         <SelectContent align="start" side="bottom">
-          {countries?.map((country) => (
-            <SelectItem
-              key={country.code}
-              value={country.code}
-              className="cursor-pointer"
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">
-                  {locale === "ar" ? country.countryAr : country.countryEn}
-                </span>
-              </div>
-            </SelectItem>
-          ))}
+          {countries
+            ?.filter((country) => country.code)
+            .map((country) => (
+              <SelectItem
+                key={country.code}
+                value={country.code}
+                className="cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">
+                    {locale === "ar" ? country.countryAr : country.countryEn}
+                  </span>
+                </div>
+              </SelectItem>
+            ))}
         </SelectContent>
       </Select>
     </div>

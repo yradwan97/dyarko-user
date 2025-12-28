@@ -11,7 +11,6 @@ import FeatureComponent from "./feature-component";
 import AmenetiesComponent from "./ameneties-component";
 import ServicesComponent from "./services-component";
 import Location from "./location";
-import ReservationBox from "./reservation-box";
 import InteriorDesign from "./interior-design";
 import HeadTitle from "./head-title";
 
@@ -195,9 +194,9 @@ export default function AboutProperty({ property, currency = "KWD" }: AboutPrope
       ].filter(stat => stat.value !== null);
 
   return (
-    <div className="mt-9 grid grid-cols-1 lg:grid-cols-3 gap-6" dir={locale === "ar" ? "rtl" : "ltr"}>
+    <div className="mt-9" dir={locale === "ar" ? "rtl" : "ltr"}>
       {/* Main Content */}
-      <div className="col-span-1 lg:col-span-2">
+      <div>
         {/* About Property Section */}
         <div className="mb-8">
           <HeadTitle text={`${t("about-this")} ${tCategories(property.category)}`} />
@@ -305,11 +304,6 @@ export default function AboutProperty({ property, currency = "KWD" }: AboutPrope
 
         {/* Location */}
         <Location coords={{ long, lat }} />
-      </div>
-
-      {/* Reservation Box */}
-      <div className="col-span-1">
-        <ReservationBox property={property} currency={currency} />
       </div>
     </div>
   );

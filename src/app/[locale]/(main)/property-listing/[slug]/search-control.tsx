@@ -55,29 +55,10 @@ export default function SearchControl({ slug, onSearch, onReset }: SearchControl
     isHolidays: false,
   });
 
-  // Check if price filter is set
-  const hasPriceFilter = priceRange[0] > 0 || priceRange[1] > 0;
-
-  // Handle period change - ensure at least one is selected only when price filter is set
+  // Handle period change
   const handlePeriodChange = (period: keyof typeof periods, checked: boolean) => {
-    const newPeriods = { ...periods, [period]: checked };
-    const hasAtLeastOne = Object.values(newPeriods).some(v => v);
-
-    // If price filter is set and trying to uncheck the last period, prevent it
-    if (hasPriceFilter && !hasAtLeastOne) {
-      return;
-    }
-
-    setPeriods(newPeriods);
+    setPeriods({ ...periods, [period]: checked });
   };
-
-  // Auto-select monthly when price filter is set and no period is selected
-  useEffect(() => {
-    const hasAnyPeriod = Object.values(periods).some(v => v);
-    if (hasPriceFilter && !hasAnyPeriod) {
-      setPeriods(prev => ({ ...prev, isMonthly: true }));
-    }
-  }, [hasPriceFilter]);
 
   // Convert cities to governorate format
   const cityOptions: Governorate[] = useMemo(() => {

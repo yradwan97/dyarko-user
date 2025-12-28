@@ -45,13 +45,13 @@ export default function FeatureComponent({ property }: FeatureComponentProps) {
     return property.offerType.charAt(0).toUpperCase() + property.offerType.slice(1);
   };
 
-  // Get type value - for court category show actual court type, otherwise show category
+  // Get type value - show property.type if available
   const getTypeValue = () => {
-    if (property.category === "court" && (property as any).type) {
-      const courtType = (property as any).type;
-      return courtType.charAt(0).toUpperCase() + courtType.slice(1);
+    if ((property as any).type) {
+      const propertyType = (property as any).type;
+      return propertyType.charAt(0).toUpperCase() + propertyType.slice(1);
     }
-    return property.category ? tCategories(property.category) : null;
+    return null;
   };
 
   // Property information data - combine and filter out null/undefined values

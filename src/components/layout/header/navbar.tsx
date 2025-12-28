@@ -13,21 +13,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { useSession } from "next-auth/react";
 
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const locale = useLocale();
   const t = useTranslations("Navbar");
+  const {data: session} = useSession();
 
   const navLinks = [
-    { to: "/property-listing/rent", text: "rent" },
-    { to: "/property-listing/buy", text: "buy", hasSubMenu: true },
-    { to: "/user/my-real-estates", text: "my-real-estates" },
-    { to: "/user/my-requests", text: "my-requests" },
-    { to: "/categories", text: "categories" },
-    { to: "/companies", text: "companies" },
-    { to: "/videos", text: "videos" },
+    { to: "/property-listing/rent", text: "rent", visibleWithoutSession: true },
+    { to: "/property-listing/buy", text: "buy", hasSubMenu: true, visibleWithoutSession: true },
+    { to: "/user/my-real-estates", text: "my-real-estates", visibleWithoutSession: false },
+    { to: "/user/my-requests", text: "my-requests", visibleWithoutSession: false },
+    { to: "/categories", text: "categories", visibleWithoutSession: true },
+    { to: "/companies", text: "companies", visibleWithoutSession: true },
+    { to: "/videos", text: "videos", visibleWithoutSession: true },
   ];
 
   // Reverse nav links for Arabic
@@ -62,7 +64,7 @@ export default function Navbar() {
 
   return (
     <>
-      {displayLinks.map((navLink, i) => (
+      {(session ? displayLinks : displayLinks.filter(link => link.visibleWithoutSession)).map((navLink, i) => (
         <div key={i} className="m-2 flex w-auto justify-center" suppressHydrationWarning>
           {navLink.hasSubMenu ? (
             <Select

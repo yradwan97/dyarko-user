@@ -121,7 +121,7 @@ export default function AboutUsSection() {
             className="mt-8 flex w-full items-center px-6! py-2! sm:w-2/5 md:w-1/3"
           >
             {activeTab === "1" ? t("button-buyers") : t("button-tenants")}{" "}
-            <ArrowRight className="ml-auto h-4 w-4 stroke-white" />
+            <ArrowRight className="ms-auto h-4 w-4 stroke-white rtl:rotate-180" />
           </Button>
         </div>
       </div>

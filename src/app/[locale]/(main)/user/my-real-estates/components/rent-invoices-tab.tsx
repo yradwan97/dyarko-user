@@ -32,7 +32,11 @@ export default function RentInvoicesTab({
   const t = useTranslations("User.MyRealEstates.InvoicesTab");
   const [selectedStatus, setSelectedStatus] = useState<InvoiceStatus>("PENDING");
   const [currentPage, setCurrentPage] = useState(1);
-  const [extendInvoiceId, setExtendInvoiceId] = useState<string | null>(null);
+  const [extendInvoiceData, setExtendInvoiceData] = useState<{
+    id: string;
+    minDate: Date;
+    maxDate?: Date;
+  } | null>(null);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
 
@@ -101,8 +105,17 @@ export default function RentInvoicesTab({
     document.body.removeChild(link);
   };
 
-  const handleExtendInvoice = (invoiceId: string) => {
-    setExtendInvoiceId(invoiceId);
+  const handleExtendInvoice = (invoice: Invoice, index: number) => {
+    const minDate = new Date(invoice.date);
+    // Next invoice is at index + 1 in sorted array
+    const nextInvoice = sortedInvoices[index + 1];
+    const maxDate = nextInvoice ? new Date(nextInvoice.date) : undefined;
+
+    setExtendInvoiceData({
+      id: invoice._id,
+      minDate,
+      maxDate,
+    });
   };
 
   // Sort invoices by date (earliest/due first)
@@ -148,6 +161,8 @@ export default function RentInvoicesTab({
         <div className="space-y-3">
           {sortedInvoices.map((invoice, index) => {
             const isDueInvoice = index === 0 && selectedStatus === "PENDING";
+            const isExtended = !!invoice.extendTo;
+            const showPayment = isDueInvoice; // Payment only in PENDING tab for due invoice
 
             return (
               <div
@@ -157,8 +172,16 @@ export default function RentInvoicesTab({
                 <div className="flex items-center justify-between">
                   {/* Left: Icon and Invoice Info */}
                   <div className="flex items-center gap-3 flex-1">
-                    <div className="flex-shrink-0 w-10 h-10 bg-red-100 dark:bg-red-900/20 rounded-lg flex items-center justify-center">
-                      <FileText className="h-5 w-5 text-red-600 dark:text-red-400" />
+                    <div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${
+                      isExtended
+                        ? "bg-orange-100 dark:bg-orange-900/20"
+                        : "bg-red-100 dark:bg-red-900/20"
+                    }`}>
+                      <FileText className={`h-5 w-5 ${
+                        isExtended
+                          ? "text-orange-600 dark:text-orange-400"
+                          : "text-red-600 dark:text-red-400"
+                      }`} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
@@ -167,6 +190,12 @@ export default function RentInvoicesTab({
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         {formatDate(invoice.date)}
                       </p>
+                      {/* Show extended date if invoice has extendTo */}
+                      {isExtended && (selectedStatus === "PENDING" || selectedStatus === "EXTENDED") && (
+                        <p className="text-xs text-orange-600 dark:text-orange-400 mt-0.5">
+                          {t("extended-to")}: {formatDate(invoice.extendTo!)}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -193,7 +222,7 @@ export default function RentInvoicesTab({
                           className="w-48 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800"
                         >
                           <DropdownMenuItem
-                            onClick={() => handleExtendInvoice(invoice._id)}
+                            onClick={() => handleExtendInvoice(invoice, index)}
                             className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-gray-100 dark:focus:bg-gray-800"
                           >
                             <Calendar className="h-4 w-4 mr-2 text-gray-600 dark:text-gray-400" />
@@ -281,9 +310,11 @@ export default function RentInvoicesTab({
 
       {/* Extend Invoice Dialog */}
       <ExtendInvoiceDialog
-        invoiceId={extendInvoiceId}
-        open={!!extendInvoiceId}
-        onOpenChange={(open) => !open && setExtendInvoiceId(null)}
+        invoiceId={extendInvoiceData?.id ?? null}
+        open={!!extendInvoiceData}
+        onOpenChange={(open) => !open && setExtendInvoiceData(null)}
+        minDate={extendInvoiceData?.minDate}
+        maxDate={extendInvoiceData?.maxDate}
       />
 
       {/* Payment Method Dialog */}

@@ -201,16 +201,20 @@
         "message": "The property you're looking for doesn't exist or has been removed."
       },
       "Share": {
-        "title": "Share Property",
+        "title": "Share",
         "success": "Property link copied to clipboard",
+        "copied": "Link copied to clipboard",
         "error": "Could not copy URL. Please try again."
       },
       "Save": {
+        "title-save": "Save",
+        "title-saved": "Saved",
         "saved": "Property saved",
         "unsaved": "Property unsaved",
         "favorite": "Favorite",
         "unfavorite": "Unfavorite",
-        "error": "Failed to update favorite status. Please try again."
+        "error": "Failed to update favorite status. Please try again.",
+        "linkCopied": "Link copied to clipboard"
       },
       "Features": {
         "title": "Unit Features",
@@ -349,6 +353,7 @@
       "services": "Available Extra Services",
       "interior": "Interior Details",
       "map": "Map",
+      "start-navigation": "Start Navigation",
       "map-header": "Drag the pin and drop to select a location.",
       "apartments": "Apartments",
       "apartment": "Apartment",
@@ -375,6 +380,7 @@
       "kwd": "KWD",
       "no-data": "No data available",
       "tabs": {
+        "gallery-details": "Gallery Details",
         "property-details": "Property Details",
         "booth-details": "Booths Details",
         "camp-details": "Camp Details",
@@ -418,7 +424,13 @@
       "details": "Details",
       "note": "Note",
       "color-number-note": "The color / Number chosen for each group represents the same units as those in the schematic diagram.",
-      "no-layout-note": "If no gallery layout appears, it means that the gallery founder has not uploaded the layout."
+      "no-layout-note": "If no gallery layout appears, it means that the gallery founder has not uploaded the layout.",
+      "newsletter": {
+        "title": "Don't Wait—Get It First",
+        "description": "Join our exclusive mailing list and receive new features, enhancements, and important announcements the moment they go live. Your inbox becomes your competitive advantage — no spam, no noise, just pure value.",
+        "placeholder": "Your mail ...",
+        "submit": "Submit"
+      }
     }
   },
   "HomePage": {
@@ -1532,6 +1544,7 @@
       "invoice-id": "Invoice ID",
       "type": "Request Type",
       "tour-date": "Tour Date:",
+      "disclaimer-date": "Disclaimer Date",
       "request-date": "Request Date",
       "property-code": "Property Code",
       "currency": "KWD",
@@ -1611,6 +1624,7 @@
       "status-confirmed": "Confirmed",
       "status-canceled": "Canceled",
       "view-file": "View File",
+      "file": "File",
       "comment": "Comment",
       "reject-reason": "Reject Reason",
       "cancel": "Cancel",
@@ -1631,8 +1645,13 @@
       "due-date": "Due Date",
       "apartments": "Apartments",
       "tents": "Tents",
+      "tent": "Tent",
       "unit": "unit",
       "units": "units",
+      "capacity": "Capacity",
+      "bedrooms": "Bedrooms",
+      "bathrooms": "Bathrooms",
+      "price": "Price",
       "tabs": {
         "tours": "Tours",
         "tour": "Tour",
@@ -1829,7 +1848,8 @@
         "property-details": "Property Details",
         "rental-period": "Rental Period",
         "rental-info": "Rental Information",
-        "tenant-info": "Tenant Information",
+        "owner-info": "Owner Information",
+        "owner-name": "Name",
         "location": "Location",
         "category": "Category",
         "type": "Type",
@@ -1838,11 +1858,12 @@
         "amount": "Amount",
         "rent-type": "Rent Type",
         "last-paid": "Last Paid At",
-        "tenant-name": "Name",
         "phone": "Phone",
-        "national-id": "National ID",
         "code": "Code",
         "pickup-location": "Pickup Location",
+        "services": "Services",
+        "selected-tents": "Selected Tents/Booths",
+        "selected-apartments": "Selected Apartments",
         "rent-types": {
           "hourly": "Hourly",
           "daily": "Daily",
@@ -1853,7 +1874,22 @@
         },
         "tabs": {
           "details": "Rent Details",
-          "invoices": "Invoices"
+          "invoices": "Invoices",
+          "claims": "Claims"
+        },
+        "no-claims": "No claims submitted yet",
+        "claims": {
+          "my-claims": "User Claims",
+          "owner-claims": "Owner Claims",
+          "no-user-claims": "You haven't submitted any claims yet",
+          "no-owner-claims": "No claims from the owner",
+          "comment": "Comment",
+          "view-attachment": "View Attachment",
+          "status": {
+            "pending": "Pending",
+            "resolved": "Resolved",
+            "rejected": "Rejected"
+          }
         },
         "actions": {
           "download-contract": "Download Contract",
@@ -1861,6 +1897,7 @@
           "request-end-contract": "Request End Contract",
           "request-services": "Request Services",
           "add-claims": "Add Claims",
+          "claims-available-after": "Only available {startTime} - {endTime} on start date",
           "disclaimer-request": "Disclaimer Request",
           "services-placeholder": "Request services functionality coming soon",
           "claims-placeholder": "Add claims functionality coming soon",
@@ -1872,7 +1909,11 @@
           "active": "Active",
           "pending": "Pending",
           "expired": "Expired",
-          "cancelled": "Cancelled"
+          "cancelled": "Cancelled",
+          "terminated": "Terminated",
+          "contractTerminated": "Contract Terminated",
+          "rentEnded": "Rent Ended",
+          "upcomingDue": "Upcoming"
         },
         "confirmation": {
           "confirm": "Confirm",
@@ -1966,7 +2007,8 @@
         "next": "Next",
         "page-info": "Page {current} of {total}",
         "popup-blocked": "Please allow popups to proceed with payment",
-        "payment-error": "Failed to initiate payment. Please try again."
+        "payment-error": "Failed to initiate payment. Please try again.",
+        "extended-to": "Extended to"
       },
       "ExtendInvoiceDialog": {
         "title": "Extend Invoice",

@@ -74,23 +74,15 @@ export default function PropertyListingContent({ slug }: PropertyListingContentP
     if (filters.category) params.category = filters.category;
 
     // Price filters
-    const hasPriceFilter = filters.price_from || filters.price_to;
     if (filters.price_from) params.minPrice = filters.price_from;
     if (filters.price_to) params.maxPrice = filters.price_to;
 
-    // Period filters - check if any period is selected
-    const hasAnyPeriod = filters.isDaily || filters.isWeekly || filters.isMonthly || filters.isWeekdays || filters.isHolidays;
-
+    // Period filters
     if (filters.isDaily) params.isDaily = true;
     if (filters.isWeekly) params.isWeekly = true;
     if (filters.isMonthly) params.isMonthly = true;
     if (filters.isWeekdays) params.isWeekdays = true;
     if (filters.isHolidays) params.isHolidays = true;
-
-    // Default to monthly if price filter is set but no period is selected
-    if (hasPriceFilter && !hasAnyPeriod) {
-      params.isMonthly = true;
-    }
 
     return params;
     // eslint-disable-next-line react-hooks/exhaustive-deps

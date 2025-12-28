@@ -19,6 +19,8 @@ import PropertySlider from "./components/property-slider";
 import AboutProperty from "./components/about-property";
 import BoothCampDetails from "./components/booth-camp-details";
 import HotelApartmentTypes from "./components/hotel-apartment-types";
+import ReservationBox from "./components/reservation-box";
+import OwnerInfoBox from "./components/owner-info-box";
 
 interface PropertyDetailsProps {
   id: string;
@@ -169,135 +171,171 @@ export default function PropertyDetails({ id }: PropertyDetailsProps) {
       </div>
 
       <div className="container mx-auto py-6">
-        {/* Property Slider */}
-        {property && <PropertySlider property={property} />}
+        {/* Property Gallery Slider */}
+        <PropertySlider property={property} />
 
-        {/* Title Section */}
-        <div className="mt-8" dir={locale === "ar" ? "rtl" : "ltr"}>
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            {/* Title, Code, Location */}
-            <div className="flex-1">
-              <h1 className="text-3xl md:text-4xl font-bold capitalize leading-tight text-gray-900 dark:text-white">
-                {property.title}
-              </h1>
+        {/* Property Info + Reservation Section */}
+        <div className={cn(
+          "mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8",
+          locale === "ar" && "lg:flex-row-reverse"
+        )}>
+          {/* LEFT: Property Info + About Property Content */}
+          <div className={cn("lg:col-span-2", locale === "ar" && "lg:order-2")} dir={locale === "ar" ? "rtl" : "ltr"}>
+            {/* Title, Code, Location, Price, Save/Share */}
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              {/* Title, Code, Location */}
+              <div className="flex-1">
+                <h1 className="text-2xl md:text-3xl font-bold capitalize leading-tight text-gray-900 dark:text-white">
+                  {property.title}
+                </h1>
 
-              {/* Property Code */}
-              {property.code && (
-                <p className="mt-1 text-sm font-medium text-gray-500 dark:text-gray-400">
-                  {property.code}
-                </p>
-              )}
-
-              {/* Location */}
-              <button
-                onClick={() => {
-                  document.getElementById("map-location")?.scrollIntoView({ behavior: "smooth" });
-                }}
-                className="mt-2 text-main-600 hover:text-main-700 font-medium underline"
-              >
-                {property.city}, {property.region}, {property.country}
-              </button>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex items-center gap-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleLikePressed}
-                className={cn(
-                  "border-gray-300 hover:bg-main-500 hover:text-white hover:border-primary transition-all",
-                  liked && "bg-red-50 border-red-300 text-red-600 hover:bg-red-600 hover:text-white"
+                {/* Property Code */}
+                {property.code && (
+                  <p className="mt-1 text-sm font-medium text-gray-500 dark:text-gray-400">
+                    {property.code}
+                  </p>
                 )}
-              >
-                <Heart className={cn("h-4 w-4 me-1", liked && "fill-current")} />
-                {t("Save.favorite")}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleShareClicked}
-                className="border-gray-300 hover:bg-main-500 hover:text-white hover:border-primary transition-all"
-              >
-                <Share2 className="h-4 w-4 me-1" />
-                {t("Share.title")}
-              </Button>
+
+                {/* Location */}
+                <button
+                  onClick={() => {
+                    document.getElementById("map-location")?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  className="mt-2 text-main-600 hover:text-main-700 font-medium underline text-sm"
+                >
+                  {property.city}, {property.region}, {property.country}
+                </button>
+              </div>
+
+              {/* Save/Share Buttons */}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLikePressed}
+                  className={cn(
+                    "h-8 px-0 py-1 rounded-md border-0 bg-[#A8DADC] text-main-600 hover:bg-teal-300 transition-all gap-2"
+                  )}
+                >
+                  <Heart className={cn("h-5 w-5", liked && "fill-main-500")} />
+                  <span className="font-medium">{liked ? t("Save.title-saved"): t("Save.title-save")}</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleShareClicked}
+                  className="h-8 px-0 py-1 rounded-md border-0 bg-[#A8DADC] text-main-600 hover:bg-teal-300 transition-all gap-2"
+                >
+                  <Share2 className="h-5 w-5" />
+                  <span className="font-medium">{t("Share.title")}</span>
+                </Button>
+              </div>
             </div>
+
+            {/* Price */}
+            <div className="mt-4 flex items-baseline gap-3">
+              <span className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+                {price ? formatPrice(price, currency, locale) : "N/A"}
+              </span>
+              {hasDiscount && originalPrice && (
+                <span className="text-lg text-gray-400 line-through">
+                  {formatPrice(originalPrice, currency, locale)}
+                </span>
+              )}
+              {property.offerType === "rent" && period && (
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  / {tPrice(period)}
+                </span>
+              )}
+            </div>
+
+            {/* About Property Content - Inside Left Column */}
+            {isBoothOrCamp ? (
+              <div className="flex w-full">
+                <Tabs defaultValue="property" className="mt-8 w-full">
+                  <TabsList className="inline-flex w-1/2 h-14 items-center self-center justify-center rounded-md border border-gray-200 bg-[#F4F5F7] p-2 mb-6">
+                    <TabsTrigger
+                      value="property"
+                      className="inline-flex items-center justify-center whitespace-nowrap rounded-md px-8 py-2.5 text-sm font-medium transition-all data-[state=active]:bg-[#142742] data-[state=active]:text-white data-[state=inactive]:bg-transparent data-[state=inactive]:text-[#617289]"
+                    >
+                      {t("tabs.property-details")}
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="units"
+                      className="inline-flex items-center justify-center whitespace-nowrap rounded-md px-8 py-2.5 text-sm font-medium transition-all data-[state=active]:bg-[#142742] data-[state=active]:text-white data-[state=inactive]:bg-transparent data-[state=inactive]:text-[#617289]"
+                    >
+                      {property.category === "booth" ? t("tabs.booth-details") : t("tabs.camp-details")}
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="property">
+                    {property && <AboutProperty property={property} currency={currency} />}
+                  </TabsContent>
+                  <TabsContent value="units">
+                    <BoothCampDetails
+                      property={property}
+                      type={property.category as "booth" | "camp"}
+                      currency={currency}
+                    />
+                  </TabsContent>
+                </Tabs>
+              </div>
+            ) : isHotelApartment ? (
+              <div className="flex w-full">
+                <Tabs defaultValue="property" className="mt-8 w-full">
+                  <TabsList className="inline-flex w-1/2 h-14 items-center self-center justify-center rounded-md border border-gray-200 bg-[#F4F5F7] p-2 mb-6">
+                    <TabsTrigger
+                      value="property"
+                      className="inline-flex items-center justify-center whitespace-nowrap rounded-md px-8 py-2.5 text-sm font-medium transition-all data-[state=active]:bg-[#142742] data-[state=active]:text-white data-[state=inactive]:bg-transparent data-[state=inactive]:text-[#617289]"
+                    >
+                      {t("tabs.hotel-details")}
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="types"
+                      className="inline-flex items-center justify-center whitespace-nowrap rounded-md px-8 py-2.5 text-sm font-medium transition-all data-[state=active]:bg-[#142742] data-[state=active]:text-white data-[state=inactive]:bg-transparent data-[state=inactive]:text-[#617289]"
+                    >
+                      {t("tabs.types-details")}
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="property">
+                    {property && <AboutProperty property={property} currency={currency} />}
+                  </TabsContent>
+                  <TabsContent value="types">
+                    <HotelApartmentTypes property={property} currency={currency} />
+                  </TabsContent>
+                </Tabs>
+              </div>
+            ) : (
+              /* About Property for regular categories */
+              property && <AboutProperty property={property} currency={currency} />
+            )}
           </div>
 
-          {/* Price */}
-          <div className="mt-4 flex items-baseline gap-3">
-            <span className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-              {price ? formatPrice(price, currency, locale) : "N/A"}
-            </span>
-            {hasDiscount && originalPrice && (
-              <span className="text-lg text-gray-400 line-through">
-                {formatPrice(originalPrice, currency, locale)}
-              </span>
-            )}
-            {property.offerType === "rent" && period && (
-              <span className="text-sm text-gray-500 dark:text-gray-400">
-                / {tPrice(period)}
-              </span>
-            )}
+          {/* RIGHT: Reservation Box + Owner Info - Sticky Sidebar */}
+          <div className={cn("lg:col-span-1", locale === "ar" && "lg:order-1")}>
+            <div className="space-y-4">
+              <ReservationBox property={property} currency={currency} />
+              <OwnerInfoBox property={property} />
+
+              {/* Newsletter Section */}
+              <div className="rounded-xl border-[1.5px] border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <h3 className="text-lg font-bold text-center text-gray-900 dark:text-white mb-3">
+                  {t("newsletter.title")}
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 text-center mb-4">
+                  {t("newsletter.description")}
+                </p>
+                <input
+                  type="email"
+                  placeholder={t("newsletter.placeholder")}
+                  className="w-full h-12 px-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm mb-3"
+                />
+                <Button className="flex w-full items-center justify-center gap-2 h-12 border-0 text-white bg-steelBlue-500 hover:text-steelBlue-500 hover:border-steelBlue-500 hover:border font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                  {t("newsletter.submit")}
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
-
-        {/* Tabs for Booth/Camp/HotelApartment or regular About Property */}
-        {isBoothOrCamp ? (
-          <Tabs defaultValue="property" className="mt-8">
-            <TabsList className="inline-flex h-14 items-center justify-center rounded-full bg-gray-100 p-1.5 mb-6">
-              <TabsTrigger
-                value="property"
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-full px-6 py-3 text-sm font-medium transition-all data-[state=active]:bg-slate-800 data-[state=active]:text-white data-[state=inactive]:text-slate-600"
-              >
-                {t("tabs.property-details")}
-              </TabsTrigger>
-              <TabsTrigger
-                value="units"
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-full px-6 py-3 text-sm font-medium transition-all data-[state=active]:bg-slate-800 data-[state=active]:text-white data-[state=inactive]:text-slate-600"
-              >
-                {property.category === "booth" ? t("tabs.booth-details") : t("tabs.camp-details")}
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="property">
-              {property && <AboutProperty property={property} currency={currency} />}
-            </TabsContent>
-            <TabsContent value="units">
-              <BoothCampDetails
-                property={property}
-                type={property.category as "booth" | "camp"}
-                currency={currency}
-              />
-            </TabsContent>
-          </Tabs>
-        ) : isHotelApartment ? (
-          <Tabs defaultValue="property" className="mt-8">
-            <TabsList className="inline-flex h-14 items-center justify-center rounded-full bg-gray-100 p-1.5 mb-6">
-              <TabsTrigger
-                value="property"
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-full px-6 py-3 text-sm font-medium transition-all data-[state=active]:bg-slate-800 data-[state=active]:text-white data-[state=inactive]:text-slate-600"
-              >
-                {t("tabs.hotel-details")}
-              </TabsTrigger>
-              <TabsTrigger
-                value="types"
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-full px-6 py-3 text-sm font-medium transition-all data-[state=active]:bg-slate-800 data-[state=active]:text-white data-[state=inactive]:text-slate-600"
-              >
-                {t("tabs.types-details")}
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="property">
-              {property && <AboutProperty property={property} currency={currency} />}
-            </TabsContent>
-            <TabsContent value="types">
-              <HotelApartmentTypes property={property} currency={currency} />
-            </TabsContent>
-          </Tabs>
-        ) : (
-          /* About Property for regular categories */
-          property && <AboutProperty property={property} currency={currency} />
-        )}
       </div>
     </div>
   );

@@ -113,17 +113,16 @@ export default function RequestServicesDialog({
                   return (
                     <div
                       key={service._id}
-                      className={`flex items-start gap-4 p-4 border rounded-lg cursor-pointer transition-all ${
+                      className={`flex items-center gap-4 p-4 border rounded-lg transition-all ${
                         isSelected
                           ? "border-main-500 bg-main-50 dark:bg-main-950/20"
                           : "border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700"
                       }`}
-                      onClick={() => handleToggleService(service._id)}
                     >
                       <Checkbox
                         checked={isSelected}
                         onCheckedChange={() => handleToggleService(service._id)}
-                        className="mt-1"
+                        className="cursor-pointer"
                       />
 
                       {service.image && (

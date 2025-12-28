@@ -10,8 +10,7 @@ import { createInstallmentRequest } from "@/lib/services/api/installments";
 import { getLocalizedPath, cn } from "@/lib/utils";
 import { getPropertyPrice, getPropertyPeriod, formatPrice, getOtherPrices } from "@/lib/utils/property-pricing";
 import { Button } from "@/components/ui/button";
-import { FileText, MapPin, Phone, ChevronRight } from "lucide-react";
-import Link from "next/link";
+import { FileText, MapPin, Phone } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import ConfirmationDialog from "@/components/dialogs/confirmation-dialog";
 import { toast } from "sonner";
@@ -251,7 +250,7 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
       />
 
       {/* Reservation Box */}
-      <div className="sticky top-24 rounded-xl border-[1.5px] border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow dark:border-gray-700 dark:bg-gray-800">
+      <div className="rounded-xl border-[1.5px] border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow dark:border-gray-700 dark:bg-gray-800">
         {isTentGroup ? (
           <p className="text-center text-sm text-black dark:text-white">{t("tent-group")}</p>
         ) : isReplacement ? (
@@ -328,7 +327,7 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
 
           <Button
             variant="outline"
-            className="flex w-full items-center justify-center gap-2 h-12 border-main-600 text-main-600 hover:bg-main-600 hover:text-white font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex w-full items-center justify-center gap-2 h-12 border-0 text-white bg-steelBlue-500 hover:text-steelBlue-500 hover:border-steelBlue-500 hover:border font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={() => setIsScheduleTourOpen(true)}
             disabled={!session}
           >
@@ -340,41 +339,6 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
             <p className="mt-2 text-center text-xs text-gray-500 dark:text-gray-400">{t("login-to-schedule")}</p>
           )}
         </div>
-
-        {/* Owner Section */}
-        <Link
-          href={getLocalizedPath(`/companies/${property.owner._id}`, locale)}
-          className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between group cursor-pointer"
-          dir={locale === "ar" ? "rtl" : "ltr"}
-        >
-          <div className="flex items-center gap-3">
-            {validOwnerImage ? (
-              <Image
-                src={validOwnerImage}
-                alt={property.owner.name}
-                width={48}
-                height={48}
-                className="h-12 w-12 rounded-full object-cover"
-              />
-            ) : (
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-main-100">
-                <span className="text-lg font-bold text-main-600">
-                  {getInitials(property.owner.name)}
-                </span>
-              </div>
-            )}
-            <div>
-              <p className="font-bold text-gray-900 dark:text-white">
-                {property.owner.name || "Agent Name"}
-              </p>
-              <p className="text-sm text-main-600">{property.owner.role || tGeneral("owner")}</p>
-            </div>
-          </div>
-          <ChevronRight className={cn(
-            "h-5 w-5 text-gray-400 group-hover:text-main-600 transition-colors",
-            locale === "ar" && "rotate-180"
-          )} />
-        </Link>
       </div>
     </>
   );

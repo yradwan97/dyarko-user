@@ -12,6 +12,7 @@ import { Rating } from "@/components/ui/rating";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Owner } from "@/lib/services/api/companies";
 import { checkCompanyFavourite, addCompanyFavourite, removeCompanyFavourite } from "@/lib/services/api/favourites";
+import { useQueryClient } from "@tanstack/react-query";
 
 const isValidImageUrl = (url: string | undefined | null): boolean => {
   if (!url) return false;
@@ -45,6 +46,7 @@ export default function CompanyBanner({ owner }: CompanyBannerProps) {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const queryClient = useQueryClient();
 
   const hasValidImage = useMemo(() => isValidImageUrl(owner.image), [owner.image]);
   const initials = useMemo(() => getInitials(owner.name), [owner.name]);
@@ -82,6 +84,7 @@ export default function CompanyBanner({ owner }: CompanyBannerProps) {
       console.error("Error toggling favorite:", error);
     } finally {
       setIsLoading(false);
+      queryClient.invalidateQueries({ queryKey: ["company-favourites"] });
     }
   };
 

@@ -5,7 +5,7 @@ import { Megaphone } from "lucide-react";
 import Typography from "@/components/shared/typography";
 import { cn } from "@/lib/utils";
 import { type RequestCardProps } from "./types";
-import { getStatusColor } from "./shared-utils";
+import { getStatusColor, formatDate } from "./shared-utils";
 
 export function AdRequestCard({ request, locale, onCardClick, getCurrency }: RequestCardProps) {
   const t = useTranslations("User.MyRequests");
@@ -125,6 +125,16 @@ export function AdRequestCard({ request, locale, onCardClick, getCurrency }: Req
                 )}
               </div>
             )}
+          </div>
+        )}
+        {request.createdAt && (
+          <div className={cn("flex items-center gap-1 text-gray-500 mt-2", locale === "ar" && "flex-row-reverse")}>
+            <Typography variant="body-sm-bold" as="span">
+              {t("request-date")}
+            </Typography>
+            <Typography variant="body-sm" as="span">
+              {formatDate(request.createdAt)}
+            </Typography>
           </div>
         )}
       </div>

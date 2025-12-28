@@ -65,7 +65,27 @@ export interface RentOwner {
   image?: string;
 }
 
+export interface RentPropertyGroup {
+  _id: string;
+  name: string;
+  color: string;
+  area: number;
+  ids: number[];
+  description: string;
+  price: number;
+  insurance: number;
+}
+
+export interface RentPropertyApartment {
+  _id: string;
+  name: string;
+  description?: string;
+  price: number;
+  area?: number;
+}
+
 export interface RentProperty {
+  _id: string;
   type?: string;
   code: string;
   category: string;
@@ -80,6 +100,10 @@ export interface RentProperty {
   video: string | null;
   interiorDesign: string | null;
   purchaseContract: string | null;
+  checkInTime?: string;
+  checkOutTime?: string;
+  groups?: RentPropertyGroup[];
+  apartments?: RentPropertyApartment[];
 }
 
 export interface RentUser {
@@ -87,6 +111,12 @@ export interface RentUser {
   phoneNumber: string;
   nationalID: string;
   image: string;
+}
+
+export interface RentService {
+  _id: string;
+  name: string;
+  amount: number;
 }
 
 export interface Rent {
@@ -97,13 +127,15 @@ export interface Rent {
   status: string;
   startDate: string;
   endDate: string;
-  services: string[];
+  services: RentService[];
   rentType: string;
   transaction: string;
   amount: number;
   lat?: string;
   long?: string;
   lastPaidAt?: string;
+  tents?: number[];
+  apartments?: string[];
   __v?: number;
 }
 
@@ -145,7 +177,7 @@ export const proceedRentRequest = async (
 
 export const getRents = async (page: number = 1): Promise<RentsResponse> => {
   const response = await axiosClient.get<RentsResponse>(
-    `/rents?page=${page}&size=9`
+    `/rents?page=${page}&size=12`
   );
   return response.data;
 };

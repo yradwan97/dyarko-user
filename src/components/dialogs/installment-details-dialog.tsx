@@ -55,6 +55,14 @@ const isValidUrl = (str?: string) => {
   }
 };
 
+const frequencyMap: Record<string, number> = {
+    monthly: 1,
+    quarterly: 3,
+    semiAnnual: 6,
+    "semi-annually": 6,
+    annually: 12,
+  };
+
 // Helper function to calculate installment schedule
 const calculateInstallmentSchedule = (
   amount: number, // Monthly installment amount
@@ -66,19 +74,13 @@ const calculateInstallmentSchedule = (
 
   // Determine the frequency in months (how often the user pays)
   // Handles both camelCase and kebab-case formats from API
-  const frequencyMap: Record<string, number> = {
-    monthly: 1,
-    quarterly: 3,
-    semiAnnually: 6,
-    "semi-annually": 6,
-    annually: 12,
-  };
+  
 
   const frequency = frequencyMap[installmentType] || 1;
   // Number of payments = total period / frequency (e.g., 36 months / 6 = 6 semi-annual payments)
   const numberOfInstallments = Math.ceil(installmentPeriod / frequency);
   // Each payment aggregates multiple months (e.g., 6 months * 1500/month = 9000 per payment)
-  const amountPerInstallment = amount * frequency;
+  const amountPerInstallment = amount;
 
   const start = new Date(startDate);
 
@@ -433,7 +435,7 @@ export default function InstallmentDetailsDialog({
                         {t("total-amount")}
                       </Typography>
                       <Typography variant="h4" as="p" className="font-bold text-main-600 capitalize">
-                        {((installment?.amount || 0) * (installment?.installmentPeriod || 0)).toFixed(2)} {currency}
+                        {((installment?.amount || 0) * installmentSchedule.length).toFixed(2)} {currency}
                       </Typography>
                     </div>
                     <div className="mt-2 flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 capitalize">

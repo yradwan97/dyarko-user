@@ -120,10 +120,22 @@ export function DisclaimerRequestCard({
             <div className={cn("flex flex-row gap-3 text-gray-600 mt-2", locale === "ar" && "justify-end")}>
               <div className={cn("flex items-center gap-1", locale === "ar" && "flex-row-reverse")}>
                 <Typography variant="body-sm-bold" as="p" className="text-gray-500">
-                  {t("request-date")}
+                  {t("disclaimer-date")}
                 </Typography>
                 <Typography variant="body-sm" as="p" className="text-gray-500">
                   {formatDate(request.date)}
+                </Typography>
+              </div>
+            </div>
+          )}
+          {request.createdAt && (
+            <div className={cn("flex flex-row gap-3 text-gray-500 mt-1", locale === "ar" && "justify-end")}>
+              <div className={cn("flex items-center gap-1", locale === "ar" && "flex-row-reverse")}>
+                <Typography variant="body-sm-bold" as="p" className="text-gray-500">
+                  {t("request-date")}
+                </Typography>
+                <Typography variant="body-sm" as="p" className="text-gray-500">
+                  {formatDate(request.createdAt)}
                 </Typography>
               </div>
             </div>

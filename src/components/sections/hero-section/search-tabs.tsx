@@ -30,30 +30,30 @@ export function SearchTabs({ session }: SearchTabsProps) {
 
   return (
     <div className="mb-32 w-full md:mb-36 lg:w-full">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 rounded-t-lg bg-white">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full min-w-[320px] sm:min-w-100 lg:min-w-125 xl:min-w-107.5">
+        <TabsList className="grid w-full grid-cols-3 rounded-t-lg bg-white h-auto p-0 border-b border-gray-200">
           <TabsTrigger
             value="rent"
-            className="text-base data-[state=active]:border-b-2 data-[state=active]:border-main-600 data-[state=active]:text-main-600"
+            className="bg-transparent! shadow-none! rounded-md! text-sm lg:text-base px-2 sm:px-4 xl:px-6 py-3 sm:py-4 text-gray-600 border-b-2 border-transparent data-[state=active]:border-main-600 data-[state=active]:text-main-600 data-[state=active]:font-semibold transition-all whitespace-nowrap"
           >
             {tPayment("rent")}
           </TabsTrigger>
           <TabsTrigger
             value="buy"
-            className="text-base data-[state=active]:border-b-2 data-[state=active]:border-main-600 data-[state=active]:text-main-600"
+            className="bg-transparent! shadow-none! rounded-md! text-sm lg:text-base px-2 sm:px-4 xl:px-6 py-3 sm:py-4 text-gray-600 border-b-2 border-transparent data-[state=active]:border-main-600 data-[state=active]:text-main-600 data-[state=active]:font-semibold transition-all whitespace-nowrap"
           >
             {tPayment("cash")}
           </TabsTrigger>
           <TabsTrigger
             value="installment"
-            className="text-base data-[state=active]:border-b-2 data-[state=active]:border-main-600 data-[state=active]:text-main-600"
+            className="bg-transparent! shadow-none! rounded-md! text-sm lg:text-base px-2 sm:px-4 xl:px-6 py-3 sm:py-4 text-gray-600 border-b-2 border-transparent data-[state=active]:border-main-600 data-[state=active]:text-main-600 data-[state=active]:font-semibold transition-all whitespace-nowrap"
           >
             {tPayment("installment")}
           </TabsTrigger>
         </TabsList>
 
         <div className="relative">
-          <div className={`absolute ${locale === "ar" ? "end-0" : "start-0"} top-0 z-10 w-full max-w-full rounded-b-lg bg-white shadow-xl md:min-w-[500px] lg:min-w-[640px]`}>
+          <div className={`absolute ${locale === "ar" ? "end-0" : "start-0"} top-0 z-10 w-full max-w-full rounded-b-lg bg-white shadow-xl md:min-w-125 lg:min-w-160`}>
             <TabsContent value="rent" className="mt-0 p-4 md:p-6">
               <SearchTabContent tab="rent" session={session} />
             </TabsContent>

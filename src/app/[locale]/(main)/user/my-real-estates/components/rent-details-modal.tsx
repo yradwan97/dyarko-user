@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import Image from "next/image";
+import Link from "next/link";
 import { format } from "date-fns";
 import {
   Calendar,
@@ -21,6 +22,11 @@ import {
   AlertCircle,
   FileWarning,
   FileText,
+  ExternalLink,
+  Tent,
+  Hotel,
+  MessageSquare,
+  Paperclip,
 } from "lucide-react";
 import {
   Dialog,
@@ -31,6 +37,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import PaginationControls from "@/components/shared/pagination-controls";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,6 +47,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { getRentById } from "@/lib/services/api/rents";
+import { getTenantClaims, Claim } from "@/lib/services/api/claims";
 import { downloadRentInvoices } from "@/lib/services/api/invoices";
 import { useCountryCurrency } from "@/hooks/use-country-currency";
 import PickupLocationMapView from "@/components/ui/pickup-location-map-view";
@@ -49,6 +57,7 @@ import AddClaimsDialog from "./add-claims-dialog";
 import DisclaimerRequestDialog from "./disclaimer-request-dialog";
 import RequestServicesDialog from "./request-services-dialog";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface RentDetailsModalProps {
   rentId: string | null;
@@ -63,10 +72,14 @@ export default function RentDetailsModal({
 }: RentDetailsModalProps) {
   const t = useTranslations("User.MyRealEstates.RentDetailsModal");
   const tCategories = useTranslations("General.Categories");
+  const locale = useLocale();
+  const isRTL = locale === "ar";
   const [showEndContractDialog, setShowEndContractDialog] = useState(false);
   const [showClaimsDialog, setShowClaimsDialog] = useState(false);
   const [showDisclaimerDialog, setShowDisclaimerDialog] = useState(false);
   const [showServicesDialog, setShowServicesDialog] = useState(false);
+  const [claimsPage, setClaimsPage] = useState(1);
+  const [claimsSubTab, setClaimsSubTab] = useState<"user" | "owner">("user");
 
   const { data: rent, isLoading } = useQuery({
     queryKey: ["rent-details", rentId],
@@ -74,18 +87,76 @@ export default function RentDetailsModal({
     enabled: !!rentId && isOpen,
   });
 
+  const { data: claimsData, isLoading: isLoadingClaims } = useQuery({
+    queryKey: ["tenant-claims", rentId, claimsPage],
+    queryFn: () => getTenantClaims({ rentId: rentId!, page: claimsPage, size: 8 }),
+    enabled: !!rentId && isOpen,
+  });
+
+  const allClaims = claimsData?.data?.data || [];
+  const claimsTotalPages = claimsData?.data?.pages || 1;
+
+  // Filter claims by createdBy
+  const userClaims = allClaims.filter((claim) => claim.createdBy === "USER");
+  const ownerClaims = allClaims.filter((claim) => claim.createdBy === "OWNER");
+  const claims = claimsSubTab === "user" ? userClaims : ownerClaims;
+
   const currency = useCountryCurrency(rent?.property?.country);
 
   const formatDate = (date: string) => {
     return format(new Date(date), "MMMM dd, yyyy");
   };
 
-  const getStatusColor = (status: string) => {
+  const getRentStatus = () => {
+    if (!rent) return { text: "", badgeColor: "bg-gray-500 text-white" };
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const start = new Date(rent.startDate);
+    const end = new Date(rent.endDate);
+    start.setHours(0, 0, 0, 0);
+    end.setHours(0, 0, 0, 0);
+
+    const normalizedStatus = rent.status.toUpperCase();
+
+    // Check if contract is terminated/cancelled
+    if (normalizedStatus === "CANCELLED" || normalizedStatus === "TERMINATED") {
+      return {
+        text: t("status.contractTerminated"),
+        badgeColor: "bg-red-500 text-white",
+      };
+    }
+
+    // Check if rent has ended
+    if (end < today) {
+      return {
+        text: t("status.rentEnded"),
+        badgeColor: "bg-gray-500 text-white",
+      };
+    }
+
+    // Check if rent is upcoming
+    if (start > today) {
+      return {
+        text: t("status.upcomingDue"),
+        badgeColor: "bg-main-600 text-white",
+      };
+    }
+
+    // Default: show status from API
+    return {
+      text: t(`status.${rent.status.toLowerCase()}`),
+      badgeColor: getStatusBadgeColor(rent.status),
+    };
+  };
+
+  const getStatusBadgeColor = (status: string) => {
     switch (status.toUpperCase()) {
       case "ACTIVE":
         return "bg-green-500 text-white";
       case "PENDING":
-        return "bg-yellow-500 text-white";
+        return "bg-yellow-600 text-white";
       case "EXPIRED":
         return "bg-gray-500 text-white";
       case "CANCELLED":
@@ -94,6 +165,8 @@ export default function RentDetailsModal({
         return "bg-gray-500 text-white";
     }
   };
+
+  const rentStatus = getRentStatus();
 
   const handleDownloadContract = () => {
     if (rent?.property.contract) {
@@ -113,6 +186,50 @@ export default function RentDetailsModal({
     setShowClaimsDialog(true);
   };
 
+  // Check if claims can be added (only within first 2 hours after check-in time on start date)
+  const getClaimsWindowInfo = () => {
+    if (!rent) return { canAdd: false, startTime: "", endTime: "" };
+
+    const now = new Date();
+    const startDate = new Date(rent.startDate);
+
+    // Check if today is the start date
+    const isStartDate =
+      now.getFullYear() === startDate.getFullYear() &&
+      now.getMonth() === startDate.getMonth() &&
+      now.getDate() === startDate.getDate();
+
+    // Claims can ONLY be added on the start date
+    if (!isStartDate) return { canAdd: false, startTime: "", endTime: "" };
+
+    const checkInTime = rent.property.checkInTime;
+    if (!checkInTime) return { canAdd: false, startTime: "", endTime: "" };
+
+    // Parse checkInTime (expected format: "HH:mm" or "HH:mm:ss")
+    const [hours, minutes] = checkInTime.split(":").map(Number);
+
+    // Window start: check-in time
+    const windowStart = new Date(startDate);
+    windowStart.setHours(hours, minutes, 0, 0);
+
+    // Window end: check-in time + 2 hours
+    const windowEnd = new Date(startDate);
+    windowEnd.setHours(hours + 2, minutes, 0, 0);
+
+    // Format times for display (e.g., "14:00", "16:00")
+    const formatTime = (date: Date) => format(date, "HH:mm");
+
+    return {
+      canAdd: now >= windowStart && now <= windowEnd,
+      startTime: formatTime(windowStart),
+      endTime: formatTime(windowEnd),
+    };
+  };
+
+  const claimsWindow = getClaimsWindowInfo();
+  const claimsDisabled = !claimsWindow.canAdd;
+  console.log(claimsWindow)
+
   const handleDisclaimerRequest = () => {
     setShowDisclaimerDialog(true);
   };
@@ -131,22 +248,33 @@ export default function RentDetailsModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto p-0 bg-white dark:bg-gray-950">
-        <DialogHeader className="px-6 pt-6 pb-4 sticky top-0 bg-white dark:bg-gray-950 z-10 border-b border-gray-200 dark:border-gray-800">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1 min-w-0">
+        <DialogHeader className={cn(
+          "w-full px-6 pt-6 pb-4 sticky top-0 inset-x-0 bg-white dark:bg-gray-950 z-10 border-b border-gray-200 dark:border-gray-800",
+          isRTL && "text-right"
+        )}>
+          <div className={cn("flex items-start justify-between gap-4", )}>
+            <div className={cn("flex-1 min-w-0", isRTL && "text-right")}>
               <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white truncate">
                 {isLoading ? t("loading") : rent ? rent.property.title : t("title")}
               </DialogTitle>
               {rent && (
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                <Link
+                  href={`/${locale}/properties/${rent.property._id}`}
+                  className={cn(
+                    "text-sm text-main-600 hover:text-main-700 dark:text-main-400 dark:hover:text-main-300 mt-1 inline-flex items-center gap-1 hover:underline",
+                    isRTL && "flex-row-reverse"
+                  )}
+                  onClick={(e) => e.stopPropagation()}
+                >
                   {t("code")}: {rent.property.code}
-                </p>
+                  <ExternalLink className="h-3 w-3" />
+                </Link>
               )}
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center shrink-0">
               {rent && (
-                <Badge className={`${getStatusColor(rent.status)}`}>
-                  {t(`status.${rent.status.toLowerCase()}`)}
+                <Badge className={rentStatus.badgeColor}>
+                  {rentStatus.text}
                 </Badge>
               )}
               {rent && (
@@ -199,10 +327,24 @@ export default function RentDetailsModal({
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={handleAddClaims}
-                      className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-gray-100 dark:focus:bg-gray-800"
+                      disabled={claimsDisabled}
+                      className={cn(
+                        "cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-gray-100 dark:focus:bg-gray-800",
+                        claimsDisabled && "opacity-50 cursor-not-allowed"
+                      )}
                     >
                       <AlertCircle className="h-4 w-4 mr-2 text-gray-600 dark:text-gray-400" />
-                      <span className="text-gray-900 dark:text-white">{t("actions.add-claims")}</span>
+                      <div className="flex flex-col">
+                        <span className="text-gray-900 dark:text-white">{t("actions.add-claims")}</span>
+                        {claimsDisabled && claimsWindow.startTime && claimsWindow.endTime && (
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            {t("actions.claims-available-after", {
+                              startTime: claimsWindow.startTime,
+                              endTime: claimsWindow.endTime
+                            })}
+                          </span>
+                        )}
+                      </div>
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={handleDisclaimerRequest}
@@ -223,13 +365,16 @@ export default function RentDetailsModal({
             <Spinner className="h-12 w-12 text-main-400" />
           </div>
         ) : rent ? (
-          <Tabs defaultValue="details" className="px-6 pb-6 bg-white dark:bg-gray-950">
+          <Tabs defaultValue="details" className="px-6 pb-6 bg-white dark:bg-gray-950" dir={isRTL ? "rtl" : "ltr"}>
             <TabsList className="w-full mb-6">
               <TabsTrigger value="details" className="flex-1">
                 {t("tabs.details")}
               </TabsTrigger>
               <TabsTrigger value="invoices" className="flex-1">
                 {t("tabs.invoices")}
+              </TabsTrigger>
+              <TabsTrigger value="claims" className="flex-1">
+                {t("tabs.claims")}
               </TabsTrigger>
             </TabsList>
 
@@ -248,11 +393,11 @@ export default function RentDetailsModal({
 
             {/* Property Details */}
             <div className="space-y-3">
-              <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+              <h3 className={cn("text-base font-semibold text-gray-900 dark:text-white", isRTL && "text-right")}>
                 {t("property-details")}
               </h3>
               <div className="grid grid-cols-2 gap-3">
-                <div className="flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg">
+                <div className={cn("flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg", isRTL && "flex-row-reverse text-right")}>
                   <MapPin className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
                   <div className="min-w-0 flex-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
@@ -264,7 +409,7 @@ export default function RentDetailsModal({
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg">
+                <div className={cn("flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg", isRTL && "flex-row-reverse text-right")}>
                   <Building2 className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
                   <div className="min-w-0 flex-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
@@ -277,7 +422,7 @@ export default function RentDetailsModal({
                 </div>
 
                 {rent.property.type && (
-                  <div className="flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg col-span-2">
+                  <div className={cn("flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg col-span-2", isRTL && "flex-row-reverse text-right")}>
                     <Home className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
                     <div className="min-w-0 flex-1">
                       <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
@@ -294,11 +439,11 @@ export default function RentDetailsModal({
 
             {/* Rental Period */}
             <div className="space-y-3">
-              <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+              <h3 className={cn("text-base font-semibold text-gray-900 dark:text-white", isRTL && "text-right")}>
                 {t("rental-period")}
               </h3>
               <div className="grid grid-cols-2 gap-3">
-                <div className="flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg">
+                <div className={cn("flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg", isRTL && "flex-row-reverse text-right")}>
                   <Calendar className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
                   <div className="min-w-0 flex-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
@@ -310,7 +455,7 @@ export default function RentDetailsModal({
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg">
+                <div className={cn("flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg", isRTL && "flex-row-reverse text-right")}>
                   <Calendar className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
                   <div className="min-w-0 flex-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
@@ -326,12 +471,12 @@ export default function RentDetailsModal({
 
             {/* Rental Information */}
             <div className="space-y-3">
-              <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+              <h3 className={cn("text-base font-semibold text-gray-900 dark:text-white", isRTL && "text-right")}>
                 {t("rental-info")}
               </h3>
               <div className="grid grid-cols-2 gap-3">
                 {rent.amount && (
-                  <div className="flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg">
+                  <div className={cn("flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg", isRTL && "flex-row-reverse text-right")}>
                     <DollarSign className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
                     <div className="min-w-0 flex-1">
                       <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
@@ -345,7 +490,7 @@ export default function RentDetailsModal({
                 )}
 
                 {rent.rentType && (
-                  <div className="flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg">
+                  <div className={cn("flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg", isRTL && "flex-row-reverse text-right")}>
                     <Clock className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
                     <div className="min-w-0 flex-1">
                       <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
@@ -359,7 +504,7 @@ export default function RentDetailsModal({
                 )}
 
                 {rent.lastPaidAt && (
-                  <div className="flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg col-span-2">
+                  <div className={cn("flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg col-span-2", isRTL && "flex-row-reverse text-right")}>
                     <Calendar className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
                     <div className="min-w-0 flex-1">
                       <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
@@ -374,52 +519,168 @@ export default function RentDetailsModal({
               </div>
             </div>
 
-            {/* Tenant Information */}
-            {rent.user && (
+            {/* Owner Information */}
+            {rent.owner && (
               <div className="space-y-3">
-                <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-                  {t("tenant-info")}
+                <h3 className={cn("text-base font-semibold text-gray-900 dark:text-white", isRTL && "text-right")}>
+                  {t("owner-info")}
                 </h3>
-                <div className="grid grid-cols-1 gap-3">
-                  <div className="flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg">
-                    <User className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                        {t("tenant-name")}
-                      </p>
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
-                        {rent.user.name}
-                      </p>
-                    </div>
+                <div className={cn(
+                  "flex items-center gap-4 p-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg"
+                )}>
+                  {/* Owner Image */}
+                  <div className={cn(
+                    "relative h-16 w-16 shrink-0 rounded-full overflow-hidden bg-main-100 dark:bg-main-900",
+                    isRTL && "order-first"
+                  )}>
+                    {rent.owner.image ? (
+                      <Image
+                        src={rent.owner.image}
+                        alt={rent.owner.name}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-full w-full">
+                        <span className="text-xl font-semibold text-main-600 dark:text-main-400">
+                          {rent.owner.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .slice(0, 2)
+                            .join("")
+                            .toUpperCase()}
+                        </span>
+                      </div>
+                    )}
                   </div>
+                  {/* Owner Details */}
+                  <div className={cn("flex-1 min-w-0", isRTL && "order-first text-right")}>
+                    <p className="text-base font-semibold text-gray-900 dark:text-white truncate">
+                      {rent.owner.name}
+                    </p>
+                    {rent.owner.phoneNumber && (
+                      <div className={cn(
+                        "flex items-center gap-2 mt-1 text-gray-600 dark:text-gray-400",
+                        isRTL && " justify-start"
+                      )}>
+                        <Phone className="h-4 w-4 shrink-0" />
+                        <a href={`tel:${rent.owner.phoneNumber}`} className="text-sm hover:underline" dir="ltr">{rent.owner.phoneNumber}</a>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
-                  {rent.user.phoneNumber && (
-                    <div className="flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg">
-                      <Phone className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                          {t("phone")}
-                        </p>
-                        <p className="text-sm font-medium text-gray-900 dark:text-white">
-                          {rent.user.phoneNumber}
+            {/* Services */}
+            {rent.services && rent.services.length > 0 && (
+              <div className="space-y-3">
+                <h3 className={cn("text-base font-semibold text-gray-900 dark:text-white", isRTL && "text-right")}>
+                  {t("services")}
+                </h3>
+                <div className="space-y-2">
+                  {rent.services.map((service) => (
+                    <div
+                      key={service._id}
+                      className={cn("flex items-center justify-between p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg", isRTL && "flex-row-reverse")}
+                    >
+                      <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                        <Wrench className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                        <span className="text-sm font-medium capitalize text-gray-900 dark:text-white">
+                          {service.name}
+                        </span>
+                      </div>
+                      <span className="text-sm font-medium text-main-600 dark:text-main-400">
+                        {service.amount} {currency}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Selected Tents/Booths (for camp/booth categories) */}
+            {((rent.tents && rent.tents.length > 0) || (rent.apartments && rent.apartments.length > 0)) && rent.property.groups && (
+              <div className="space-y-3">
+                <h3 className={cn("text-base font-semibold text-gray-900 dark:text-white", isRTL && "text-right")}>
+                  {rent.property.category === "hotelApartment" ? t("selected-apartments") : t("selected-tents")}
+                </h3>
+                <div className="space-y-2">
+                  {(() => {
+                    const selectedIds = (rent.tents && rent.tents.length > 0) ? rent.tents : (rent.apartments || []);
+                    const matchedGroups = rent.property.groups
+                      .filter((group) =>
+                        group.ids.some((id) => selectedIds.includes(id as never))
+                      )
+                      .map((group) => ({
+                        ...group,
+                        selectedCount: group.ids.filter((id) => selectedIds.includes(id as never)).length,
+                      }));
+
+                    return matchedGroups.map((group) => (
+                      <div
+                        key={group._id}
+                        className={cn("p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg", isRTL && "text-right")}
+                      >
+                        <div className={cn("flex items-center justify-between mb-2", isRTL && "flex-row-reverse")}>
+                          <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                            <div
+                              className="w-3 h-3 rounded-full"
+                              style={{ backgroundColor: group.color }}
+                            />
+                            <span className="text-sm font-medium text-gray-900 dark:text-white">
+                              {group.name}
+                            </span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              (x{group.selectedCount})
+                            </span>
+                          </div>
+                          <span className="text-sm font-medium text-main-600 dark:text-main-400">
+                            {group.price} {currency}
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {group.description} • {group.area} m²
                         </p>
                       </div>
-                    </div>
-                  )}
+                    ));
+                  })()}
+                </div>
+              </div>
+            )}
 
-                  {rent.user.nationalID && (
-                    <div className="flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg">
-                      <User className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                          {t("national-id")}
-                        </p>
-                        <p className="text-sm font-medium text-gray-900 dark:text-white">
-                          {rent.user.nationalID}
-                        </p>
+            {/* Selected Apartments (for hotelApartment category with property.apartments) */}
+            {rent.apartments && rent.apartments.length > 0 && rent.property.apartments && !rent.property.groups && (
+              <div className="space-y-3">
+                <h3 className={cn("text-base font-semibold text-gray-900 dark:text-white", isRTL && "text-right")}>
+                  {t("selected-apartments")}
+                </h3>
+                <div className="space-y-2">
+                  {rent.property.apartments
+                    .filter((apt) => rent.apartments!.includes(apt._id))
+                    .map((apartment) => (
+                      <div
+                        key={apartment._id}
+                        className={cn("p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg", isRTL && "text-right")}
+                      >
+                        <div className={cn("flex items-center justify-between mb-1", isRTL && "flex-row-reverse")}>
+                          <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                            <Hotel className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                            <span className="text-sm font-medium text-gray-900 dark:text-white">
+                              {apartment.name}
+                            </span>
+                          </div>
+                          <span className="text-sm font-medium text-main-600 dark:text-main-400">
+                            {apartment.price} {currency}
+                          </span>
+                        </div>
+                        {(apartment.description || apartment.area) && (
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {apartment.description}{apartment.description && apartment.area ? " • " : ""}{apartment.area ? `${apartment.area} m²` : ""}
+                          </p>
+                        )}
                       </div>
-                    </div>
-                  )}
+                    ))}
                 </div>
               </div>
             )}
@@ -430,7 +691,7 @@ export default function RentDetailsModal({
              rent.lat &&
              rent.long && (
               <div className="space-y-3">
-                <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+                <h3 className={cn("text-base font-semibold text-gray-900 dark:text-white", isRTL && "text-right")}>
                   {t("pickup-location")}
                 </h3>
                 <PickupLocationMapView
@@ -448,6 +709,137 @@ export default function RentDetailsModal({
                 rentId={rent._id}
                 propertyCountry={rent.property.country}
               />
+            </TabsContent>
+
+            <TabsContent value="claims" className="mt-0">
+              {/* Sub-tabs for USER and OWNER claims */}
+              <div className="mb-4">
+                <div className={cn(
+                  "inline-flex rounded-lg border border-gray-200 dark:border-gray-700 p-1 bg-gray-100 dark:bg-gray-800"
+                )}>
+                  <button
+                    onClick={() => {
+                      setClaimsSubTab("user");
+                      setClaimsPage(1);
+                    }}
+                    className={cn(
+                      "px-4 py-2 text-sm font-medium rounded-md transition-colors",
+                      claimsSubTab === "user"
+                        ? "bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm"
+                        : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                    )}
+                  >
+                    {t("claims.my-claims")}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setClaimsSubTab("owner");
+                      setClaimsPage(1);
+                    }}
+                    className={cn(
+                      "px-4 py-2 text-sm font-medium rounded-md transition-colors",
+                      claimsSubTab === "owner"
+                        ? "bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm"
+                        : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                    )}
+                  >
+                    {t("claims.owner-claims")}
+                  </button>
+                </div>
+              </div>
+
+              {isLoadingClaims ? (
+                <div className="flex justify-center py-12">
+                  <Spinner className="h-8 w-8 text-main-400" />
+                </div>
+              ) : claims.length === 0 ? (
+                <div className={cn(
+                  "flex flex-col items-center justify-center py-12 text-center",
+                  isRTL && "text-right"
+                )}>
+                  <MessageSquare className="h-12 w-12 text-gray-300 dark:text-gray-600 mb-4" />
+                  <p className="text-gray-500 dark:text-gray-400">
+                    {claimsSubTab === "user" ? t("claims.no-user-claims") : t("claims.no-owner-claims")}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {claims.map((claim) => (
+                    <div
+                      key={claim._id}
+                      className="p-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg"
+                    >
+                      <div className={cn(
+                        "flex items-start gap-3",
+                        isRTL && "flex-row-reverse"
+                      )}>
+                        <div className="shrink-0 mt-0.5">
+                          <AlertCircle className="h-5 w-5 text-yellow-500" />
+                        </div>
+                        <div className={cn("flex-1 min-w-0", isRTL && "text-right")}>
+                          <p className="text-sm text-gray-900 dark:text-white whitespace-pre-wrap">
+                            {claim.claim}
+                          </p>
+                          {claim.comment && (
+                            <div className={cn(
+                              "mt-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border-l-2 border-gray-300 dark:border-gray-600",
+                              isRTL && "border-l-0 border-r-2"
+                            )}>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                                {t("claims.comment")}
+                              </p>
+                              <p className="text-sm text-gray-700 dark:text-gray-300">
+                                {claim.comment}
+                              </p>
+                            </div>
+                          )}
+                          <div className={cn(
+                            "flex items-center gap-4 mt-3",
+                            isRTL && "flex-row-reverse justify-end"
+                          )}>
+                            {claim.status && (
+                              <Badge
+                                className={cn(
+                                  claim.status.toLowerCase() === "resolved"
+                                    ? "bg-green-500 text-white"
+                                    : claim.status.toLowerCase() === "pending"
+                                    ? "bg-yellow-500 text-white"
+                                    : "bg-gray-500 text-white"
+                                )}
+                              >
+                                {t(`claims.status.${claim.status.toLowerCase()}`)}
+                              </Badge>
+                            )}
+                            {claim.attachment && (
+                              <a
+                                href={claim.attachment}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={cn(
+                                  "inline-flex items-center gap-1 text-sm text-main-600 hover:text-main-700 dark:text-main-400 dark:hover:text-main-300 hover:underline",
+                                  isRTL && "flex-row-reverse"
+                                )}
+                              >
+                                <Paperclip className="h-4 w-4" />
+                                {t("claims.view-attachment")}
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Pagination */}
+                  {claimsTotalPages > 1 && (
+                    <PaginationControls
+                      currentPage={claimsPage}
+                      totalPages={claimsTotalPages}
+                      onPageChange={setClaimsPage}
+                    />
+                  )}
+                </div>
+              )}
             </TabsContent>
           </Tabs>
         ) : (

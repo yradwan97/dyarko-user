@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations, useLocale } from "next-intl";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Building2, KeyRound, CreditCard } from "lucide-react";
 
 import Typography from "@/components/shared/typography";
@@ -20,7 +21,22 @@ import { cn } from "@/lib/utils";
 export default function MyRealEstatesPage() {
   const t = useTranslations("User.MyRealEstates");
   const locale = useLocale();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
   const [activeTab, setActiveTab] = useState<"rents" | "installments">("rents");
+
+  // Handle tab query param and clean URL
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab === "rent" || tab === "rents") {
+      setActiveTab("rents");
+      router.replace(pathname, { scroll: false });
+    } else if (tab === "installments" || tab === "installment") {
+      setActiveTab("installments");
+      router.replace(pathname, { scroll: false });
+    }
+  }, [searchParams, router, pathname]);
   const [selectedRentId, setSelectedRentId] = useState<string | null>(null);
   const [selectedInstallmentId, setSelectedInstallmentId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);

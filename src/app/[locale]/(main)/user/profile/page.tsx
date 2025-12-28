@@ -2,13 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Typography from "@/components/shared/typography";
 import Button from "@/components/shared/button";
-import { useUpdateUser, useUpdateUserImage } from "@/hooks/use-user";
+import { useGetUser, useUpdateUser, useUpdateUserImage, type UserProfile } from "@/hooks/use-user";
 import { Spinner } from "@/components/ui/spinner";
 import PersonalInfoForm from "../components/personal-info-form";
 import BankingInfoForm from "../components/banking-info-form";
@@ -33,31 +32,14 @@ interface ProfileFormData {
 
 export default function ProfilePage() {
   const t = useTranslations("User.Profile");
-  const { data: session, status } = useSession();
+  const { data: userData, isLoading } = useGetUser();
   const updateUserMutation = useUpdateUser();
   const updateImageMutation = useUpdateUserImage();
   const [activeTab, setActiveTab] = useState("personal");
   const [imageFile, setImageFile] = useState<File | null>(null);
 
-  // Convert session user to UserProfile format
-  const userProfile = session?.user
-    ? ({
-        _id: session.user.id || "",
-        name: session.user.name || "",
-        email: session.user.email || "",
-        phoneNumber: session.user.phoneNumber || "",
-        image: session.user.image,
-        role: session.user.role || "user",
-        status: session.user.status || "",
-        country: session.user.country || "",
-        points: session.user.points || 0,
-        isConfirmed: session.user.isConfirmed || false,
-        nationalID: session.user.nationalID,
-        deviceToken: session.user.device_token,
-        bankInfo: session.user.bankInfo,
-        socialMedia: session.user.socialMedia,
-      } as any)
-    : null;
+  // Get user profile from API response
+  const userProfile: UserProfile | null = userData?.data || null;
 
   const formMethods = useForm<ProfileFormData>({
     defaultValues: {
@@ -80,30 +62,30 @@ export default function ProfilePage() {
 
   const { handleSubmit, formState: { isDirty }, reset } = formMethods;
 
-  // Update form when session data is available
+  // Update form when user data is available
   useEffect(() => {
-    if (session?.user && status === "authenticated") {
+    if (userProfile) {
       const formData = {
         // Personal
-        name: session.user.name || "",
-        phone: session.user.phoneNumber || "",
-        email: session.user.email || "",
+        name: userProfile.name || "",
+        phone: userProfile.phoneNumber || "",
+        email: userProfile.email || "",
         // Banking
-        ACCName: session.user.bankInfo?.ACCName || "",
-        bankName: session.user.bankInfo?.bankName || "",
-        IBAN: session.user.bankInfo?.IBAN || "",
-        swiftCode: session.user.bankInfo?.swiftCode || "",
+        ACCName: userProfile.bankInfo?.ACCName || "",
+        bankName: userProfile.bankInfo?.bankName || "",
+        IBAN: userProfile.bankInfo?.IBAN || "",
+        swiftCode: userProfile.bankInfo?.swiftCode || "",
         // Social Media
-        facebook: session.user.socialMedia?.facebook || "",
-        X: session.user.socialMedia?.X || "",
-        linkedin: session.user.socialMedia?.linkedin || "",
-        snapchat: session.user.socialMedia?.snapchat || "",
+        facebook: userProfile.socialMedia?.facebook || "",
+        X: userProfile.socialMedia?.X || "",
+        linkedin: userProfile.socialMedia?.linkedin || "",
+        snapchat: userProfile.socialMedia?.snapchat || "",
       };
       reset(formData);
     }
-  }, [session?.user, status, reset]);
+  }, [userProfile, reset]);
 
-  if (status === "loading") {
+  if (isLoading) {
     return (
       <div className="flex justify-center py-12">
         <Spinner className="h-12 w-12 text-main-400" />

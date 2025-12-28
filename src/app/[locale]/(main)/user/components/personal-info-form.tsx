@@ -17,6 +17,29 @@ interface PersonalInfoFormProps {
   setImageFile: (file: File | null) => void;
 }
 
+// Validate image URL
+const isValidImageUrl = (url: string | undefined | null): boolean => {
+  if (!url || typeof url !== "string" || url.trim() === "") return false;
+  // Allow data URLs (for preview) and http/https URLs
+  if (url.startsWith("data:image/")) return true;
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+// Get initials from name
+const getInitials = (name: string): string => {
+  if (!name) return "?";
+  const words = name.trim().split(" ").filter(Boolean);
+  if (words.length === 1) {
+    return words[0].charAt(0).toUpperCase();
+  }
+  return (words[0].charAt(0) + words[1].charAt(0)).toUpperCase();
+};
+
 export default function PersonalInfoForm({
   formMethods,
   userProfile,
@@ -24,7 +47,9 @@ export default function PersonalInfoForm({
   setImageFile,
 }: PersonalInfoFormProps) {
   const t = useTranslations("User.Profile.Personal");
-  const [profileImg, setProfileImg] = useState<string>(userProfile.image || "/assets/profile.png");
+  const [profileImg, setProfileImg] = useState<string | null>(
+    isValidImageUrl(userProfile.image) ? userProfile.image! : null
+  );
 
   const {
     register,
@@ -32,8 +57,10 @@ export default function PersonalInfoForm({
   } = formMethods;
 
   useEffect(() => {
-    if (userProfile.image) {
-      setProfileImg(userProfile.image);
+    if (isValidImageUrl(userProfile.image)) {
+      setProfileImg(userProfile.image!);
+    } else {
+      setProfileImg(null);
     }
   }, [userProfile]);
 
@@ -51,7 +78,7 @@ export default function PersonalInfoForm({
 
   const handleRemovePicture = () => {
     setImageFile(null);
-    setProfileImg(userProfile.image || "/assets/profile.png");
+    setProfileImg(isValidImageUrl(userProfile.image) ? userProfile.image! : null);
   };
 
   return (
@@ -59,13 +86,21 @@ export default function PersonalInfoForm({
       {/* Profile Image */}
       <div className="flex flex-col items-center gap-4 sm:flex-row">
         <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-main-100">
-          <Image
-            src={profileImg}
-            alt="Profile"
-            fill
-            className="object-cover"
-            unoptimized
-          />
+          {profileImg ? (
+            <Image
+              src={profileImg}
+              alt="Profile"
+              fill
+              className="object-cover"
+              unoptimized
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-main-100 text-main-600">
+              <span className="text-2xl font-bold">
+                {getInitials(userProfile.name || "")}
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row">

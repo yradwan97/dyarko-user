@@ -190,12 +190,15 @@ export default function Step4Checkout({
     fetchRentData();
   }, [isDirectRent, buildPayload]);
 
-  // Handle payment button click - for direct rent, open PayURL in new tab
+  // Handle payment button click - for direct rent, open PayURL in new tab and redirect
   const handlePayment = () => {
     if (!payUrl) return;
 
     // Open payment URL in a new tab
     window.open(payUrl, "_blank");
+
+    // Redirect to my-real-estates with rent tab
+    router.push(`/${locale}/user/my-real-estates?tab=rent`);
   };
 
   // Handle non-direct rent request submission

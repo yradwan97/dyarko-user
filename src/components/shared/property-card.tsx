@@ -5,11 +5,10 @@ import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useLocale, useTranslations } from "next-intl";
 import { useQueryClient } from "@tanstack/react-query";
-import { HeartIcon, CheckCircle2Icon } from "lucide-react";
+import { HeartIcon, ExternalLinkIcon, MapPinIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   HoverCard,
   HoverCardContent,
@@ -62,7 +61,7 @@ export default function PropertyCard({
   const locale = useLocale();
   const t = useTranslations("Properties.Details.Save");
   const tGeneral = useTranslations("General.PaymentMethods");
-  const tProperty = useTranslations("Properties");
+  const tCategories = useTranslations("General.Categories");
   const queryClient = useQueryClient();
   const isRTL = locale === "ar";
   const imageSrc = image || "/no-apartment.png";
@@ -98,12 +97,88 @@ export default function PropertyCard({
     }
   };
 
-  if (variant === "featured") {
-    const isManaged = adType === "management";
+  const handleShareClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
 
+    if (navigator.share) {
+      navigator.share({
+        title: name,
+        text: `${name} - ${location}`,
+        url: window.location.href,
+      }).catch(() => {
+        // User cancelled or share failed silently
+      });
+    } else {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(window.location.href);
+      toast.success(t("linkCopied") || "Link copied to clipboard");
+    }
+  };
+
+  const isManaged = adType === "management";
+
+  // Ad type icon based on adType
+  const AdTypeIcon = () => (
+    <Image
+      src={isManaged ? "/assets/management-icon.svg" : "/assets/ad-only-icon.svg"}
+      alt={isManaged ? "Management" : "Ads Only"}
+      width={18}
+      height={18}
+      className="shrink-0"
+    />
+  );
+
+  // Get localized property type
+  const getLocalizedPropertyType = (type: string) => {
+    try {
+      return tCategories(type.toLowerCase());
+    } catch {
+      return type;
+    }
+  };
+
+  // Price component with optional HoverCard for other prices
+  const PriceDisplay = ({ className }: { className?: string }) => {
+    if (otherPrices.length > 0) {
+      return (
+        <HoverCard openDelay={200} closeDelay={100}>
+          <HoverCardTrigger asChild>
+            <span className={cn("text-base font-bold text-main-600 dark:text-main-400 cursor-pointer hover:underline underline-offset-2", className)}>
+              {price}
+            </span>
+          </HoverCardTrigger>
+          <HoverCardContent
+            className={cn("w-auto min-w-[140px] p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700", isRTL && "text-right")}
+            align={isRTL ? "end" : "start"}
+            side="top"
+            sideOffset={8}
+          >
+            <ul className="space-y-1.5">
+              {otherPrices.map((otherPrice, index) => (
+                <li
+                  key={index}
+                  className={cn(
+                    "flex items-center justify-between gap-4 text-sm",
+                    isRTL && "flex-row-reverse"
+                  )}
+                >
+                  <span className="text-gray-600 dark:text-gray-400">{otherPrice.period}</span>
+                  <span className="font-semibold text-main-500 dark:text-main-400">{otherPrice.price}</span>
+                </li>
+              ))}
+            </ul>
+          </HoverCardContent>
+        </HoverCard>
+      );
+    }
+    return <span className={cn("text-base font-bold text-main-600 dark:text-main-400", className)}>{price}</span>;
+  };
+
+  if (variant === "featured") {
     return (
-      <Card className="group min-w-[220px] flex-shrink-0 overflow-hidden border-0 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] dark:bg-gray-800 dark:shadow-[0_2px_8px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_8px_16px_rgba(0,0,0,0.3)] p-0">
-        <div className="relative h-44 w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+      <Card className="group min-w-[220px] flex-shrink-0 overflow-hidden border-0 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] dark:bg-gray-800 dark:shadow-[0_2px_8px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_8px_16px_rgba(0,0,0,0.3)] p-0 rounded-xl">
+        <div className="relative h-44 w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 rounded-t-xl">
           <Image
             src={imageSrc}
             alt={name}
@@ -112,109 +187,82 @@ export default function PropertyCard({
             priority={priority}
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
+          {/* Top Left Badge */}
           {badge && (
             <Badge
               variant="secondary"
               className={cn(
-                "absolute top-3 border-0 text-[14px] text-main-500 backdrop-blur-sm capitalize px-2 py-0.5",
+                "absolute top-3 border-0 text-sm font-medium backdrop-blur-sm capitalize px-3 py-1 rounded-md",
                 isRTL ? "right-3" : "left-3",
-                badge.toLowerCase() === "rent" ? "bg-white/90 hover:bg-white/90" : "bg-steelBlue-100/90 hover:bg-steelBlue-100/90"
+                badge.toLowerCase() === "rent"
+                  ? "bg-white text-main-600 hover:bg-white"
+                  : "bg-steelBlue-100 text-main-600 hover:bg-steelBlue-100"
               )}
             >
               {tGeneral(badge)}
             </Badge>
           )}
-          {/* Management Ribbon */}
-          {isManaged && (
-            <div
-              className={cn(
-                "absolute top-3 bg-gradient-to-r from-main-600 to-main-500 px-3 py-1 text-[11px] font-semibold text-white shadow-md",
-                isRTL
-                  ? "left-0 rounded-r-full"
-                  : "right-0 rounded-l-full"
-              )}
+          {/* Top Right Icons */}
+          <div className={cn(
+            "absolute top-3 flex items-center gap-2",
+            isRTL ? "left-3 flex-row-reverse" : "right-3"
+          )}>
+            {badge?.toLowerCase() === "rent" && <button
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              className="flex h-8 w-8 items-center justify-center"
             >
-              {tProperty("managed-by-dyarko")}
-            </div>
-          )}
-        </div>
-        <CardContent className={cn("p-4 flex items-start justify-between gap-2", isRTL && "flex-row-reverse")}>
-          {/* Content Stack */}
-          <div className={cn("flex-1 min-w-0 flex flex-col", isRTL && "items-end")}>
-            <div className={cn("mb-1 flex items-center gap-1.5", isRTL && "flex-row-reverse")}>
-              <h3 className="text-sm font-semibold text-main-600 dark:text-main-400 line-clamp-1 hover:underline transition-colors cursor-pointer">{name}</h3>
-              {isVerified && (
-                <CheckCircle2Icon className="h-4 w-4 shrink-0 text-steelBlue-500 dark:text-steelBlue-400" fill="currentColor" />
-              )}
-            </div>
-            <p className={cn("mb-2 text-xs text-gray-500 dark:text-gray-400 line-clamp-1", isRTL && "text-right")}>{location}</p>
-            <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
-              {otherPrices.length > 0 ? (
-                <HoverCard openDelay={200} closeDelay={100}>
-                  <HoverCardTrigger asChild>
-                    <span className="text-base font-bold text-main-500 dark:text-main-400 cursor-pointer hover:underline underline-offset-2">
-                      {price}
-                    </span>
-                  </HoverCardTrigger>
-                  <HoverCardContent
-                    className={cn("w-auto min-w-[140px] p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700", isRTL && "text-right")}
-                    align={isRTL ? "end" : "start"}
-                    side="top"
-                    sideOffset={8}
-                  >
-                    <ul className="space-y-1.5">
-                      {otherPrices.map((otherPrice, index) => (
-                        <li
-                          key={index}
-                          className={cn(
-                            "flex items-center justify-between gap-4 text-sm",
-                            isRTL && "flex-row-reverse"
-                          )}
-                        >
-                          <span className="text-gray-600 dark:text-gray-400">{otherPrice.period}</span>
-                          <span className="font-semibold text-main-500 dark:text-main-400">{otherPrice.price}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </HoverCardContent>
-                </HoverCard>
-              ) : (
-                <span className="text-base font-bold text-main-500 dark:text-main-400">{price}</span>
-              )}
-              {propertyType && (
-                <Badge className="rounded-full border-0 bg-main-500 px-3 py-0.5 text-[11px] font-medium text-white hover:bg-main-600 capitalize">
-                  {propertyType}
-                </Badge>
-              )}
-            </div>
-          </div>
-
-          {/* Right Column: Favorite Button + Category Badge */}
-          <div className={cn("flex flex-col items-center gap-2 shrink-0", isRTL && "items-center")}>
+              <AdTypeIcon />
+            </button>}
+            <button
+              onClick={handleShareClick}
+              className="flex h-8 w-8 items-center justify-center cursor-pointer"
+            >
+              <ExternalLinkIcon className="h-[18px] w-[18px] text-main-600" />
+            </button>
             {propertyId && (
-              <Button
-                variant="ghost"
-                size="icon"
+              <button
                 onClick={handleFavoriteClick}
                 disabled={!session}
-                className="h-8 w-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="flex h-8 w-8 items-center justify-center cursor-pointer disabled:opacity-50"
               >
                 <HeartIcon
                   className={cn(
-                    "h-5 w-5 transition-all",
+                    "h-[18px] w-[18px] transition-all",
                     isFavorite
                       ? "fill-red-500 text-red-500"
-                      : "text-gray-400 hover:text-red-500 dark:text-gray-500"
+                      : "text-main-600"
                   )}
                 />
-              </Button>
+              </button>
             )}
-            {secondaryBadge && (
-              <Badge
-                variant="secondary"
-                className="border-0 bg-main-500/90 px-2 py-0.5 text-[11px] text-white backdrop-blur-sm hover:bg-main-600 capitalize whitespace-nowrap"
-              >
-                {secondaryBadge}
+          </div>
+        </div>
+        <CardContent className="p-4">
+          {/* Title */}
+          <h3 className={cn(
+            "text-lg font-semibold text-main-600 dark:text-main-400 line-clamp-1 mb-2",
+            isRTL && "text-right"
+          )}>
+            {name}
+          </h3>
+
+          {/* Location - aligned under title */}
+          <div className={cn("flex items-center gap-1.5 mb-3", isRTL && "flex-row-reverse justify-end")}>
+            <MapPinIcon className="h-4 w-4 text-steelBlue-500 shrink-0" />
+            <p className={cn("text-sm text-steelBlue-500 line-clamp-1", isRTL && "text-right")}>{location}</p>
+          </div>
+
+          {/* Price and Property Type */}
+          <div className={cn("flex items-center justify-between gap-2", isRTL && "flex-row-reverse")}>
+            <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+              <PriceDisplay />
+              {originalPrice && (
+                <span className="text-sm text-gray-400 line-through">{originalPrice}</span>
+              )}
+            </div>
+            {propertyType && (
+              <Badge className="rounded-md border-0 bg-main-600 px-3 py-1 text-sm font-medium text-white hover:bg-main-600 capitalize">
+                {getLocalizedPropertyType(propertyType)}
               </Badge>
             )}
           </div>
@@ -224,117 +272,88 @@ export default function PropertyCard({
   }
 
   // List variant
-  const isManaged = adType === "management";
-
   return (
-    <Card className="group border-0 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] dark:bg-gray-800 dark:shadow-[0_2px_8px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_8px_16px_rgba(0,0,0,0.3)] p-0 overflow-hidden">
-      <div className={cn("flex", isRTL && "flex-row-reverse")}>
-        {/* Image Section */}
-        <div className="relative h-48 w-64 flex-shrink-0 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+    <Card className="group border-0 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] dark:bg-gray-800 dark:shadow-[0_2px_8px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_8px_16px_rgba(0,0,0,0.3)] p-0 overflow-hidden rounded-xl">
+      <div className="flex p-3">
+        {/* Image Section with padding */}
+        <div className="relative h-44 w-56 flex-shrink-0 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl">
           <Image
             src={imageSrc}
             alt={name}
             fill
-            sizes="256px"
+            sizes="224px"
             priority={priority}
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            className="object-cover transition-transform duration-300 group-hover:scale-105 rounded-xl"
           />
-          {badge && (
-            <Badge
-              variant="secondary"
-              className={cn(
-                "absolute top-3 border-0 text-[14px] text-main-500 backdrop-blur-sm capitalize px-2 py-0.5",
-                isRTL ? "right-3" : "left-3",
-                badge.toLowerCase() === "rent" ? "bg-white/90 hover:bg-white/90" : "bg-steelBlue-100/90 hover:bg-steelBlue-100/90"
-              )}
-            >
-              {tGeneral(badge)}
-            </Badge>
-          )}
         </div>
 
         {/* Content Section */}
-        <div className={cn("flex flex-1 flex-col justify-between p-4", isRTL && "items-end")}>
-          <div className={cn("flex flex-col", isRTL && "items-end")}>
-            {/* Management Badge */}
-            {isManaged && (
-              <Badge className="mb-2 w-fit bg-gradient-to-r from-main-600 to-main-500 px-3 py-1 text-[11px] font-semibold text-white border-0">
-                {tProperty("managed-by-dyarko")}
-              </Badge>
-            )}
-            <div className={cn("mb-1 flex items-center gap-1.5", isRTL && "flex-row-reverse")}>
-              <h3 className="text-sm font-semibold text-main-600 dark:text-main-400 line-clamp-1 hover:underline transition-colors cursor-pointer">{name}</h3>
-              {isVerified && (
-                <CheckCircle2Icon className="h-4 w-4 shrink-0 text-steelBlue-500 dark:text-steelBlue-400" fill="currentColor" />
+        <div className={cn("flex flex-1 flex-col justify-between p-4", isRTL && "text-right")}>
+          {/* Top Row: Title and Icons */}
+          <div className="flex items-start justify-between w-full gap-4">
+            <h3 className="text-lg font-semibold text-main-600 dark:text-main-400 line-clamp-1">
+              {name}
+            </h3>
+            {/* Icons */}
+            <div className="flex items-center gap-2 shrink-0">
+              {badge?.toLowerCase() === "rent" && <button
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                className="flex h-8 w-8 items-center justify-center"
+              >
+                <AdTypeIcon />
+              </button>}
+              <button
+                onClick={handleShareClick}
+                className="flex h-8 w-8 items-center justify-center cursor-pointer"
+              >
+                <ExternalLinkIcon className="h-[18px] w-[18px] text-main-600" />
+              </button>
+              {propertyId && (
+                <button
+                  onClick={handleFavoriteClick}
+                  disabled={!session}
+                  className="flex h-8 w-8 items-center justify-center cursor-pointer disabled:opacity-50"
+                >
+                  <HeartIcon
+                    className={cn(
+                      "h-[18px] w-[18px] transition-all",
+                      isFavorite
+                        ? "fill-red-500 text-red-500"
+                        : "text-main-600"
+                    )}
+                  />
+                </button>
               )}
             </div>
-            <p className={cn("text-xs text-gray-500 dark:text-gray-400 line-clamp-1", isRTL && "text-right")}>{location}</p>
           </div>
 
-          <div className={cn("flex items-center gap-2 mt-2", isRTL && "flex-row-reverse")}>
-            {otherPrices.length > 0 ? (
-              <HoverCard openDelay={200} closeDelay={100}>
-                <HoverCardTrigger asChild>
-                  <span className="text-base font-bold text-main-500 dark:text-main-400 cursor-pointer hover:underline underline-offset-2">
-                    {price}
-                  </span>
-                </HoverCardTrigger>
-                <HoverCardContent
-                  className={cn("w-auto min-w-[140px] p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700", isRTL && "text-right")}
-                  align={isRTL ? "end" : "start"}
-                  side="top"
-                  sideOffset={8}
-                >
-                  <ul className="space-y-1.5">
-                    {otherPrices.map((otherPrice, index) => (
-                      <li
-                        key={index}
-                        className={cn(
-                          "flex items-center justify-between gap-4 text-sm",
-                          isRTL && "flex-row-reverse"
-                        )}
-                      >
-                        <span className="text-gray-600 dark:text-gray-400">{otherPrice.period}</span>
-                        <span className="font-semibold text-main-500 dark:text-main-400">{otherPrice.price}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </HoverCardContent>
-              </HoverCard>
-            ) : (
-              <span className="text-base font-bold text-main-500 dark:text-main-400">{price}</span>
-            )}
+          {/* Location */}
+          <div className="flex items-center gap-1.5">
+            <MapPinIcon className="h-4 w-4 text-steelBlue-500 shrink-0" />
+            <p className="text-sm text-steelBlue-500 line-clamp-1">{location}</p>
+          </div>
+
+          {/* Price */}
+          <div className="flex items-center gap-2">
+            <PriceDisplay />
             {originalPrice && (
-              <span className="text-xs text-gray-400 line-through dark:text-gray-500">{originalPrice}</span>
+              <span className="text-sm text-gray-400 line-through">{originalPrice}</span>
             )}
           </div>
-        </div>
 
-        {/* Right Actions */}
-        <div className={cn("flex flex-col items-center justify-between p-4 shrink-0")}>
-          {propertyId && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleFavoriteClick}
-              disabled={!session}
-              className="h-8 w-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              <HeartIcon
-                className={cn(
-                  "h-5 w-5 transition-all",
-                  isFavorite
-                    ? "fill-red-500 text-red-500"
-                    : "text-gray-400 hover:text-red-500 dark:text-gray-500"
-                )}
-              />
-            </Button>
-          )}
-          {(propertyType || secondaryBadge) && (
-            <Badge className="rounded-full border-0 bg-main-500 px-3 py-0.5 text-[11px] font-medium text-white hover:bg-main-600 capitalize">
-              {propertyType || secondaryBadge}
-            </Badge>
-          )}
+          {/* Badges */}
+          <div className="flex items-center gap-2">
+            {badge && (
+              <Badge className="rounded-md border-0 bg-[#E76F51] px-3 py-1 text-sm font-medium text-white hover:bg-[#E76F51] capitalize">
+                {tGeneral(badge)}
+              </Badge>
+            )}
+            {propertyType && (
+              <Badge className="rounded-md border-0 bg-main-600 px-3 py-1 text-sm font-medium text-white hover:bg-main-600 capitalize">
+                {getLocalizedPropertyType(propertyType)}
+              </Badge>
+            )}
+          </div>
         </div>
       </div>
     </Card>

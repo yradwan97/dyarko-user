@@ -118,38 +118,129 @@ export function RentDetailsModal(props: BaseModalProps) {
             <div className="space-y-4">
               {/* Apartments */}
               {request.apartments && request.apartments.length > 0 && (
-                <div className={cn("flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg", locale === "ar" && "flex-row-reverse")}>
-                  <Building className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                  <div className={cn("flex-1", locale === "ar" && "text-right")}>
+                <div className="space-y-3">
+                  <div className={cn("flex items-center gap-2", locale === "ar" && "flex-row-reverse")}>
+                    <Building className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                     <Typography variant="body-sm" as="p" className="text-gray-500 dark:text-gray-400">
-                      {t("apartments")}
+                      {t("apartments")} ({request.apartments.reduce((sum: number, apt: { units: number }) => sum + apt.units, 0)})
                     </Typography>
-                    <div className="space-y-1">
-                      {request.apartments.map((apt: { type: string; units: number }, index: number) => (
-                        <Typography key={index} variant="body-sm" as="p" className="font-medium text-gray-900 dark:text-white">
-                          {apt.type}: {apt.units} {apt.units === 1 ? t("unit") : t("units")}
-                        </Typography>
-                      ))}
-                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    {request.apartments.map((apt: { type: string; units: number }, index: number) => {
+                      const apartmentDetails = property?.apartments?.find(
+                        (a: { type: string; title: string; capacity: number; bedrooms: number; bathrooms: number; dailyPrice: number; weeklyPrice: number; monthlyPrice: number }) => a.type === apt.type
+                      );
+                      return (
+                        <div
+                          key={index}
+                          className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600"
+                        >
+                          <div className={cn("flex items-center justify-between mb-2", locale === "ar" && "flex-row-reverse")}>
+                            <Typography variant="body-md-bold" as="span" className="font-semibold text-gray-900 dark:text-white">
+                              {apartmentDetails?.title || apt.type}
+                            </Typography>
+                            <span className="px-2 py-0.5 bg-main-100 dark:bg-main-900 text-main-600 dark:text-main-400 text-xs rounded-full">
+                              {apt.units} {apt.units === 1 ? t("unit") : t("units")}
+                            </span>
+                          </div>
+                          {apartmentDetails && (
+                            <div className={cn("grid grid-cols-3 gap-2 text-sm", locale === "ar" && "text-right")}>
+                              <div>
+                                <Typography variant="body-sm" as="span" className="text-gray-500 dark:text-gray-400">
+                                  {t("capacity")}:
+                                </Typography>
+                                <Typography variant="body-sm" as="span" className="font-medium text-gray-900 dark:text-white ms-1">
+                                  {apartmentDetails.capacity}
+                                </Typography>
+                              </div>
+                              <div>
+                                <Typography variant="body-sm" as="span" className="text-gray-500 dark:text-gray-400">
+                                  {t("bedrooms")}:
+                                </Typography>
+                                <Typography variant="body-sm" as="span" className="font-medium text-gray-900 dark:text-white ms-1">
+                                  {apartmentDetails.bedrooms}
+                                </Typography>
+                              </div>
+                              <div>
+                                <Typography variant="body-sm" as="span" className="text-gray-500 dark:text-gray-400">
+                                  {t("bathrooms")}:
+                                </Typography>
+                                <Typography variant="body-sm" as="span" className="font-medium text-gray-900 dark:text-white ms-1">
+                                  {apartmentDetails.bathrooms}
+                                </Typography>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
 
-              {/* Tents */}
-              {request.tents && request.tents.length > 0 && (
-                <div className={cn("flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg", locale === "ar" && "flex-row-reverse")}>
-                  <Tent className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                  <div className={cn("flex-1", locale === "ar" && "text-right")}>
+              {/* Tents/Booths */}
+              {request.tents && request.tents.length > 0 && property?.groups && (
+                <div className="space-y-3">
+                  <div className={cn("flex items-center gap-2", locale === "ar" && "flex-row-reverse")}>
+                    <Tent className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                     <Typography variant="body-sm" as="p" className="text-gray-500 dark:text-gray-400">
-                      {t("tents")}
+                      {t("tents")} ({request.tents.length})
                     </Typography>
-                    <div className="space-y-1">
-                      {request.tents.map((tent: { type: string; units: number }, index: number) => (
-                        <Typography key={index} variant="body-sm" as="p" className="font-medium text-gray-900 dark:text-white">
-                          {tent.type}: {tent.units} {tent.units === 1 ? t("unit") : t("units")}
-                        </Typography>
-                      ))}
-                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    {request.tents.map((tentId: number) => {
+                      const group = property.groups.find((g: { ids: number[]; color: string; capacity: number; price: number; insurance: number }) =>
+                        g.ids.includes(tentId)
+                      );
+                      return (
+                        <div
+                          key={tentId}
+                          className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600"
+                        >
+                          <div className={cn("flex items-center justify-between mb-2", locale === "ar" && "flex-row-reverse")}>
+                            <div className={cn("flex items-center gap-2", locale === "ar" && "flex-row-reverse")}>
+                              {group && (
+                                <span
+                                  className="w-4 h-4 rounded-full shrink-0"
+                                  style={{ backgroundColor: group.color }}
+                                />
+                              )}
+                              <Typography variant="body-md-bold" as="span" className="font-semibold text-gray-900 dark:text-white">
+                                {t("tent")} #{tentId}
+                              </Typography>
+                            </div>
+                          </div>
+                          {group && (
+                            <div className={cn("grid grid-cols-3 gap-2 text-sm", locale === "ar" && "text-right")}>
+                              <div>
+                                <Typography variant="body-sm" as="span" className="text-gray-500 dark:text-gray-400">
+                                  {t("capacity")}:
+                                </Typography>
+                                <Typography variant="body-sm" as="span" className="font-medium text-gray-900 dark:text-white ms-1">
+                                  {group.capacity}
+                                </Typography>
+                              </div>
+                              <div>
+                                <Typography variant="body-sm" as="span" className="text-gray-500 dark:text-gray-400">
+                                  {t("price")}:
+                                </Typography>
+                                <Typography variant="body-sm" as="span" className="font-medium text-gray-900 dark:text-white ms-1">
+                                  {group.price} {currency}
+                                </Typography>
+                              </div>
+                              <div>
+                                <Typography variant="body-sm" as="span" className="text-gray-500 dark:text-gray-400">
+                                  {t("insurance")}:
+                                </Typography>
+                                <Typography variant="body-sm" as="span" className="font-medium text-gray-900 dark:text-white ms-1">
+                                  {group.insurance} {currency}
+                                </Typography>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}

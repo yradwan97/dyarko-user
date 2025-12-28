@@ -114,14 +114,7 @@ export function RentRequestCard({ request, locale, onCardClick }: RequestCardPro
           )}
           {request.startDate && request.endDate && (
             <div className={cn("flex flex-col gap-1 text-gray-600 mt-2", locale === "ar" && "items-end")}>
-              <div className={cn("flex items-center gap-1", locale === "ar" && "flex-row-reverse")}>
-                <Typography variant="body-sm-bold" as="p" className="text-gray-500">
-                  {t("rent-dates")}
-                </Typography>
-                <Typography variant="body-sm" as="p" className="text-gray-500">
-                  {locale === "ar" ? `${formatDate(request.endDate)} - ${formatDate(request.startDate)}` : `${formatDate(request.startDate)} - ${formatDate(request.endDate)}`}
-                </Typography>
-              </div>
+              
               {request.rentType && (
                 <div className={cn("flex items-center gap-1", locale === "ar" && "flex-row-reverse")}>
                   <Typography variant="body-sm-bold" as="p" className="text-gray-500">
@@ -129,6 +122,16 @@ export function RentRequestCard({ request, locale, onCardClick }: RequestCardPro
                   </Typography>
                   <Typography variant="body-sm" as="p" className="text-gray-500">
                     {t(`rent-types.${request.rentType.toLowerCase()}`)}
+                  </Typography>
+                </div>
+              )}
+              {request.createdAt && (
+                <div className={cn("flex items-center gap-1", locale === "ar" && "flex-row-reverse")}>
+                  <Typography variant="body-sm-bold" as="p" className="text-gray-500">
+                    {t("request-date")}
+                  </Typography>
+                  <Typography variant="body-sm" as="p" className="text-gray-500">
+                    {formatDate(request.createdAt)}
                   </Typography>
                 </div>
               )}

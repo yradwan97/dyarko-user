@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Phone } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { roundUpToHalfHour, roundDownToHalfHour, formatTimeHHMM } from "@/lib/utils";
 
 interface ScheduleTourProps {
   visible: boolean;
@@ -57,11 +58,20 @@ export default function ScheduleTour({
     }
   }, [ownerId, visible]);
 
-  const getDisplayTime = (timeslot: string) => {
-    const date = new Date(timeslot);
-    const hours = date.getHours().toString().padStart(2, "0");
-    const minutes = date.getMinutes().toString().padStart(2, "0");
-    return `${hours}:${minutes}`;
+  // Get normalized display times for a slot (start rounds UP, end rounds DOWN)
+  const getNormalizedSlotTimes = (slot: { from: string; to: string }) => {
+    const fromDate = new Date(slot.from);
+    const toDate = new Date(slot.to);
+
+    const normalizedStart = roundUpToHalfHour(fromDate);
+    const normalizedEnd = roundDownToHalfHour(toDate);
+
+    return {
+      start: normalizedStart,
+      end: normalizedEnd,
+      startTime: formatTimeHHMM(normalizedStart),
+      endTime: formatTimeHHMM(normalizedEnd),
+    };
   };
 
   const isDateAvailable = (date: Date) => {
@@ -97,26 +107,18 @@ export default function ScheduleTour({
     const timeOptions: string[] = [];
 
     selectedSlots.forEach((slot) => {
-      const fromDate = new Date(slot.from);
-      const toDate = new Date(slot.to);
+      const { start: normalizedStart, end: normalizedEnd } = getNormalizedSlotTimes(slot);
 
-      const startHour = fromDate.getHours();
-      const startMinute = fromDate.getMinutes();
-      const endHour = toDate.getHours();
-      const endMinute = toDate.getMinutes();
+      // Skip invalid slots where normalized end is before or equal to normalized start
+      if (normalizedEnd <= normalizedStart) return;
 
-      let currentHour = startHour;
-      let currentMinute = startMinute;
+      let current = new Date(normalizedStart);
 
-      while (currentHour < endHour || (currentHour === endHour && currentMinute <= endMinute)) {
-        const timeString = `${currentHour.toString().padStart(2, "0")}:${currentMinute.toString().padStart(2, "0")}`;
-        timeOptions.push(timeString);
+      while (current <= normalizedEnd) {
+        timeOptions.push(formatTimeHHMM(current));
 
-        currentMinute += 30;
-        if (currentMinute >= 60) {
-          currentMinute = 0;
-          currentHour += 1;
-        }
+        // Add 30 minutes
+        current = new Date(current.getTime() + 30 * 60 * 1000);
       }
     });
 
@@ -210,19 +212,22 @@ export default function ScheduleTour({
           {/* Schedule Available Info */}
           {selectedDateSlots.length > 0 && (
             <div className="space-y-2">
-              {selectedDateSlots.map((slot, index) => (
-                <div
-                  key={index}
-                  className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700"
-                >
-                  <p className="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                    {t("schedule-available")}
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {getDisplayTime(slot.from)} - {getDisplayTime(slot.to)}
-                  </p>
-                </div>
-              ))}
+              {selectedDateSlots.map((slot, index) => {
+                const { startTime, endTime } = getNormalizedSlotTimes(slot);
+                return (
+                  <div
+                    key={index}
+                    className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700"
+                  >
+                    <p className="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                      {t("schedule-available")}
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {startTime} - {endTime}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           )}
 

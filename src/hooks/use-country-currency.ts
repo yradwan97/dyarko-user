@@ -13,7 +13,7 @@ export function useCountryCurrency(countryCode?: string): string {
   }
 
   const country = countries.find(
-    (c) => c.code.toUpperCase() === countryCode.toUpperCase()
+    (c) => c.code?.toUpperCase() === countryCode.toUpperCase()
   );
 
   return country?.currency || "KWD";

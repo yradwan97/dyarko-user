@@ -86,7 +86,7 @@ export const getFavourites = async (page: number = 1): Promise<{
   pages: number;
 }> => {
   const response = await axiosClient.get<GetFavouritesResponse>(
-    `/favourites?type=PROPERTY&page=${page}`
+    `/favourites?type=PROPERTY&page=${page}&size=9`
   );
   return response.data.data;
 };
