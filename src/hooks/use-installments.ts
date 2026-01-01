@@ -4,11 +4,13 @@ import {
   getInstallmentById,
   getInstallmentInvoices,
   updateInstallmentUserStatus,
+  endInstallmentContract,
   type InstallmentsResponse,
   type InstallmentDetailsResponse,
   type InstallmentInvoicesResponse,
   type InstallmentInvoiceStatus,
   type UpdateInstallmentUserStatusPayload,
+  type EndInstallmentContractPayload,
 } from "@/lib/services/api/installments";
 
 export function useApprovedInstallments(page: number = 1) {
@@ -52,6 +54,20 @@ export function useUpdateInstallmentUserStatus() {
       queryClient.invalidateQueries({ queryKey: ["installment-details", variables.installmentId] });
       // Invalidate requests list to refresh the status
       queryClient.invalidateQueries({ queryKey: ["requests"] });
+    },
+  });
+}
+
+export function useEndInstallmentContract() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: EndInstallmentContractPayload) => endInstallmentContract(payload),
+    onSuccess: (data, variables) => {
+      // Invalidate and refetch installment details
+      queryClient.invalidateQueries({ queryKey: ["installment-details", variables.installment] });
+      // Invalidate approved installments list
+      queryClient.invalidateQueries({ queryKey: ["approved-installments"] });
     },
   });
 }

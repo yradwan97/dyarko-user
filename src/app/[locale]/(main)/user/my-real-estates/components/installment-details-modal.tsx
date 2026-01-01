@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { format } from "date-fns";
+import Link from "next/link";
 import {
   Calendar,
   MapPin,
@@ -13,6 +14,7 @@ import {
   Download,
   MoreVertical,
   FileText,
+  FileX,
 } from "lucide-react";
 import {
   Dialog,
@@ -34,7 +36,11 @@ import {
 import { useInstallmentDetails } from "@/hooks/use-installments";
 import { downloadInstallmentInvoices } from "@/lib/services/api/installments";
 import InstallmentInvoicesTab from "./installment-invoices-tab";
+import EndInstallmentContractDialog from "./end-installment-contract-dialog";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import Typography from "@/components/shared/typography";
+import { useCountryCurrency } from "@/hooks/use-country-currency";
 
 interface InstallmentDetailsModalProps {
   installmentId: string | null;
@@ -48,22 +54,31 @@ export default function InstallmentDetailsModal({
   onClose,
 }: InstallmentDetailsModalProps) {
   const t = useTranslations("User.MyRealEstates.InstallmentDetailsModal");
-  const tCommon = useTranslations("General");
+  const tGeneral = useTranslations("General");
+  const locale = useLocale();
+  const isRTL = locale === "ar";
+  const [showEndContractDialog, setShowEndContractDialog] = useState(false);
 
   const { data, isLoading } = useInstallmentDetails(installmentId);
   const installment = data?.data;
+
+  const currency = useCountryCurrency(installment?.property?.country);
 
   const formatDate = (date: string) => {
     return format(new Date(date), "MMMM dd, yyyy");
   };
 
   const getStatusColor = (status: string) => {
-    switch (status.toUpperCase()) {
+    switch (status?.toUpperCase()) {
+      case "ACTIVE":
       case "APPROVED":
         return "bg-green-500 text-white";
       case "PENDING":
         return "bg-yellow-500 text-white";
+      case "ENDED":
+        return "bg-main-500 text-white";
       case "REJECTED":
+      case "TERMINATED":
         return "bg-red-500 text-white";
       default:
         return "bg-gray-500 text-white";
@@ -71,7 +86,7 @@ export default function InstallmentDetailsModal({
   };
 
   const normalizeStatus = (status: string) => {
-    return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+    return status?.charAt(0).toUpperCase() + status?.slice(1).toLowerCase();
   };
 
   const getInstallmentTypeLabel = (type?: string) => {
@@ -103,29 +118,38 @@ export default function InstallmentDetailsModal({
   };
 
   return (
+    <>
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto p-0 bg-white dark:bg-gray-950">
         <DialogHeader className="px-6 pt-6 pb-4 sticky top-0 bg-white dark:bg-gray-950 z-10 border-b border-gray-200 dark:border-gray-800">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1 min-w-0">
-              <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white truncate">
+          <div className={cn("flex items-start justify-between gap-4")}>
+            <div className={cn("flex-1 min-w-0", isRTL && "text-right")}>
+              <DialogTitle className={cn("text-xl font-bold text-gray-900 dark:text-white truncate", isRTL && "text-right")}>
                 {isLoading ? t("loading") : installment ? installment.property.title : t("title")}
               </DialogTitle>
               {installment && (
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  {t("code")}: {installment.property.code}
+                <p className={cn("text-sm text-gray-500 dark:text-gray-400 mt-1", isRTL && "text-right")}>
+                  {t("code")}:{" "}
+                  <Link
+                    href={`/${locale}/properties/${installment.property._id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-main-600 hover:text-main-700 hover:underline dark:text-main-400 dark:hover:text-main-300"
+                  >
+                    {installment.property.code}
+                  </Link>
                 </p>
               )}
             </div>
             <div className="flex items-center gap-2 shrink-0">
               {installment && (
                 <>
-                  <Badge className={getStatusColor(installment.ownerStatus)}>
-                    {t("owner-status")}: {normalizeStatus(installment.ownerStatus)}
+                  <Badge className={getStatusColor(installment.status)}>
+                    {tGeneral("status")}: {normalizeStatus(installment.status)}
                   </Badge>
-                  <Badge className={getStatusColor(installment.userStatus)}>
+                  {/* <Badge className={getStatusColor(installment.userStatus)}>
                     {t("user-status")}: {normalizeStatus(installment.userStatus)}
-                  </Badge>
+                  </Badge> */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
@@ -159,6 +183,18 @@ export default function InstallmentDetailsModal({
                         <FileText className="h-4 w-4 mr-2 text-gray-600 dark:text-gray-400" />
                         <span className="text-gray-900 dark:text-white">{t("download-invoices")}</span>
                       </DropdownMenuItem>
+                      {installment.status === "ACTIVE" && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => setShowEndContractDialog(true)}
+                            className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-gray-100 dark:focus:bg-gray-800"
+                          >
+                            <FileX className="h-4 w-4 mr-2 text-red-600 dark:text-red-400" />
+                            <span className="text-red-600 dark:text-red-400">{t("end-contract")}</span>
+                          </DropdownMenuItem>
+                        </>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </>
@@ -173,7 +209,7 @@ export default function InstallmentDetailsModal({
           </div>
         ) : installment ? (
           <Tabs defaultValue="details" className="px-6 pb-6 bg-white dark:bg-gray-950">
-            <TabsList className="w-full mb-6">
+            <TabsList className={cn("w-full mb-6", isRTL && "flex-row-reverse")}>
               <TabsTrigger value="details" className="flex-1">
                 {t("tabs.details")}
               </TabsTrigger>
@@ -188,12 +224,12 @@ export default function InstallmentDetailsModal({
                 <div className="space-y-4">
                   {/* Property Details */}
                   <div className="space-y-3">
-                    <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+                    <h3 className={cn("text-base font-semibold text-gray-900 dark:text-white", isRTL && "text-right")}>
                       {t("property-details")}
                     </h3>
                     <div className="space-y-3">
-                      <div className="flex items-start gap-3">
-                        <MapPin className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5" />
+                      <div className={cn("flex items-start gap-3", isRTL && "flex-row-reverse text-right")}>
+                        <MapPin className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
                         <div>
                           <p className="text-sm text-gray-500 dark:text-gray-400">{t("location")}</p>
                           <p className="text-sm font-medium text-gray-900 dark:text-white">
@@ -201,12 +237,12 @@ export default function InstallmentDetailsModal({
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-start gap-3">
-                        <DollarSign className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5" />
+                      <div className={cn("flex items-start gap-3", isRTL && "flex-row-reverse text-right")}>
+                        <DollarSign className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
                         <div>
                           <p className="text-sm text-gray-500 dark:text-gray-400">{t("property-price")}</p>
                           <p className="text-sm font-medium text-gray-900 dark:text-white">
-                            {installment.property.price?.toLocaleString()} {tCommon("kwd")}
+                            {installment.property.price?.toLocaleString()} {currency}
                           </p>
                         </div>
                       </div>
@@ -215,24 +251,24 @@ export default function InstallmentDetailsModal({
 
                   {/* Installment Details */}
                   <div className="space-y-3">
-                    <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+                    <h3 className={cn("text-base font-semibold text-gray-900 dark:text-white", isRTL && "text-right")}>
                       {t("installment-details")}
                     </h3>
                     <div className="space-y-3">
                       {installment.amount && (
-                        <div className="flex items-start gap-3">
-                          <DollarSign className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5" />
+                        <div className={cn("flex items-start gap-3", isRTL && "flex-row-reverse text-right")}>
+                          <DollarSign className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
                           <div>
                             <p className="text-sm text-gray-500 dark:text-gray-400">{t("monthly-payment")}</p>
                             <p className="text-sm font-medium text-gray-900 dark:text-white">
-                              {installment.amount} {tCommon("kwd")}
+                              {installment.amount} {currency}
                             </p>
                           </div>
                         </div>
                       )}
                       {installment.installmentPeriod && (
-                        <div className="flex items-start gap-3">
-                          <Calendar className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5" />
+                        <div className={cn("flex items-start gap-3", isRTL && "flex-row-reverse text-right")}>
+                          <Calendar className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
                           <div>
                             <p className="text-sm text-gray-500 dark:text-gray-400">{t("period")}</p>
                             <p className="text-sm font-medium text-gray-900 dark:text-white">
@@ -242,8 +278,8 @@ export default function InstallmentDetailsModal({
                         </div>
                       )}
                       {installment.installmentType && (
-                        <div className="flex items-start gap-3">
-                          <Calendar className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5" />
+                        <div className={cn("flex items-start gap-3", isRTL && "flex-row-reverse text-right")}>
+                          <Calendar className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
                           <div>
                             <p className="text-sm text-gray-500 dark:text-gray-400">{t("payment-type")}</p>
                             <p className="text-sm font-medium text-gray-900 dark:text-white">
@@ -253,8 +289,8 @@ export default function InstallmentDetailsModal({
                         </div>
                       )}
                       {installment.installmentPlan && (
-                        <div className="flex items-start gap-3">
-                          <Home className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5" />
+                        <div className={cn("flex items-start gap-3", isRTL && "flex-row-reverse text-right")}>
+                          <Home className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
                           <div>
                             <p className="text-sm text-gray-500 dark:text-gray-400">{t("plan")}</p>
                             <p className="text-sm font-medium text-gray-900 dark:text-white capitalize">
@@ -272,12 +308,12 @@ export default function InstallmentDetailsModal({
                   {/* Dates */}
                   {installment.startDate && installment.endDate && (
                     <div className="space-y-3">
-                      <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+                      <h3 className={cn("text-base font-semibold text-gray-900 dark:text-white", isRTL && "text-right")}>
                         {t("dates")}
                       </h3>
                       <div className="space-y-3">
-                        <div className="flex items-start gap-3">
-                          <Calendar className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5" />
+                        <div className={cn("flex items-start gap-3", isRTL && "flex-row-reverse text-right")}>
+                          <Calendar className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
                           <div>
                             <p className="text-sm text-gray-500 dark:text-gray-400">{t("start-date")}</p>
                             <p className="text-sm font-medium text-gray-900 dark:text-white">
@@ -285,8 +321,8 @@ export default function InstallmentDetailsModal({
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-start gap-3">
-                          <Calendar className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5" />
+                        <div className={cn("flex items-start gap-3", isRTL && "flex-row-reverse text-right")}>
+                          <Calendar className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
                           <div>
                             <p className="text-sm text-gray-500 dark:text-gray-400">{t("end-date")}</p>
                             <p className="text-sm font-medium text-gray-900 dark:text-white">
@@ -301,22 +337,27 @@ export default function InstallmentDetailsModal({
                   {/* Owner Details */}
                   {installment.owner && (
                     <div className="space-y-3">
-                      <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+                      <h3 className={cn("text-base font-semibold text-gray-900 dark:text-white", isRTL && "text-right")}>
                         {t("owner-details")}
                       </h3>
                       <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
                         <div className="space-y-2">
-                          <div className="flex items-start gap-3">
-                            <User className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5" />
+                          <div className={cn("flex items-start gap-3", isRTL && "flex-row-reverse text-right")}>
+                            <User className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
                             <div>
                               <p className="text-sm text-gray-500 dark:text-gray-400">{t("name")}</p>
-                              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              <Link
+                                href={`/${locale}/companies/${installment.owner._id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm font-medium text-main-600 hover:text-main-700 hover:underline dark:text-main-400 dark:hover:text-main-300"
+                              >
                                 {installment.owner.name}
-                              </p>
+                              </Link>
                             </div>
                           </div>
-                          <div className="flex items-start gap-3">
-                            <Phone className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5" />
+                          <div className={cn("flex items-start gap-3", isRTL && "flex-row-reverse text-right")}>
+                            <Phone className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
                             <div>
                               <p className="text-sm text-gray-500 dark:text-gray-400">{t("phone")}</p>
                               <p className="text-sm font-medium text-gray-900 dark:text-white">
@@ -328,12 +369,32 @@ export default function InstallmentDetailsModal({
                       </div>
                     </div>
                   )}
+
+                  {installment.contract && (
+                    <div className={cn("space-y-3", isRTL && "text-right")}>
+                      <h3 className={cn("text-base font-semibold text-gray-900 dark:text-white", isRTL && "text-right")}>
+                        {t("contract")}
+                      </h3>
+                      <a
+                        href={installment.contract}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={cn(
+                          "inline-flex items-center gap-2 text-main-600 hover:underline text-sm",
+                          isRTL && "flex-row-reverse"
+                        )}
+                      >
+                        <FileText className="h-4 w-4 text-red-600" />
+                        {t("view-file")}
+                      </a>
+                    </div>
+                  )}
                 </div>
               </div>
             </TabsContent>
 
             <TabsContent value="invoices" className="mt-0">
-              <InstallmentInvoicesTab installmentId={installment._id} />
+              <InstallmentInvoicesTab installmentId={installment._id} currency={currency} isTerminated={installment.status === "TERMINATED"} />
             </TabsContent>
           </Tabs>
         ) : (
@@ -343,5 +404,12 @@ export default function InstallmentDetailsModal({
         )}
       </DialogContent>
     </Dialog>
+
+    <EndInstallmentContractDialog
+      installmentId={installmentId}
+      open={showEndContractDialog}
+      onOpenChange={setShowEndContractDialog}
+    />
+  </>
   );
 }

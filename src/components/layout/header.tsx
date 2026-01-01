@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useLocale, useTranslations } from "next-intl";
-import { BellIcon, MenuIcon, ChevronDown, PlusCircle, Map } from "lucide-react";
+import { BellIcon, MenuIcon, ChevronDown, PlusCircle, Map, MoreVertical } from "lucide-react";
 import { DropdownMenu, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -63,56 +63,115 @@ export default function Header() {
   const UserSectionLoggedIn = (
     <div
       className={cn(
-        "flex items-center gap-2 sm:gap-3",
-        // locale === "ar" ? "flex-row-reverse" : "flex-row"
+        "flex items-center align-middle gap-2 sm:gap-3"
       )}
     >
       <LocalizationDropdown />
 
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            onClick={() => setCreateAdOpen(true)}
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
-          >
-            <PlusCircle className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+      {/* Mobile popover for quick actions */}
+      <Popover>
+        <PopoverTrigger asChild>
+          <button className="flex sm:hidden h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700">
+            <MoreVertical className="h-5 w-5 text-gray-700 dark:text-gray-300" />
           </button>
-        </TooltipTrigger>
-        <TooltipContent side="bottom">
-          {t("create-ad")}
-        </TooltipContent>
-      </Tooltip>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-2" align="end">
+          <div className="flex gap-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => setCreateAdOpen(true)}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
+                >
+                  <PlusCircle className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                {t("create-ad")}
+              </TooltipContent>
+            </Tooltip>
 
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Link
-            href={getLocalizedPath("/map", locale)}
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
-          >
-            <Map className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-          </Link>
-        </TooltipTrigger>
-        <TooltipContent side="bottom">
-          {t("map")}
-        </TooltipContent>
-      </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link
+                  href={getLocalizedPath("/map", locale)}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
+                >
+                  <Map className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                {t("map")}
+              </TooltipContent>
+            </Tooltip>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <button className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700">
-            <BellIcon className="relative z-10 h-5 w-5 text-gray-700 dark:text-gray-300" />
-            {notificationCount > 0 && (
-              <span className="absolute -right-1 -top-1 z-20 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-medium text-white">
-                {notificationCount < 9 ? notificationCount : "9+"}
-              </span>
-            )}
-          </button>
-        </DropdownMenuTrigger>
-        {/* <NotificationDropdown
-          onReadAll={handleReadAllNotifications}
-          notifications={notifications}
-        /> */}
-      </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700">
+                  <BellIcon className="relative z-10 h-5 w-5 text-gray-700 dark:text-gray-300" />
+                  {notificationCount > 0 && (
+                    <span className="absolute -right-1 -top-1 z-20 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-medium text-white">
+                      {notificationCount < 9 ? notificationCount : "9+"}
+                    </span>
+                  )}
+                </button>
+              </DropdownMenuTrigger>
+              {/* <NotificationDropdown
+                onReadAll={handleReadAllNotifications}
+                notifications={notifications}
+              /> */}
+            </DropdownMenu>
+          </div>
+        </PopoverContent>
+      </Popover>
+
+      {/* Desktop quick actions */}
+      <div className="hidden sm:flex mb-3 h-6 gap-1" >
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={() => setCreateAdOpen(true)}
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
+            >
+              <PlusCircle className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">
+            {t("create-ad")}
+          </TooltipContent>
+        </Tooltip>
+  
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link
+              href={getLocalizedPath("/map", locale)}
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
+            >
+              <Map className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">
+            {t("map")}
+          </TooltipContent>
+        </Tooltip>
+  
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700">
+              <BellIcon className="relative z-10 h-5 w-5 text-gray-700 dark:text-gray-300" />
+              {notificationCount > 0 && (
+                <span className="absolute -right-1 -top-1 z-20 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-medium text-white">
+                  {notificationCount < 9 ? notificationCount : "9+"}
+                </span>
+              )}
+            </button>
+          </DropdownMenuTrigger>
+          {/* <NotificationDropdown
+            onReadAll={handleReadAllNotifications}
+            notifications={notifications}
+          /> */}
+        </DropdownMenu>
+      </div>
 
       <UserProfilePopover
         userName={userProfile?.name || session?.user?.name || t("defaultUser")}

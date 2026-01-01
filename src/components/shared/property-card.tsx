@@ -14,6 +14,11 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { addFavourite, removeFavourite } from "@/lib/services/api/favourites";
 import { toast } from "sonner";
 
@@ -60,8 +65,10 @@ export default function PropertyCard({
   const { data: session } = useSession();
   const locale = useLocale();
   const t = useTranslations("Properties.Details.Save");
+  const tShare = useTranslations("Properties.Details.Share");
   const tGeneral = useTranslations("General.PaymentMethods");
   const tCategories = useTranslations("General.Categories");
+  const tManaged = useTranslations("Properties");
   const queryClient = useQueryClient();
   const isRTL = locale === "ar";
   const imageSrc = image || "/no-apartment.png";
@@ -149,7 +156,7 @@ export default function PropertyCard({
             </span>
           </HoverCardTrigger>
           <HoverCardContent
-            className={cn("w-auto min-w-[140px] p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700", isRTL && "text-right")}
+            className={cn("w-auto min-w-35 p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700", isRTL && "text-right")}
             align={isRTL ? "end" : "start"}
             side="top"
             sideOffset={8}
@@ -177,8 +184,8 @@ export default function PropertyCard({
 
   if (variant === "featured") {
     return (
-      <Card className="group min-w-[220px] flex-shrink-0 overflow-hidden border-0 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] dark:bg-gray-800 dark:shadow-[0_2px_8px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_8px_16px_rgba(0,0,0,0.3)] p-0 rounded-xl">
-        <div className="relative h-44 w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 rounded-t-xl">
+      <Card className="group min-w-55 shrink-0 overflow-hidden border-0 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] dark:bg-gray-800 dark:shadow-[0_2px_8px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_8px_16px_rgba(0,0,0,0.3)] p-0 rounded-xl">
+        <div className="relative h-44 w-full overflow-hidden bg-linear-to-br from-gray-50 to-gray-100 rounded-t-xl">
           <Image
             src={imageSrc}
             alt={name}
@@ -204,43 +211,66 @@ export default function PropertyCard({
           )}
           {/* Top Right Icons */}
           <div className={cn(
-            "absolute top-3 flex items-center gap-2",
+            "absolute top-3 flex items-center gap-1",
             isRTL ? "left-3 flex-row-reverse" : "right-3"
           )}>
-            {badge?.toLowerCase() === "rent" && <button
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-              className="flex h-8 w-8 items-center justify-center"
-            >
-              <AdTypeIcon />
-            </button>}
-            <button
-              onClick={handleShareClick}
-              className="flex h-8 w-8 items-center justify-center cursor-pointer"
-            >
-              <ExternalLinkIcon className="h-[18px] w-[18px] text-main-600" />
-            </button>
+            {badge?.toLowerCase() === "rent" && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                    className="flex h-8 w-8 items-center justify-center"
+                  >
+                    <AdTypeIcon />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {isManaged ? tManaged("managed-by-dyarko") : tManaged("managed-by-dyarko")}
+                </TooltipContent>
+              </Tooltip>
+            )}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={handleShareClick}
+                  className="flex h-8 w-8 items-center justify-center cursor-pointer"
+                >
+                  <ExternalLinkIcon className="h-4.5 w-4.5 text-main-600" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {tShare("title")}
+              </TooltipContent>
+            </Tooltip>
             {propertyId && (
-              <button
-                onClick={handleFavoriteClick}
-                disabled={!session}
-                className="flex h-8 w-8 items-center justify-center cursor-pointer disabled:opacity-50"
-              >
-                <HeartIcon
-                  className={cn(
-                    "h-[18px] w-[18px] transition-all",
-                    isFavorite
-                      ? "fill-red-500 text-red-500"
-                      : "text-main-600"
-                  )}
-                />
-              </button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={handleFavoriteClick}
+                    disabled={!session}
+                    className="flex h-8 w-8 items-center justify-center cursor-pointer disabled:opacity-50"
+                  >
+                    <HeartIcon
+                      className={cn(
+                        "h-4.5 w-4.5 transition-all",
+                        isFavorite
+                          ? "fill-red-500 text-red-500"
+                          : "text-main-600"
+                      )}
+                    />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {isFavorite ? t("title-saved") : t("title-save")}
+                </TooltipContent>
+              </Tooltip>
             )}
           </div>
         </div>
-        <CardContent className="p-4">
+        <CardContent className="p-3 pt-2">
           {/* Title */}
           <h3 className={cn(
-            "text-lg font-semibold text-main-600 dark:text-main-400 line-clamp-1 mb-2",
+            "text-lg font-semibold text-main-600 dark:text-main-400 line-clamp-1 mb-1 -mt-2",
             isRTL && "text-right"
           )}>
             {name}
@@ -276,7 +306,7 @@ export default function PropertyCard({
     <Card className="group border-0 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] dark:bg-gray-800 dark:shadow-[0_2px_8px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_8px_16px_rgba(0,0,0,0.3)] p-0 overflow-hidden rounded-xl">
       <div className="flex p-3">
         {/* Image Section with padding */}
-        <div className="relative h-44 w-56 flex-shrink-0 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl">
+        <div className="relative h-44 w-56 shrink-0 overflow-hidden bg-linear-to-br from-gray-50 to-gray-100 rounded-xl">
           <Image
             src={imageSrc}
             alt={name}
@@ -295,34 +325,57 @@ export default function PropertyCard({
               {name}
             </h3>
             {/* Icons */}
-            <div className="flex items-center gap-2 shrink-0">
-              {badge?.toLowerCase() === "rent" && <button
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                className="flex h-8 w-8 items-center justify-center"
-              >
-                <AdTypeIcon />
-              </button>}
-              <button
-                onClick={handleShareClick}
-                className="flex h-8 w-8 items-center justify-center cursor-pointer"
-              >
-                <ExternalLinkIcon className="h-[18px] w-[18px] text-main-600" />
-              </button>
+            <div className="flex items-center gap-1 shrink-0">
+              {badge?.toLowerCase() === "rent" && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                      className="flex h-8 w-8 items-center justify-center"
+                    >
+                      <AdTypeIcon />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {isManaged ? tManaged("managed-by-dyarko") : tManaged("managed-by-dyarko")}
+                  </TooltipContent>
+                </Tooltip>
+              )}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={handleShareClick}
+                    className="flex h-8 w-8 items-center justify-center cursor-pointer"
+                  >
+                    <ExternalLinkIcon className="h-4.5 w-4.5 text-main-600" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {tShare("title")}
+                </TooltipContent>
+              </Tooltip>
               {propertyId && (
-                <button
-                  onClick={handleFavoriteClick}
-                  disabled={!session}
-                  className="flex h-8 w-8 items-center justify-center cursor-pointer disabled:opacity-50"
-                >
-                  <HeartIcon
-                    className={cn(
-                      "h-[18px] w-[18px] transition-all",
-                      isFavorite
-                        ? "fill-red-500 text-red-500"
-                        : "text-main-600"
-                    )}
-                  />
-                </button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={handleFavoriteClick}
+                      disabled={!session}
+                      className="flex h-8 w-8 items-center justify-center cursor-pointer disabled:opacity-50"
+                    >
+                      <HeartIcon
+                        className={cn(
+                          "h-4.5 w-4.5 transition-all",
+                          isFavorite
+                            ? "fill-red-500 text-red-500"
+                            : "text-main-600"
+                        )}
+                      />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {isFavorite ? t("title-saved") : t("title-save")}
+                  </TooltipContent>
+                </Tooltip>
               )}
             </div>
           </div>

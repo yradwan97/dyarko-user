@@ -206,7 +206,12 @@ export default function RentDetailsModal({
     if (!checkInTime) return { canAdd: false, startTime: "", endTime: "" };
 
     // Parse checkInTime (expected format: "HH:mm" or "HH:mm:ss")
-    const [hours, minutes] = checkInTime.split(":").map(Number);
+    const timeParts = checkInTime.split(":");
+    const hours = parseInt(timeParts[0], 10);
+    const minutes = parseInt(timeParts[1], 10);
+
+    // Validate parsed values
+    if (isNaN(hours) || isNaN(minutes)) return { canAdd: false, startTime: "", endTime: "" };
 
     // Window start: check-in time
     const windowStart = new Date(startDate);
@@ -215,6 +220,11 @@ export default function RentDetailsModal({
     // Window end: check-in time + 2 hours
     const windowEnd = new Date(startDate);
     windowEnd.setHours(hours + 2, minutes, 0, 0);
+
+    // Validate dates are valid
+    if (isNaN(windowStart.getTime()) || isNaN(windowEnd.getTime())) {
+      return { canAdd: false, startTime: "", endTime: "" };
+    }
 
     // Format times for display (e.g., "14:00", "16:00")
     const formatTime = (date: Date) => format(date, "HH:mm");

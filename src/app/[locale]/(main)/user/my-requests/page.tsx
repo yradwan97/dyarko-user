@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useSession } from "next-auth/react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Calendar, Home, Wrench, DollarSign, FileCheck, Megaphone, Clock, FileX, Wallet } from "lucide-react";
 
 import Typography from "@/components/shared/typography";
@@ -13,6 +13,7 @@ import { Spinner } from "@/components/ui/spinner";
 import PaginationControls from "@/components/shared/pagination-controls";
 import { cn } from "@/lib/utils";
 import AdDetailsDialog from "@/components/dialogs/ad-details-dialog";
+import PaymentResultDialog from "@/components/dialogs/payment-result-dialog";
 import InstallmentDetailsDialog from "@/components/dialogs/installment-details-dialog";
 import RequestDetailsModal from "./components/request-details-modal";
 import { usePayInvoice } from "@/hooks/use-invoices";
@@ -52,17 +53,33 @@ export default function MyRequestsPage() {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const pathname = usePathname();
   const [activeTab, setActiveTab] = useState<TabType>("ads");
+  const [showPaymentResult, setShowPaymentResult] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
 
-  // Handle tab query parameter
+  // Handle tab query parameter (only 'rent' tab) and isSuccess
   useEffect(() => {
     const tabParam = searchParams.get("tab");
-    if (tabParam && ["tours", "rent", "service", "installments", "disclaimers", "ads", "extend-invoices", "end-contracts", "rental-collection"].includes(tabParam)) {
-      setActiveTab(tabParam as TabType);
-      // Remove the query param from URL without triggering a navigation
-      router.replace(`/${locale}/user/my-requests`, { scroll: false });
+    const isSuccess = searchParams.get("isSuccess");
+
+    // Only handle tab=rent
+    if (tabParam === "rent") {
+      setActiveTab("rent");
     }
-  }, [searchParams, router, locale]);
+
+    if (isSuccess !== null) {
+      setPaymentSuccess(isSuccess === "true");
+      setShowPaymentResult(true);
+    }
+  }, [searchParams]);
+
+  const handleClosePaymentResult = () => {
+    setShowPaymentResult(false);
+    // Clean up both tab and isSuccess query params from URL
+    router.replace(pathname, { scroll: false });
+  };
+
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedAdId, setSelectedAdId] = useState<string | null>(null);
   const [selectedInstallmentId, setSelectedInstallmentId] = useState<string | null>(null);
@@ -554,6 +571,12 @@ export default function MyRequestsPage() {
         onConfirm={handleConfirmAction}
         isLoading={updateUserStatusMutation.isPending}
         variant={confirmationDialog.action === "reject" ? "destructive" : "default"}
+      />
+
+      <PaymentResultDialog
+        open={showPaymentResult}
+        onClose={handleClosePaymentResult}
+        isSuccess={paymentSuccess}
       />
     </div>
   );

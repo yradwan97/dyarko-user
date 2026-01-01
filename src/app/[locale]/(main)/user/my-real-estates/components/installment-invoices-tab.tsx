@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Calendar, DollarSign, FileText, ExternalLink } from "lucide-react";
@@ -14,13 +14,18 @@ import { useInstallmentInvoices } from "@/hooks/use-installments";
 import { payInstallmentInvoice } from "@/lib/services/api/installments";
 import type { InstallmentInvoice, InstallmentInvoiceStatus } from "@/lib/services/api/installments";
 import { toast } from "sonner";
+import { useCountryCurrency } from "@/hooks/use-country-currency";
 
 interface InstallmentInvoicesTabProps {
   installmentId: string;
+  currency: string;
+  isTerminated: boolean;
 }
 
 export default function InstallmentInvoicesTab({
   installmentId,
+  currency,
+  isTerminated = false,
 }: InstallmentInvoicesTabProps) {
   const t = useTranslations("User.MyRealEstates.InstallmentInvoicesTab");
   const tCommon = useTranslations("General");
@@ -29,8 +34,10 @@ export default function InstallmentInvoicesTab({
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<InstallmentInvoice | null>(null);
   const queryClient = useQueryClient();
-
+  const locale = useLocale();
+  
   const { data, isLoading } = useInstallmentInvoices(installmentId, selectedStatus, currentPage);
+  // const {currency} = useCountryCurrency()
 
   const payInvoiceMutation = useMutation({
     mutationFn: payInstallmentInvoice,
@@ -116,7 +123,7 @@ export default function InstallmentInvoicesTab({
   return (
     <div className="space-y-4">
       {/* Status Sub-tabs */}
-      <div className="flex gap-2 p-1 bg-gray-100 dark:bg-gray-900 rounded-lg">
+      <div className={`flex gap-2 p-1 bg-gray-100 dark:bg-gray-900 rounded-lg ${locale === "ar" ? "flex-row-reverse" : ""}`}>
         {statusTabs.map((status) => (
           <button
             key={status}
@@ -154,18 +161,15 @@ export default function InstallmentInvoicesTab({
               return (
                 <div
                   key={invoice._id}
-                  className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow"
+                  className={`bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow ${locale === "ar" ? "flex-row-reverse" : ""}`}
                 >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-2">
+                  <div className={`flex items-start justify-between mb-3 ${locale === "ar" ? "flex-row-reverse" : ""}`}>
+                    <div className={`flex items-center gap-2 ${locale === "ar" ? "flex-row-reverse" : ""}`}>
                       <FileText className="h-5 w-5 text-main-600" />
                       <div>
-                        <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                          {t("invoice-number", { number: invoice.ID })}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {t("property-code")}: {invoice.property.code}
-                        </p>
+                        <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                          {t("invoice-number")} <p>{invoice.ID}</p>
+                        </span>
                       </div>
                     </div>
                     <Badge className={getStatusColor(invoice.status)}>
@@ -173,13 +177,13 @@ export default function InstallmentInvoicesTab({
                     </Badge>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 mb-3">
+                  <div className={`flex min-w-full gap-20 mb-3 ${locale === "ar" ? "text-right justify-end" : "text-left"}`}>
                     <div className="flex items-center gap-2">
                       <DollarSign className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                       <div>
                         <p className="text-xs text-gray-500 dark:text-gray-400">{t("amount")}</p>
                         <p className="text-sm font-medium text-gray-900 dark:text-white">
-                          {invoice.amount} {tCommon("kwd")}
+                          {invoice.amount} {currency}
                         </p>
                       </div>
                     </div>
@@ -197,16 +201,12 @@ export default function InstallmentInvoicesTab({
                   <div className="grid grid-cols-2 gap-4 pt-3 border-t border-gray-200 dark:border-gray-700 text-xs">
                     <div>
                       <span className="text-gray-500 dark:text-gray-400">{t("tax")}: </span>
-                      <span className="font-medium text-gray-900 dark:text-white">{invoice.tax}%</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500 dark:text-gray-400">{t("commission")}: </span>
-                      <span className="font-medium text-gray-900 dark:text-white">{invoice.dyarkoCommission} {tCommon("kwd")}</span>
+                      <span className="font-medium text-gray-900 dark:text-white">{invoice.tax} {currency}</span>
                     </div>
                   </div>
 
                   {/* Pay Now Button for upcoming unpaid invoice only */}
-                  {isUpcomingInvoice && (
+                  {!isTerminated && isUpcomingInvoice && (
                     <Button
                       onClick={() => handlePayInvoice(invoice)}
                       className="w-full mt-4 bg-[#1e3a5f] hover:bg-[#152942] text-white"
@@ -248,7 +248,7 @@ export default function InstallmentInvoicesTab({
         onOpenChange={setPaymentDialogOpen}
         onConfirm={handleConfirmPayment}
         amount={selectedInvoice?.amount}
-        currency="KWD"
+        currency={currency}
       />
     </div>
   );

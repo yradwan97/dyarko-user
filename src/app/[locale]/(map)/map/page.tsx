@@ -1,16 +1,21 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { GoogleMap, Marker } from "@react-google-maps/api";
-import { Filter } from "lucide-react";
+import { Filter, X } from "lucide-react";
+import Link from "next/link";
 import { useCountryContext } from "@/components/providers/country-provider";
 import { useGoogleMaps } from "@/components/providers/google-maps-provider";
 import { useMapProperties } from "@/hooks/use-properties";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
-import PropertyMapCard from "./components/property-map-card";
+import PropertyCard from "@/components/shared/property-card";
 import MapFiltersModal from "./components/map-filters-modal";
 import type { MapProperty } from "@/lib/services/api/properties";
+import { formatPrice } from "@/lib/utils/property-pricing";
+import { getLocalizedPath } from "@/lib/utils";
+import { useCurrency } from "@/hooks/use-currency";
 
 const mapContainerStyle = {
   width: "100%",
@@ -33,6 +38,11 @@ const countryCenters: Record<string, { lat: number; lng: number }> = {
 };
 
 export default function MapPage() {
+  const t = useTranslations("Map");
+  const tPrice = useTranslations("Properties.Price");
+  const tGeneral = useTranslations("General");
+  const locale = useLocale();
+  const currency = useCurrency();
   const { selectedCountry } = useCountryContext();
   const { isLoaded, loadError } = useGoogleMaps();
   const [selectedProperty, setSelectedProperty] = useState<MapProperty | null>(null);
@@ -78,10 +88,6 @@ export default function MapPage() {
     setIsFiltersOpen(true);
   }, [selectedCountry]);
 
-  // Debug: Log properties to check lat/long
-  console.log("Properties:", properties);
-  console.log("Properties with coordinates:", properties.filter((p: MapProperty) => p.lat && p.long));
-
   const handleMarkerClick = useCallback((property: MapProperty) => {
     setSelectedProperty(property);
     // Center map on selected property
@@ -101,10 +107,30 @@ export default function MapPage() {
     setSelectedProperty(null); // Close property popup on filter change
   }, []);
 
+  // Helper to get period from MapProperty based on available prices
+  const getMapPropertyPeriod = (property: MapProperty): string | null => {
+    if (property.offerType !== "rent") return null;
+    if (property.hourlyPrice) return "hour";
+    if (property.dailyPrice) return "day";
+    if (property.weeklyPrice) return "week";
+    if (property.monthlyPrice) return "month";
+    return null;
+  };
+
+  // Helper to get display price from MapProperty
+  const getDisplayPrice = (property: MapProperty): string => {
+    const price = property.price || property.dailyPrice || property.weeklyPrice || property.monthlyPrice || property.hourlyPrice;
+    if (!price) return tGeneral("price-not-available");
+
+    const period = getMapPropertyPeriod(property);
+    const periodText = period ? ` / ${tPrice(period)}` : "";
+    return `${formatPrice(price, currency, locale)}${periodText}`;
+  };
+
   if (loadError) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <p className="text-red-500">Error loading map</p>
+        <p className="text-red-500">{t("error-loading-map")}</p>
       </div>
     );
   }
@@ -125,15 +151,15 @@ export default function MapPage() {
         </div>
       )}
 
-      {/* Filters Button - Top Right */}
-      <div className="absolute top-6 right-6 z-10">
+      {/* Filters Button - Top Left */}
+      <div className="absolute top-6 left-6 z-10">
         <Button
           onClick={() => setIsFiltersOpen(true)}
           className="gap-2 bg-white text-gray-900 shadow-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700"
           size="lg"
         >
           <Filter className="h-4 w-4" />
-          Filters
+          {t("filters")}
         </Button>
       </div>
 
@@ -149,10 +175,7 @@ export default function MapPage() {
       >
         {/* Property Markers */}
         {properties.length > 0 && properties.map((property: MapProperty) => {
-          console.log("Rendering marker for:", property.title, "Lat:", property.lat, "Long:", property.long);
-
           if (!property.lat || !property.long) {
-            console.log("Skipping property without coordinates:", property.title);
             return null;
           }
 
@@ -169,11 +192,28 @@ export default function MapPage() {
 
       {/* Property Info Card - Bottom Left */}
       {selectedProperty && (
-        <div className="absolute bottom-6 left-6 z-20">
-          <PropertyMapCard
-            property={selectedProperty}
-            onClose={handleCloseCard}
-          />
+        <div className="absolute bottom-6 right-6 z-20 w-full max-w-sm">
+          <div className="relative">
+            {/* Close Button */}
+            <button
+              onClick={handleCloseCard}
+              className="absolute -top-2 -right-2 z-30 bg-white dark:bg-gray-800 rounded-full p-1.5 shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            >
+              <X className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+            </button>
+            <Link href={getLocalizedPath(`/properties/${selectedProperty._id}`, locale)}>
+              <PropertyCard
+                variant="featured"
+                propertyId={selectedProperty._id}
+                image={selectedProperty.image}
+                name={selectedProperty.title}
+                location={`${selectedProperty.city}, ${selectedProperty.region}`}
+                price={getDisplayPrice(selectedProperty)}
+                badge={selectedProperty.offerType}
+                propertyType={selectedProperty.category}
+              />
+            </Link>
+          </div>
         </div>
       )}
 

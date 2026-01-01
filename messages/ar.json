@@ -99,10 +99,20 @@
     "filters": "الفلاتر",
     "apply": "تطبيق",
     "reset": "إعادة تعيين",
+    "status": "الحالة",
     "category": "الفئة",
     "city": "المدينة",
     "class": "الصنف",
-    "filter-properties-description": "تصفية العقارات حسب الفئة والنوع"
+    "filter-properties-description": "تصفية العقارات حسب الفئة والنوع",
+    "PaymentResult": {
+      "success-title": "تمت عملية الدفع بنجاح",
+      "success-description": "تمت معالجة دفعتك بنجاح.",
+      "success-alt": "أيقونة النجاح",
+      "fail-title": "فشلت عملية الدفع",
+      "fail-description": "تعذرت معالجة دفعتك. يرجى المحاولة مرة أخرى.",
+      "fail-alt": "أيقونة الفشل",
+      "close": "إغلاق"
+    }
   },
   "PropertyListing": {
     "title": "تصفح العقارات -",
@@ -1212,6 +1222,12 @@
       "ok": "حسناً"
     }
   },
+  "PaymentFail": {
+    "title": "فشل الدفع",
+    "description": "عذراً، لم نتمكن من إتمام عملية الدفع. يرجى المحاولة مرة أخرى أو التواصل مع الدعم الفني.",
+    "back-home": "العودة للرئيسية",
+    "contact-support": "تواصل معنا"
+  },
   "Payment": {
     "invoice-paid": "هذه الفاتورة مدفوعة بالفعل",
     "error": "حدث خطاء ما !",
@@ -1311,6 +1327,8 @@
   "Map": {
     "view-details": "عرض التفاصيل",
     "loading-map": "جاري تحميل الخريطة...",
+    "error-loading-map": "خطأ في تحميل الخريطة",
+    "filters": "الفلاتر",
     "no-properties": "لا توجد عقارات في هذه المنطقة",
     "loading-cities": "جاري تحميل المدن...",
     "no-cities-available": "لا توجد مدن متاحة",
@@ -1871,11 +1889,31 @@
         "tabs": {
           "details": "تفاصيل التقسيط",
           "invoices": "الفواتير"
+        },
+        "contract": "العقد",
+        "view-file": "عرض الملف",
+        "end-contract": "إنهاء العقد"
+      },
+      "EndInstallmentContractDialog": {
+        "title": "إنهاء عقد التقسيط",
+        "description": "يرجى تقديم سبب لإنهاء عقد التقسيط. هذا الإجراء لا يمكن التراجع عنه.",
+        "reason": "سبب إنهاء العقد",
+        "reason-placeholder": "أدخل سبب إنهاء العقد...",
+        "cancel": "إلغاء",
+        "submit": "إرسال الطلب",
+        "success": "تم إرسال طلب إنهاء العقد بنجاح",
+        "error": "فشل إرسال الطلب. يرجى المحاولة مرة أخرى.",
+        "fill-reason": "يرجى تقديم سبب لإنهاء العقد",
+        "confirmation": {
+          "title": "تأكيد إنهاء العقد",
+          "description": "هل أنت متأكد أنك تريد إنهاء عقد التقسيط هذا؟ هذا الإجراء لا يمكن التراجع عنه.",
+          "cancel": "إلغاء",
+          "confirm": "تأكيد"
         }
       },
       "InstallmentInvoicesTab": {
         "no-invoices": "لا توجد فواتير",
-        "invoice-number": "فاتورة رقم {number}",
+        "invoice-number": ":فاتورة رقم",
         "property-code": "كود العقار",
         "amount": "المبلغ",
         "due-date": "تاريخ الاستحقاق",
@@ -1886,8 +1924,8 @@
         "popup-blocked": "تم حظر النافذة المنبثقة. إعادة التوجيه إلى صفحة الدفع...",
         "payment-error": "فشلت عملية الدفع. يرجى المحاولة مرة أخرى.",
         "status": {
-          "paid": "مدفوعة",
-          "unpaid": "غير مدفوعة"
+          "paid": "الفواتير المدفوعة",
+          "unpaid": "الفواتير المستحقة"
         }
       },
       "RentDetailsModal": {

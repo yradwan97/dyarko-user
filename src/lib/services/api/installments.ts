@@ -40,6 +40,7 @@ export interface Installment {
   user: InstallmentUser;
   ownerStatus: "PENDING" | "APPROVED" | "REJECTED";
   userStatus: "PENDING" | "APPROVED" | "REJECTED";
+  status: "ACTIVE" | "TERMINATED" | "ENDED";
   createdAt: string;
   amount?: number;
   endDate?: string;
@@ -229,6 +230,27 @@ export const createInstallmentRequest = async (
 ): Promise<CreateInstallmentRequestResponse> => {
   const response = await axiosClient.post<CreateInstallmentRequestResponse>(
     `/installments`,
+    payload
+  );
+  return response.data;
+};
+
+export interface EndInstallmentContractPayload {
+  installment: string;
+  reason: string;
+}
+
+export interface EndInstallmentContractResponse {
+  status: string;
+  message: string;
+  data: Installment;
+}
+
+export const endInstallmentContract = async (
+  payload: EndInstallmentContractPayload
+): Promise<EndInstallmentContractResponse> => {
+  const response = await axiosClient.post<EndInstallmentContractResponse>(
+    `/installments/end-contracts`,
     payload
   );
   return response.data;

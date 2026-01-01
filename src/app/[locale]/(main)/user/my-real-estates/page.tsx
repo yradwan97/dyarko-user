@@ -16,6 +16,7 @@ import InstallmentCard from "./components/installment-card";
 import RentDetailsModal from "./components/rent-details-modal";
 import InstallmentDetailsModal from "./components/installment-details-modal";
 import PaginationControls from "@/components/shared/pagination-controls";
+import PaymentResultDialog from "@/components/dialogs/payment-result-dialog";
 import { cn } from "@/lib/utils";
 
 export default function MyRealEstatesPage() {
@@ -25,18 +26,32 @@ export default function MyRealEstatesPage() {
   const router = useRouter();
   const pathname = usePathname();
   const [activeTab, setActiveTab] = useState<"rents" | "installments">("rents");
+  const [showPaymentResult, setShowPaymentResult] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
 
-  // Handle tab query param and clean URL
+  // Handle tab and isSuccess query params
   useEffect(() => {
     const tab = searchParams.get("tab");
+    const isSuccess = searchParams.get("isSuccess");
+
     if (tab === "rent" || tab === "rents") {
       setActiveTab("rents");
-      router.replace(pathname, { scroll: false });
     } else if (tab === "installments" || tab === "installment") {
       setActiveTab("installments");
-      router.replace(pathname, { scroll: false });
     }
-  }, [searchParams, router, pathname]);
+
+    if (isSuccess !== null) {
+      setPaymentSuccess(isSuccess === "true");
+      setShowPaymentResult(true);
+    }
+  }, [searchParams]);
+
+  const handleClosePaymentResult = () => {
+    setShowPaymentResult(false);
+    // Clean up both tab and isSuccess query params from URL
+    router.replace(pathname, { scroll: false });
+  };
+
   const [selectedRentId, setSelectedRentId] = useState<string | null>(null);
   const [selectedInstallmentId, setSelectedInstallmentId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -197,6 +212,12 @@ export default function MyRealEstatesPage() {
         installmentId={selectedInstallmentId}
         isOpen={isInstallmentModalOpen}
         onClose={handleCloseInstallmentModal}
+      />
+
+      <PaymentResultDialog
+        open={showPaymentResult}
+        onClose={handleClosePaymentResult}
+        isSuccess={paymentSuccess}
       />
     </div>
   );

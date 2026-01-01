@@ -253,7 +253,7 @@ export default function PropertyDetails({ id }: PropertyDetailsProps) {
             {isBoothOrCamp ? (
               <div className="flex w-full">
                 <Tabs defaultValue="property" className="mt-8 w-full">
-                  <TabsList className="inline-flex w-1/2 h-14 items-center self-center justify-center rounded-md border border-gray-200 bg-[#F4F5F7] p-2 mb-6">
+                  <TabsList className="inline-flex w-full sm:w-2/3 xl:w-1/2 h-14 items-center self-center justify-center rounded-md border border-gray-200 bg-[#F4F5F7] p-2 mb-6">
                     <TabsTrigger
                       value="property"
                       className="inline-flex items-center justify-center whitespace-nowrap rounded-md px-8 py-2.5 text-sm font-medium transition-all data-[state=active]:bg-[#142742] data-[state=active]:text-white data-[state=inactive]:bg-transparent data-[state=inactive]:text-[#617289]"

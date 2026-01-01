@@ -99,10 +99,20 @@
     "filters": "Filters",
     "apply": "Apply",
     "reset": "Reset",
+    "status": "Status",
     "category": "Category",
     "city": "City",
     "class": "Class",
-    "filter-properties-description": "Filter properties by category and class"
+    "filter-properties-description": "Filter properties by category and class",
+    "PaymentResult": {
+      "success-title": "Payment Successful",
+      "success-description": "Your payment has been processed successfully.",
+      "success-alt": "Success icon",
+      "fail-title": "Payment Failed",
+      "fail-description": "Your payment could not be processed. Please try again.",
+      "fail-alt": "Failure icon",
+      "close": "Close"
+    }
   },
   "PropertyListing": {
     "title": "Browse Properties -",
@@ -1220,6 +1230,12 @@
       "ok": "Ok"
     }
   },
+  "PaymentFail": {
+    "title": "Payment Failed",
+    "description": "Sorry, we couldn't process your payment. Please try again or contact support for assistance.",
+    "back-home": "Back to Home",
+    "contact-support": "Contact Support"
+  },
   "Payment": {
     "invoice-paid": "This invoice is already paid",
     "error": "something went wrong",
@@ -1822,11 +1838,31 @@
         "tabs": {
           "details": "Installment Details",
           "invoices": "Invoices"
+        },
+        "contract": "Contract",
+        "view-file": "View File",
+        "end-contract": "End Contract"
+      },
+      "EndInstallmentContractDialog": {
+        "title": "End Installment Contract",
+        "description": "Please provide a reason for ending this installment contract. This action cannot be undone.",
+        "reason": "Reason for ending contract",
+        "reason-placeholder": "Enter your reason for ending the contract...",
+        "cancel": "Cancel",
+        "submit": "Submit Request",
+        "success": "End contract request submitted successfully",
+        "error": "Failed to submit request. Please try again.",
+        "fill-reason": "Please provide a reason for ending the contract",
+        "confirmation": {
+          "title": "Confirm End Contract",
+          "description": "Are you sure you want to end this installment contract? This action cannot be undone.",
+          "cancel": "Cancel",
+          "confirm": "Confirm"
         }
       },
       "InstallmentInvoicesTab": {
         "no-invoices": "No invoices found",
-        "invoice-number": "Invoice #{number}",
+        "invoice-number": "Invoice:",
         "property-code": "Property Code",
         "amount": "Amount",
         "due-date": "Due Date",
@@ -1837,8 +1873,8 @@
         "popup-blocked": "Popup blocked. Redirecting to payment page...",
         "payment-error": "Payment failed. Please try again.",
         "status": {
-          "paid": "Paid",
-          "unpaid": "Unpaid"
+          "paid": "Paid dues",
+          "unpaid": "Upcoming dues"
         }
       },
       "RentDetailsModal": {
@@ -2176,6 +2212,8 @@
   "Map": {
     "view-details": "View Details",
     "loading-map": "Loading map...",
+    "error-loading-map": "Error loading map",
+    "filters": "Filters",
     "no-properties": "No properties found in this area",
     "loading-cities": "Loading cities...",
     "no-cities-available": "No cities available",
