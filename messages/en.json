@@ -1398,6 +1398,7 @@
     "currency": "KWD",
     "Sidebar": {
       "profile": "Profile",
+      "rewards": "Rewards",
       "change-password": "Change Password",
       "wallet": "Wallet",
       "saved": "Saved Properties",
@@ -1409,6 +1410,69 @@
       "account": "Account",
       "faqs": "FAQs",
       "contact-us": "Contact Us"
+    },
+    "Rewards": {
+      "user": "User",
+      "level": "Level",
+      "points": "Points",
+      "reward": "Reward",
+      "milestone": "Milestone",
+      "vibe": "Vibe",
+      "more-rentals": "more rentals",
+      "rentals": "rentals",
+      "error": "Failed to load rewards data. Please try again later.",
+      "hero": {
+        "title": "DYARKO",
+        "subtitle": "Get Cash Rewards with",
+        "tagline": "Keep renting, Keep earning - it never stops!",
+        "you-are-at": "you are at",
+        "complete-message": "Complete this level rentals to unlock bigger discounts and rewards at level {nextLevel}, Every rent counts!",
+        "complete-level-link": "Complete This Level ?",
+        "points-message": "You Get Rewards {points} Points with Rewards System.",
+        "tooltip": "Complete rentals at each level to earn reward points. Points can be used as cashback for future rentals.",
+        "points-tooltip": "Points earned at this level will be added to your wallet once you complete all required rentals."
+      },
+      "welcome": {
+        "title": "Welcome to the Dyarko Rewards!",
+        "point1": "Every rental counts - no matter how big or small.",
+        "point2": "Each time you rent, you earn points that go straight into your in-app wallet.",
+        "point3": "Your points = real cashback you can use to pay your next rentals.",
+        "point4": "The more rentals you complete, the higher your level - and the bigger the rewards!",
+        "point5": "Reach the top level and unlock endless bonuses: every rental keeps giving you instant points.",
+        "cta": "It's simple: Rent. Earn. Repeat."
+      },
+      "levels-section": {
+        "title": "DYARKO Rewards",
+        "description": "Enjoy Dyarko's Rewards System - climb levels, earn massive points up to 100,000 points, and turn every rental into real cashback."
+      },
+      "levels": {
+        "starter-spark": {
+          "title": "Starter Spark",
+          "milestone": "Complete 5 rentals.",
+          "vibe": "You've just kicked off your reward journey! Every step counts, and your first cashback boost is here."
+        },
+        "rising-star": {
+          "title": "Rising Star",
+          "milestone": "Another 10 rentals.",
+          "vibe": "You're moving up fast! Bigger rentals, bigger rewards - keep the streak alive."
+        },
+        "elite-explorer": {
+          "title": "Elite Explorer",
+          "milestone": "15 more rentals.",
+          "vibe": "You're shining bright! More rentals mean serious cashback power."
+        },
+        "master-host": {
+          "title": "Master Host",
+          "milestone": "30 rentals at this stage.",
+          "vibe": "You've mastered the game! Huge points, huge rewards - this level is pure win."
+        },
+        "legend-status": {
+          "title": "Legend Status",
+          "milestone": "50 more rentals.",
+          "vibe": "You made it! Complete all 50 rentals of Level 5 to unlock your massive 80,000 points reward.",
+          "bonus": "And the best part? From then on, every extra rental gives you +2,000 instant points. Endless cashback. Endless rewards."
+        }
+      }
     },
     "FAQs": {
       "title": "Frequently Asked Questions",
@@ -1667,7 +1731,6 @@
       "capacity": "Capacity",
       "bedrooms": "Bedrooms",
       "bathrooms": "Bathrooms",
-      "price": "Price",
       "tabs": {
         "tours": "Tours",
         "tour": "Tour",

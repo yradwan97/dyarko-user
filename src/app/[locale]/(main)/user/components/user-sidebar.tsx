@@ -14,6 +14,7 @@ import {
   HelpCircle,
   MessageCircle,
   Heart,
+  Gift,
 } from "lucide-react";
 
 import Typography from "@/components/shared/typography";
@@ -26,6 +27,7 @@ interface UserSidebarProps {
 
 const navLinks = [
   { to: "/user/profile", text: "profile", icon: User },
+  { to: "/user/rewards", text: "rewards", icon: Gift },
   { to: "/user/change-password", text: "change-password", icon: Lock },
   { to: "/user/saved", text: "saved", icon: Bookmark },
   { to: "/user/following", text: "following", icon: Heart },
@@ -74,7 +76,7 @@ export default function UserSidebar({ currentPath, onNavigate }: UserSidebarProp
                   : "text-gray-700 hover:bg-main-50 hover:text-main-600"
               )}
             >
-              <Icon className="h-5 w-5 flex-shrink-0" />
+              <Icon className="h-5 w-5 shrink-0" />
               <Typography variant="body-md" as="span" className="flex-1">
                 {t(link.text)}
               </Typography>
@@ -96,7 +98,7 @@ export default function UserSidebar({ currentPath, onNavigate }: UserSidebarProp
               : "text-gray-700 hover:bg-main-50 hover:text-main-600"
           )}
         >
-          <HelpCircle className="h-5 w-5 flex-shrink-0" />
+          <HelpCircle className="h-5 w-5 shrink-0" />
           <Typography variant="body-md" as="span" className="flex-1">
             {t("faqs")}
           </Typography>
@@ -113,7 +115,7 @@ export default function UserSidebar({ currentPath, onNavigate }: UserSidebarProp
               : "text-gray-700 hover:bg-main-50 hover:text-main-600"
           )}
         >
-          <MessageCircle className="h-5 w-5 flex-shrink-0" />
+          <MessageCircle className="h-5 w-5 shrink-0" />
           <Typography variant="body-md" as="span" className="flex-1">
             {t("contact-us")}
           </Typography>

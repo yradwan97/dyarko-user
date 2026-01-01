@@ -80,7 +80,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
                   {t("navigation-menu")}
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-[280px] p-0">
+              <SheetContent side="left" className="w-70 p-0">
                 <SheetTitle className="sr-only">
                   {t("navigation-menu")}
                 </SheetTitle>
