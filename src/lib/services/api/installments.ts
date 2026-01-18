@@ -122,6 +122,8 @@ export interface InstallmentInvoice {
   ID: string;
   __v: number;
   pdf?: string; // PDF URL for paid invoices
+  userPdf?: string; // PDF URL for paid invoices
+  ownerPdf?: string; // PDF URL for paid invoices
 }
 
 export interface InstallmentInvoicesResponse {

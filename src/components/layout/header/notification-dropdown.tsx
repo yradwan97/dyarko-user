@@ -38,11 +38,11 @@ export default function NotificationDropdown({
   return (
     <DropdownMenuContent
       align="end"
-      className={`z-[999] flex w-60 flex-col rounded-lg bg-white py-5 drop-shadow-md sm:w-[320px] md:w-[400px] ${
+      className={`z-999 flex w-60 flex-col rounded-lg bg-white py-5 drop-shadow-md sm:w-[320px] md:w-100 ${
         locale === "ar" ? "right-14 sm:right-5 md:left-0" : "-right-14 sm:-right-5 md:right-0"
       }`}
     >
-      <div className="max-h-[350px] space-y-6 overflow-y-auto md:max-h-[450px]">
+      <div className="max-h-87.5 space-y-6 overflow-y-auto md:max-h-112.5">
         <Typography
           variant="body-md-bold"
           as="h4"
@@ -70,14 +70,14 @@ export default function NotificationDropdown({
                       as="h6"
                       className="capitalize text-black"
                     >
-                      {locale === "en" ? n.title_en : n.title_ar}
+                      {locale === "en" ? n.titleEn : n.titleAr}
                     </Typography>
                     <Typography
                       variant="body-xs-medium"
                       as="p"
                       className="text-gray-600"
                     >
-                      {locale === "en" ? n.body_en : n.body_ar}
+                      {locale === "en" ? n.bodyEn : n.bodyAr}
                     </Typography>
                   </div>
                 </DropdownMenuItem>
@@ -95,14 +95,14 @@ export default function NotificationDropdown({
         <div className="flex flex-row justify-evenly">
           <Button
             to={getLocalizedPath("/notifications", locale)}
-            className="block text-center text-sm font-bold text-main-600"
+            className="block text-center text-sm font-bold text-white"
             onClick={goToNotifications}
           >
             {t("see-all")}
           </Button>
           {notifications.length > 0 && (
             <Button
-              className="block text-center text-sm font-bold text-main-600"
+              className="block hover:cursor-pointer text-center text-sm font-bold text-white"
               onClick={onReadAll}
             >
               {t("read-all")}

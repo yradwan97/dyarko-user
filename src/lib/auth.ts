@@ -5,6 +5,8 @@ import { noAuthAxios } from "./services/axios-client";
 export const authOptions: NextAuthConfig = {
   providers: [
     Credentials({
+      id: "credentials",
+      name: "Credentials",
       credentials: {
         email: {},
         password: {},
@@ -12,9 +14,6 @@ export const authOptions: NextAuthConfig = {
       },
       async authorize(credentials) {
         try {
-          console.log("🔵 SERVER: Attempting to authorize credentials...");
-          console.log("🔵 SERVER: Email:", credentials?.email);
-          console.log("🔵 SERVER: Role:", credentials?.role || "user");
 
           const response = await noAuthAxios.post("/auth/login", {
             email: credentials?.email,
@@ -22,8 +21,7 @@ export const authOptions: NextAuthConfig = {
             role: credentials?.role || "user",
           });
 
-          console.log("🔵 SERVER: API Response status:", response.status);
-          console.log("🔵 SERVER: API Response data:", JSON.stringify(response.data, null, 2));
+          console.log(response)
 
           if (response.status === 200 && response.data) {
             // NextAuth v5 requires a properly structured user object with an 'id' field
@@ -51,9 +49,6 @@ export const authOptions: NextAuthConfig = {
               // Store the complete user data for later use
               data: userData,
             };
-
-            console.log("✅ SERVER: Authorization successful, returning user with id:", userId);
-            console.log("✅ SERVER: User object:", JSON.stringify(user, null, 2));
             return user;
           }
 
@@ -64,7 +59,9 @@ export const authOptions: NextAuthConfig = {
           console.error("❌ SERVER: Error status:", error.response?.status);
           console.error("❌ SERVER: Error data:", error.response?.data);
           console.error("❌ SERVER: Request URL:", error.config?.baseURL + error.config?.url);
-          return null;
+          if (error.response?.status === 401) return null;
+          if (error.response?.status === 403) throw new Error("USER_BLOCKED");
+          throw new Error(error.response?.data?.code || "LOGIN_FAILED");
         }
       }
     })

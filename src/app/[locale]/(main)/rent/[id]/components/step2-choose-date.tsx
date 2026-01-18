@@ -420,7 +420,7 @@ export default function Step2ChooseDate({
         if (response.data.isValid) {
           onNext();
         } else {
-          toast.error(`${response.data.message} (e.g. 15/10 - 15/11)`);
+          toast.error(`${response.data.message}`);
         }
       } catch (error) {
         console.error("Error validating rent time:", error);

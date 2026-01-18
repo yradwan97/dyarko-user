@@ -33,7 +33,7 @@ interface PropertyCardProps {
   name: string;
   location: string;
   price: string;
-  originalPrice?: string;
+  discountedPrice?: string;
   badge?: string;
   secondaryBadge?: string;
   propertyType?: string;
@@ -51,7 +51,7 @@ export default function PropertyCard({
   name,
   location,
   price,
-  originalPrice,
+  discountedPrice,
   badge,
   secondaryBadge,
   propertyType,
@@ -179,7 +179,7 @@ export default function PropertyCard({
         </HoverCard>
       );
     }
-    return <span className={cn("text-base font-bold text-main-600 dark:text-main-400", className)}>{price}</span>;
+    return <span className={cn("text-base font-bold text-main-600 dark:text-main-400", className)}>{discountedPrice ? discountedPrice : price}</span>;
   };
 
   if (variant === "featured") {
@@ -225,7 +225,7 @@ export default function PropertyCard({
                   </button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  {isManaged ? tManaged("managed-by-dyarko") : tManaged("managed-by-dyarko")}
+                  {isManaged ? tManaged("managed-by-dyarko") : tManaged("ads-only")}
                 </TooltipContent>
               </Tooltip>
             )}
@@ -286,8 +286,8 @@ export default function PropertyCard({
           <div className={cn("flex items-center justify-between gap-2", isRTL && "flex-row-reverse")}>
             <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
               <PriceDisplay />
-              {originalPrice && (
-                <span className="text-sm text-gray-400 line-through">{originalPrice}</span>
+              {discountedPrice  && (
+                <span className="text-sm text-gray-400 line-through">{price}</span>
               )}
             </div>
             {propertyType && (
@@ -389,8 +389,8 @@ export default function PropertyCard({
           {/* Price */}
           <div className="flex items-center gap-2">
             <PriceDisplay />
-            {originalPrice && (
-              <span className="text-sm text-gray-400 line-through">{originalPrice}</span>
+            {discountedPrice && (
+              <span className="text-sm text-gray-400 line-through">{price}</span>
             )}
           </div>
 

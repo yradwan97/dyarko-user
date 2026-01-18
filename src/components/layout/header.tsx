@@ -34,30 +34,30 @@ export default function Header() {
 
   // Get user profile from API (more up-to-date than session)
   const userProfile = userData?.data;
-  // const { data, isSuccess, refetch } = useGetNotifications();
+  const { data, isSuccess, refetch } = useGetNotifications(session!);
   const markAllReadMutation = useMarkAllNotificationsRead();
 
-  // useEffect(() => {
-  //   if (session) {
-  //     refetch();
-  //   }
-  // }, [session, refetch]);
+  useEffect(() => {
+    if (session) {
+      refetch();
+    }
+  }, [session, refetch]);
 
-  // useEffect(() => {
-  //   if (isSuccess && data?.data) {
-  //     const unreadNotifications = data.data.filter((n) => !n.is_read);
-  //     setNotifications(unreadNotifications);
-  //     setNotificationCount(unreadNotifications?.length || 0);
-  //   }
-  // }, [data, isSuccess]);
+  useEffect(() => {
+    if (isSuccess && data) {
+      console.log(data)
+      setNotifications(data.data);
+      setNotificationCount(data.unreadCount || 0);
+    }
+  }, [data, isSuccess]);
 
-  // const handleReadAllNotifications = () => {
-  //   markAllReadMutation.mutate(undefined, {
-  //     onSuccess: () => {
-  //       refetch();
-  //     },
-  //   });
-  // };
+  const handleReadAllNotifications = () => {
+    markAllReadMutation.mutate(undefined, {
+      onSuccess: () => {
+        refetch();
+      },
+    });
+  };
 
   // User section - Icons and User (logged in)
   const UserSectionLoggedIn = (
@@ -109,17 +109,16 @@ export default function Header() {
               <DropdownMenuTrigger asChild>
                 <button className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700">
                   <BellIcon className="relative z-10 h-5 w-5 text-gray-700 dark:text-gray-300" />
-                  {notificationCount > 0 && (
+                  
                     <span className="absolute -right-1 -top-1 z-20 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-medium text-white">
-                      {notificationCount < 9 ? notificationCount : "9+"}
+                      {notificationCount}
                     </span>
-                  )}
                 </button>
               </DropdownMenuTrigger>
-              {/* <NotificationDropdown
+              <NotificationDropdown
                 onReadAll={handleReadAllNotifications}
                 notifications={notifications}
-              /> */}
+              />
             </DropdownMenu>
           </div>
         </PopoverContent>
@@ -159,17 +158,15 @@ export default function Header() {
           <DropdownMenuTrigger asChild>
             <button className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700">
               <BellIcon className="relative z-10 h-5 w-5 text-gray-700 dark:text-gray-300" />
-              {notificationCount > 0 && (
                 <span className="absolute -right-1 -top-1 z-20 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-medium text-white">
-                  {notificationCount < 9 ? notificationCount : "9+"}
+                  {notificationCount}
                 </span>
-              )}
             </button>
           </DropdownMenuTrigger>
-          {/* <NotificationDropdown
+          <NotificationDropdown
             onReadAll={handleReadAllNotifications}
             notifications={notifications}
-          /> */}
+          />
         </DropdownMenu>
       </div>
 

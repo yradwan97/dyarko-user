@@ -34,9 +34,11 @@ export default function PropertyGrid({ properties, viewType }: PropertyGridProps
           .join(", ");
 
         const price = getPropertyPrice(property);
+        const discountedPrice = getPropertyPrice(property, true);
         const period = getPropertyPeriod(property);
         const periodText = period ? ` / ${tPrice(period)}` : "";
         const priceDisplay = price ? `${formatPrice(price, currency, locale)}${periodText}` : t("price-not-available");
+        const discountedPriceDisplay = (property.discount && property.discount > 0 && discountedPrice) ? `${formatPrice(discountedPrice, currency, locale)}${periodText}` : null;
         const otherPrices = getOtherPrices(property, period, currency, locale, tPrice);
 
         return (
@@ -46,6 +48,7 @@ export default function PropertyGrid({ properties, viewType }: PropertyGridProps
               image={getProxiedImageUrl(property.image || property.video)}
               name={property.title || "Property"}
               location={locationStr || t("location-not-specified")}
+              discountedPrice={discountedPriceDisplay!}
               price={priceDisplay}
               badge={property.offerType || undefined}
               isVerified={property.isVerified}

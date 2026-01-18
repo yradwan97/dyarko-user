@@ -31,6 +31,7 @@ export function useGetProperties(params?: Record<string, string>) {
       const response = await axiosClient.get("/properties", { params });
       return response.data;
     },
+    staleTime: 10000
   });
 }
 

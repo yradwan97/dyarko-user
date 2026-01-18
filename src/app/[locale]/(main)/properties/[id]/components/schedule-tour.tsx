@@ -75,7 +75,7 @@ export default function ScheduleTour({
   };
 
   const isDateAvailable = (date: Date) => {
-    if (!availableTimeSlots || availableTimeSlots.length === 0) return false;
+    if (!availableTimeSlots || availableTimeSlots.length === 0) return true;
 
     const checkDate = new Date(date.setHours(0, 0, 0, 0));
 
@@ -258,7 +258,7 @@ export default function ScheduleTour({
               placeholder={t("Comment.placeholder")}
               value={userComment}
               onChange={(e) => setUserComment(e.target.value)}
-              className="min-h-[100px] bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700"
+              className="min-h-25 bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700"
             />
           </div>
 

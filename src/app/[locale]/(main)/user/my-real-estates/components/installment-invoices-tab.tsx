@@ -216,9 +216,9 @@ export default function InstallmentInvoicesTab({
                   )}
 
                   {/* PDF Link for Paid Invoices */}
-                  {invoice.status === "PAID" && invoice.pdf && (
+                  {invoice.status === "PAID" && invoice.userPdf && (
                     <a
-                      href={invoice.pdf}
+                      href={invoice.userPdf}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-center gap-2 w-full mt-4 px-4 py-2 text-sm font-medium text-main-600 dark:text-main-400 hover:text-main-700 dark:hover:text-main-300 border border-main-600 dark:border-main-400 rounded-lg hover:bg-main-50 dark:hover:bg-main-900/20 transition-colors"
