@@ -152,7 +152,7 @@
       "title": "Notifications",
       "no-new": "No New Notifications.",
       "see-all": "See All",
-      "read-all": "Read All"
+      "read-all": "Mark all as read"
     },
     "RentRequest": {
       "title": "Approve Rent Request",
@@ -166,7 +166,7 @@
       "accept": "Accept",
       "deny": "Deny"
     },
-    "read-all": "Read All",
+    "read-all": "Mark all as read",
     "property": "Property",
     "title" : "Notifications",
     "no-notifications": "You have no notifications"
@@ -1296,6 +1296,7 @@
       "errors": {
         "generic": "An error occurred",
         "invalidCredentials": "Invalid email or password",
+        "verificationRequired": "Email verification is required. Please check your email.",
         "serverError": "Server error. Please try again later.",
         "networkError": "Network error. Please check your connection.",
         "unexpected": "An unexpected error occurred"
@@ -1968,6 +1969,11 @@
         "services": "Services",
         "selected-tents": "Selected Tents/Booths",
         "selected-apartments": "Selected Apartments",
+        "admin-comment": "Admin Comment",
+        "file": "File",
+        "view-file": "View File",
+        "end-contract-info": "Termination Information",
+        "start-navigation": "Start Navigation",
         "rent-types": {
           "hourly": "Hourly",
           "daily": "Daily",

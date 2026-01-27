@@ -15,9 +15,7 @@ export function useVideos(params: GetVideosParams = {}) {
   return useQuery({
     queryKey: ["videos", params],
     queryFn: () => getVideos(params),
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    retry: false,
-    gcTime: 0,
+    staleTime: 1000 * 60 * 15, // 15 minutes
   });
 }
 
@@ -26,7 +24,7 @@ export function useVideo(id: string) {
     queryKey: ["video", id],
     queryFn: () => getVideoById(id),
     enabled: !!id,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 30, // 30 minutes
   });
 }
 
@@ -35,7 +33,7 @@ export function useVideoComments(id: string, params: GetCommentsParams = {}) {
     queryKey: ["video-comments", id, params],
     queryFn: () => getVideoComments(id, params),
     enabled: !!id && params.enabled !== false,
-    staleTime: 1000 * 60 * 2, // 2 minutes
+    staleTime: 1000 * 60, // 1 minute
   });
 }
 

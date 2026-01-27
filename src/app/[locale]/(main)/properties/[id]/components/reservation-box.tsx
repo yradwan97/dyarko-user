@@ -8,7 +8,7 @@ import { useMutation } from "@tanstack/react-query";
 import { type Property } from "@/lib/services/api/properties";
 import { createInstallmentRequest } from "@/lib/services/api/installments";
 import { getLocalizedPath, cn } from "@/lib/utils";
-import { getPropertyPrice, getPropertyPeriod, formatPrice, getOtherPrices } from "@/lib/utils/property-pricing";
+import { getPropertyPrice, getPropertyPeriod, formatPrice, getOtherPrices, applyDiscount } from "@/lib/utils/property-pricing";
 import { Button } from "@/components/ui/button";
 import { FileText, MapPin, Phone } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -16,6 +16,7 @@ import ConfirmationDialog from "@/components/dialogs/confirmation-dialog";
 import { toast } from "sonner";
 import Image from "next/image";
 import ScheduleTour from "./schedule-tour";
+import { axiosClient } from "@/lib/services";
 
 interface ReservationBoxProps {
   property: Property;
@@ -66,38 +67,32 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
   const validOwnerImage = isValidImageUrl(property.owner.image) ? property.owner.image : null;
 
   // TODO: Re-enable OTP check when endpoint is ready
-  // useEffect(() => {
-  //   if (session) {
-  //     const isUserConfirmed = async () => {
-  //       try {
-  //         const res = await axiosClient.get("/otp_requests/check");
-
-  //         if (
-  //           res.data.success &&
-  //           res.data.status !== "has_pending_request" &&
-  //           res.data.status !== null
-  //         ) {
-  //           setConfirmedUser(true);
-  //         }
-  //       } catch (e) {
-  //         console.error(e);
-  //       }
-  //     };
-
-  //     isUserConfirmed();
-  //   }
-  // }, [session]);
-
-  // Temporarily set confirmed user to true for all authenticated users
   useEffect(() => {
-    if (session) {
-      setConfirmedUser(true);
+    if (session && session.user.accessToken) {
+      const isUserConfirmed = async () => {
+        try {
+          const res = await axiosClient.get("/requests/otp/check", {
+            headers: {
+              "Auth-Token"  : session.user.accessToken,
+            }
+          });
+
+          if (res.data.status === "success" && res.data.data === null) {
+            setConfirmedUser(true);
+          } else {
+            setConfirmedUser(false);
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      };
+
+      isUserConfirmed();
     }
   }, [session]);
 
   const price = getPropertyPrice(property);
-  const period = getPropertyPeriod(property);
-  const otherPrices = getOtherPrices(property, period, currency, locale, tPrice);
+  const hasDiscount = property.discount > 0 && (new Date(property.discountStartDate!).getTime() > Date.now() && new Date(property.discountEndDate!).getTime() < Date.now());
 
   const decideSubmitButtonLinkHref = () => {
     if (property.offerType === "rent") {
@@ -265,31 +260,56 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
                 {property.dailyPrice && (
                   <div className={cn("flex items-center justify-between", locale === "ar" && "flex-row-reverse")}>
                     <span className="text-gray-500 text-sm">{tPrice("day")}</span>
-                    <span className="text-main-600 font-bold">{formatPrice(property.dailyPrice, currency, locale)}</span>
+                    {hasDiscount ? (<div className="flex items-center gap-2">  
+                      <span className="text-main-600 font-bold">{formatPrice(applyDiscount(property.dailyPrice, property.discount), currency, locale)}</span>
+                      <span className="text-main-400 font-semibold line-through">{formatPrice(property.dailyPrice, currency, locale)}</span>
+                    </div>) :(
+                      <span className="text-main-600 font-bold">{formatPrice(property.dailyPrice, currency, locale)}</span>
+                    )}
                   </div>
                 )}
                 {property.weeklyPrice && (
                   <div className={cn("flex items-center justify-between", locale === "ar" && "flex-row-reverse")}>
                     <span className="text-gray-500 text-sm">{tPrice("week")}</span>
-                    <span className="text-main-600 font-bold">{formatPrice(property.weeklyPrice, currency, locale)}</span>
+                    {hasDiscount ? (<div className="flex items-center gap-2">  
+                      <span className="text-main-600 font-bold">{formatPrice(applyDiscount(property.weeklyPrice, property.discount), currency, locale)}</span>
+                      <span className="text-main-400 font-semibold line-through">{formatPrice(property.weeklyPrice, currency, locale)}</span>
+                    </div>) :(
+                      <span className="text-main-600 font-bold">{formatPrice(property.weeklyPrice, currency, locale)}</span>
+                    )}
                   </div>
                 )}
                 {property.monthlyPrice && (
                   <div className={cn("flex items-center justify-between", locale === "ar" && "flex-row-reverse")}>
                     <span className="text-gray-500 text-sm">{tPrice("month")}</span>
-                    <span className="text-main-600 font-bold">{formatPrice(property.monthlyPrice, currency, locale)}</span>
+                    {hasDiscount ? (<div className="flex items-center gap-2">  
+                      <span className="text-main-600 font-bold">{formatPrice(applyDiscount(property.monthlyPrice, property.discount), currency, locale)}</span>
+                      <span className="text-main-400 font-semibold line-through">{formatPrice(property.monthlyPrice, currency, locale)}</span>
+                    </div>) :(
+                      <span className="text-main-600 font-bold">{formatPrice(property.monthlyPrice, currency, locale)}</span>
+                    )}
                   </div>
                 )}
                 {property.weekdaysPrice && (
                   <div className={cn("flex items-center justify-between", locale === "ar" && "flex-row-reverse")}>
                     <span className="text-gray-500 text-sm">{tPrice("weekdays")}</span>
-                    <span className="text-main-600 font-bold">{formatPrice(property.weekdaysPrice, currency, locale)}</span>
+                    {hasDiscount ? (<div className="flex items-center gap-2">  
+                      <span className="text-main-600 font-bold">{formatPrice(applyDiscount(property.weekdaysPrice, property.discount), currency, locale)}</span>
+                      <span className="text-main-400 font-semibold line-through">{formatPrice(property.weekdaysPrice, currency, locale)}</span>
+                    </div>) :(
+                      <span className="text-main-600 font-bold">{formatPrice(property.weekdaysPrice, currency, locale)}</span>
+                    )}
                   </div>
                 )}
                 {property.holidaysPrice && (
                   <div className={cn("flex items-center justify-between", locale === "ar" && "flex-row-reverse")}>
                     <span className="text-gray-500 text-sm">{tPrice("holidays")}</span>
-                    <span className="text-main-600 font-bold">{formatPrice(property.holidaysPrice, currency, locale)}</span>
+                    {hasDiscount ? (<div className="flex items-center gap-2">  
+                      <span className="text-main-600 font-bold">{formatPrice(applyDiscount(property.holidaysPrice, property.discount), currency, locale)}</span>
+                      <span className="text-main-400 font-semibold line-through">{formatPrice(property.holidaysPrice, currency, locale)}</span>
+                    </div>) :(
+                      <span className="text-main-600 font-bold">{formatPrice(property.holidaysPrice, currency, locale)}</span>
+                    )}
                   </div>
                 )}
               </div>

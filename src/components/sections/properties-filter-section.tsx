@@ -146,7 +146,7 @@ export default function PropertiesFilterSection() {
         {propertiesLoading ? (
           <div className="flex gap-4 overflow-hidden">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="min-w-[280px] shrink-0">
+              <div key={i} className="min-w-70 shrink-0">
                 <Skeleton className="h-44 w-full rounded-t-lg" />
                 <div className="p-4 space-y-2">
                   <Skeleton className="h-4 w-3/4" />

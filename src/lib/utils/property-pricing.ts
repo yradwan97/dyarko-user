@@ -31,6 +31,14 @@ export const getPropertyPeriod = (property: Property): string | null => {
   return null;
 };
 
+export const applyDiscount = (price: number, discount: number): number => {
+  if (discount <= 0) {
+    return price;
+  }
+  const discountFraction = 1 - discount / 100;
+  return price * discountFraction;
+}
+
 /**
  * Get the price for a property
  * @param property - The property object

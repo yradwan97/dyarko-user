@@ -1288,6 +1288,7 @@
       "errors": {
         "generic": "حدث خطأ",
         "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+        "verificationRequired": "التحقق من البريد الإلكتروني مطلوب. يرجى التحقق من بريدك الإلكتروني.",
         "serverError": "خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقاً.",
         "networkError": "خطأ في الشبكة. يرجى التحقق من اتصالك.",
         "unexpected": "حدث خطأ غير متوقع"
@@ -2019,6 +2020,11 @@
         "services": "الخدمات",
         "selected-tents": "الخيام/الأكشاك المختارة",
         "selected-apartments": "الشقق المختارة",
+        "admin-comment": "تعليق الإدارة",
+        "file": "الملف",
+        "view-file": "عرض الملف",
+        "end-contract-info": "معلومات إنهاء العقد",
+        "start-navigation": "بدء الملاحة",
         "rent-types": {
           "hourly": "ساعي",
           "daily": "يومي",

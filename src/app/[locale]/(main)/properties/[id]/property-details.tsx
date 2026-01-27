@@ -132,7 +132,7 @@ export default function PropertyDetails({ id }: PropertyDetailsProps) {
   // Get price information
   const price = getPropertyPrice(property);
   const period = getPropertyPeriod(property);
-  const hasDiscount = property.discount > 0;
+  const hasDiscount = property.discount > 0 && (new Date(property.discountStartDate!).getTime() > Date.now() && new Date(property.discountEndDate!).getTime() < Date.now());
   const originalPrice = hasDiscount && price ? price + property.discount : null;
 
   // Check if property is booth or camp category
@@ -201,7 +201,7 @@ export default function PropertyDetails({ id }: PropertyDetailsProps) {
                   onClick={() => {
                     document.getElementById("map-location")?.scrollIntoView({ behavior: "smooth" });
                   }}
-                  className="mt-2 text-main-600 hover:text-main-700 font-medium underline text-sm"
+                  className="mt-2 text-main-600 hover:text-main-700 font-medium underline text-sm cursor-pointer"
                 >
                   {property.city}, {property.region}, {property.country}
                 </button>

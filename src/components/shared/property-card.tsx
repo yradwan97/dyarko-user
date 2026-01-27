@@ -147,44 +147,47 @@ export default function PropertyCard({
 
   // Price component with optional HoverCard for other prices
   const PriceDisplay = ({ className }: { className?: string }) => {
-    if (otherPrices.length > 0) {
-      return (
-        <HoverCard openDelay={200} closeDelay={100}>
-          <HoverCardTrigger asChild>
-            <span className={cn("text-base font-bold text-main-600 dark:text-main-400 cursor-pointer hover:underline underline-offset-2", className)}>
-              {price}
-            </span>
-          </HoverCardTrigger>
-          <HoverCardContent
-            className={cn("w-auto min-w-35 p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700", isRTL && "text-right")}
-            align={isRTL ? "end" : "start"}
-            side="top"
-            sideOffset={8}
-          >
-            <ul className="space-y-1.5">
-              {otherPrices.map((otherPrice, index) => (
-                <li
-                  key={index}
-                  className={cn(
-                    "flex items-center justify-between gap-4 text-sm",
-                    isRTL && "flex-row-reverse"
-                  )}
-                >
-                  <span className="text-gray-600 dark:text-gray-400">{otherPrice.period}</span>
-                  <span className="font-semibold text-main-500 dark:text-main-400">{otherPrice.price}</span>
-                </li>
-              ))}
-            </ul>
-          </HoverCardContent>
-        </HoverCard>
-      );
-    }
-    return <span className={cn("text-base font-bold text-main-600 dark:text-main-400", className)}>{discountedPrice ? discountedPrice : price}</span>;
+    return (
+      <HoverCard openDelay={200} closeDelay={100}>
+        <HoverCardTrigger asChild>
+          <span className={cn("inline-flex items-center gap-2", className)}>
+          <span className="text-base font-bold text-main-600 dark:text-main-400">
+            {!!discountedPrice ? discountedPrice : price}
+          </span>
+          {discountedPrice && (
+            <span className="text-sm text-gray-400 line-through">{price}</span>
+          )}
+        </span>
+        </HoverCardTrigger>
+        <HoverCardContent
+          className={cn("w-auto min-w-35 p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700", isRTL && "text-right")}
+          align={isRTL ? "end" : "start"}
+          side="top"
+          sideOffset={8}
+          hidden={otherPrices.length === 0}
+        >
+          <ul className="space-y-1.5">
+            {(otherPrices || []).map((otherPrice, index) => (
+              <li
+                key={index}
+                className={cn(
+                  "flex items-center justify-between gap-4 text-sm",
+                  isRTL && "flex-row-reverse"
+                )}
+              >
+                <span className="text-gray-600 dark:text-gray-400">{otherPrice.period}</span>
+                <span className="font-semibold text-main-500 dark:text-main-400">{otherPrice.price}</span>
+              </li>
+            ))}
+          </ul>
+        </HoverCardContent>
+      </HoverCard>
+    )
   };
 
   if (variant === "featured") {
     return (
-      <Card className="group min-w-55 shrink-0 overflow-hidden border-0 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] dark:bg-gray-800 dark:shadow-[0_2px_8px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_8px_16px_rgba(0,0,0,0.3)] p-0 rounded-xl">
+      <Card className="group min-w-55 shrink-0 overflow-hidden border-0 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] dark:bg-gray-800 dark:shadow-[0_2px_8px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_8px_16px_rgba(0,0,0,0.3)] p-0 rounded-xl max-h-75">
         <div className="relative h-44 w-full overflow-hidden bg-linear-to-br from-gray-50 to-gray-100 rounded-t-xl">
           <Image
             src={imageSrc}
@@ -286,9 +289,7 @@ export default function PropertyCard({
           <div className={cn("flex items-center justify-between gap-2", isRTL && "flex-row-reverse")}>
             <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
               <PriceDisplay />
-              {discountedPrice  && (
-                <span className="text-sm text-gray-400 line-through">{price}</span>
-              )}
+
             </div>
             {propertyType && (
               <Badge className="rounded-md border-0 bg-main-600 px-3 py-1 text-sm font-medium text-white hover:bg-main-600 capitalize">

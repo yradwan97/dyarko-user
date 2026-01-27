@@ -1,4 +1,4 @@
-import NextAuth, { NextAuthConfig } from "next-auth";
+import NextAuth, { CredentialsSignin, NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { noAuthAxios } from "./services/axios-client";
 
@@ -21,7 +21,9 @@ export const authOptions: NextAuthConfig = {
             role: credentials?.role || "user",
           });
 
-          console.log(response)
+          console.log("Response from authorize", response)
+
+          if (response?.data?.message === "Verification Required") throw new Error("VERIFICATION_REQURED");
 
           if (response.status === 200 && response.data) {
             // NextAuth v5 requires a properly structured user object with an 'id' field
@@ -60,7 +62,7 @@ export const authOptions: NextAuthConfig = {
           console.error("❌ SERVER: Error data:", error.response?.data);
           console.error("❌ SERVER: Request URL:", error.config?.baseURL + error.config?.url);
           if (error.response?.status === 401) return null;
-          if (error.response?.status === 403) throw new Error("USER_BLOCKED");
+          if (error.response?.data?.message === "Verification Required") throw new CredentialsSignin("VERIFICATION_REQURED");
           throw new Error(error.response?.data?.code || "LOGIN_FAILED");
         }
       }

@@ -136,7 +136,11 @@ export interface Rent {
   lastPaidAt?: string;
   tents?: number[];
   apartments?: string[];
-  __v?: number;
+  endContract: {
+    _id: string
+    reason: string
+    file: string
+  }
 }
 
 export interface RentsResponse {

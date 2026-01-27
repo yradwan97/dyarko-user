@@ -52,17 +52,17 @@ export default function NotificationsPage() {
     return (
         <div className="max-w-4xl mx-auto p-6">
             <div className="flex justify-between items-center mb-6">
-                <Button onClick={handleReadAll} className="text-md font-medium hover:cursor-pointer bg-main-600 text-white">
-                    {t("read-all")}
-                </Button>
+                <div className="w-1/3">
+                    <Button onClick={handleReadAll} className="text-md font-medium cursor-pointer bg-white text-main-600">
+                        {t("read-all")}
+                    </Button>
+                </div>
 
                 <Typography as="h1" variant="h2" className="text-center">
                     {t("title")}
                 </Typography>
 
-                <div className="w-auto"></div>
-
-
+                <div className="w-1/3"></div>
             </div>
             <div className="space-y-4">
                 {notifications.length === 0 && (
@@ -75,8 +75,8 @@ export default function NotificationsPage() {
                     <div
                         key={n._id}
                         onClick={() => markNotificationRead.mutate(n._id)}
-                        className={`relative flex items-center gap-4 p-4 rounded-lg border shadow-sm transition-colors hover:cursor-pointer duration-150
-                            ${n.isRead ? "border-gray-200 bg-white" : "bg-gray-300 hover:bg-gray-100"}
+                        className={`relative flex items-center gap-4 p-4 rounded-lg border-0 shadow-sm transition-colors hover:cursor-pointer duration-150
+                            ${n.isRead ? "border-gray-200 bg-white" : "bg-main-200 hover:bg-main-100"}
                         `}
                     >
                         {/* Icon / Type */}
@@ -96,18 +96,18 @@ export default function NotificationsPage() {
                         {/* Notification content */}
                         <div className="flex-1 space-y-1">
                             {/* Title */}
-                            <Typography as="h2" variant="body-sm-bold" className="text-gray-900">
+                            <Typography as="h2" variant="body-sm-bold" className="text-main-600 capitalize">
                                 {locale === "en" ? n.titleEn : n.titleAr}
                             </Typography>
 
                             {/* Body */}
-                            <Typography as="p" variant="body-xs-medium" className="text-gray-600">
+                            <Typography as="p" variant="body-xs-medium" className="text-main-600">
                                 {locale === "en" ? n.bodyEn : n.bodyAr}
                             </Typography>
 
                             {/* Property info */}
                             {n.property && (
-                                <Typography as="p" variant="body-xs-medium" className="text-gray-400">
+                                <Typography as="p" variant="body-xs-medium" className="text-gray-500">
                                     {t("property")}: {n.property.code} - {n.property.title}
                                 </Typography>
                             )}

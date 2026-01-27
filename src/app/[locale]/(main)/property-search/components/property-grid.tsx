@@ -38,7 +38,15 @@ export default function PropertyGrid({ properties, viewType }: PropertyGridProps
         const period = getPropertyPeriod(property);
         const periodText = period ? ` / ${tPrice(period)}` : "";
         const priceDisplay = price ? `${formatPrice(price, currency, locale)}${periodText}` : t("price-not-available");
-        const discountedPriceDisplay = (property.discount && property.discount > 0 && discountedPrice) ? `${formatPrice(discountedPrice, currency, locale)}${periodText}` : null;
+        const discountedPriceDisplay = 
+          (
+            property.discount && 
+            property.discount > 0 && 
+            discountedPrice && 
+            new Date(property.discountStartDate!) > new Date() && 
+            new Date(property.discountEndDate!) < new Date()
+          ) ? `${formatPrice(discountedPrice, currency, locale)}${periodText}` 
+          : null;
         const otherPrices = getOtherPrices(property, period, currency, locale, tPrice);
 
         return (

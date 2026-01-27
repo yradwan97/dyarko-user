@@ -95,14 +95,14 @@ export default function NotificationDropdown({
         <div className="flex flex-row justify-evenly">
           <Button
             to={getLocalizedPath("/notifications", locale)}
-            className="block text-center text-sm font-bold text-white"
+            className="block text-center text-sm font-bold bg-white text-main-600"
             onClick={goToNotifications}
           >
             {t("see-all")}
           </Button>
           {notifications.length > 0 && (
             <Button
-              className="block hover:cursor-pointer text-center text-sm font-bold text-white"
+              className="block hover:cursor-pointer text-center text-sm font-bold bg-white text-main-600"
               onClick={onReadAll}
             >
               {t("read-all")}

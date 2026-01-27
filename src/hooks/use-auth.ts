@@ -86,11 +86,11 @@ export function useLogin(redirectPath?: string | null) {
         };
       }
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       // Check if there was actually an error
       if (data.hasError || data.error) {
         console.log("🔴 CLIENT: Login failed - error present:", data.error);
-        toast.error(t("errors.invalidCredentials"), {
+        toast.error(data.code === "credentials" ? t("errors.verificationRequired") : t("errors.invalidCredentials"), {
           duration: 5000,
           position: "top-center",
           style: {

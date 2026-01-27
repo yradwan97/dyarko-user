@@ -27,6 +27,8 @@ import {
   Hotel,
   MessageSquare,
   Paperclip,
+  PaperclipIcon,
+  Navigation,
 } from "lucide-react";
 import {
   Dialog,
@@ -58,6 +60,8 @@ import DisclaimerRequestDialog from "./disclaimer-request-dialog";
 import RequestServicesDialog from "./request-services-dialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { FaComment } from "react-icons/fa";
+import { Paper } from "@mui/material";
 
 interface RentDetailsModalProps {
   rentId: string | null;
@@ -255,6 +259,12 @@ export default function RentDetailsModal({
     }
   };
 
+  const handleStartNavigation = () => {
+    if (!rent || !rent.lat || !rent.long) return;
+    const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${rent?.lat},${rent?.long}`;
+    window.open(googleMapsUrl, "_blank");
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto p-0 bg-white dark:bg-gray-950">
@@ -262,7 +272,7 @@ export default function RentDetailsModal({
           "w-full px-6 pt-6 pb-4 sticky top-0 inset-x-0 bg-white dark:bg-gray-950 z-10 border-b border-gray-200 dark:border-gray-800",
           isRTL && "text-right"
         )}>
-          <div className={cn("flex items-start justify-between gap-4", )}>
+          <div className={cn("flex items-start justify-between gap-4",)}>
             <div className={cn("flex-1 min-w-0", isRTL && "text-right")}>
               <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white truncate">
                 {isLoading ? t("loading") : rent ? rent.property.title : t("title")}
@@ -389,329 +399,389 @@ export default function RentDetailsModal({
             </TabsList>
 
             <TabsContent value="details" className="space-y-6 mt-0">
-            {/* Property Image */}
-            {rent.property.image && (
-              <div className="relative h-48 w-full rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-800">
-                <Image
-                  src={rent.property.image}
-                  alt={rent.property.title}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            )}
-
-            {/* Property Details */}
-            <div className="space-y-3">
-              <h3 className={cn("text-base font-semibold text-gray-900 dark:text-white", isRTL && "text-right")}>
-                {t("property-details")}
-              </h3>
-              <div className="grid grid-cols-2 gap-3">
-                <div className={cn("flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg", isRTL && "flex-row-reverse text-right")}>
-                  <MapPin className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                      {t("location")}
-                    </p>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white capitalize">
-                      {rent.property.city}, {rent.property.country}
-                    </p>
-                  </div>
+              {/* Property Image */}
+              {rent.property.image && (
+                <div className="relative h-48 w-full rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-800">
+                  <Image
+                    src={rent.property.image}
+                    alt={rent.property.title}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
+              )}
 
-                <div className={cn("flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg", isRTL && "flex-row-reverse text-right")}>
-                  <Building2 className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                      {t("category")}
-                    </p>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white capitalize">
-                      {tCategories(rent.property.category)}
-                    </p>
-                  </div>
-                </div>
-
-                {rent.property.type && (
-                  <div className={cn("flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg col-span-2", isRTL && "flex-row-reverse text-right")}>
-                    <Home className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
+              {/* Property Details */}
+              <div className="space-y-3">
+                <h3 className={cn("text-base font-semibold text-gray-900 dark:text-white", isRTL && "text-right")}>
+                  {t("property-details")}
+                </h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className={cn("flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg", isRTL && "flex-row-reverse text-right")}>
+                    <MapPin className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
                     <div className="min-w-0 flex-1">
                       <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                        {t("type")}
+                        {t("location")}
                       </p>
                       <p className="text-sm font-medium text-gray-900 dark:text-white capitalize">
-                        {rent.property.type}
+                        {rent.property.city}, {rent.property.country}
                       </p>
                     </div>
                   </div>
-                )}
-              </div>
-            </div>
 
-            {/* Rental Period */}
-            <div className="space-y-3">
-              <h3 className={cn("text-base font-semibold text-gray-900 dark:text-white", isRTL && "text-right")}>
-                {t("rental-period")}
-              </h3>
-              <div className="grid grid-cols-2 gap-3">
-                <div className={cn("flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg", isRTL && "flex-row-reverse text-right")}>
-                  <Calendar className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                      {t("start-date")}
-                    </p>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      {formatDate(rent.startDate)}
-                    </p>
-                  </div>
-                </div>
-
-                <div className={cn("flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg", isRTL && "flex-row-reverse text-right")}>
-                  <Calendar className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                      {t("end-date")}
-                    </p>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      {formatDate(rent.endDate)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Rental Information */}
-            <div className="space-y-3">
-              <h3 className={cn("text-base font-semibold text-gray-900 dark:text-white", isRTL && "text-right")}>
-                {t("rental-info")}
-              </h3>
-              <div className="grid grid-cols-2 gap-3">
-                {rent.amount && (
                   <div className={cn("flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg", isRTL && "flex-row-reverse text-right")}>
-                    <DollarSign className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
+                    <Building2 className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
                     <div className="min-w-0 flex-1">
                       <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                        {t("amount")}
-                      </p>
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
-                        {rent.amount} {currency}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {rent.rentType && (
-                  <div className={cn("flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg", isRTL && "flex-row-reverse text-right")}>
-                    <Clock className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                        {t("rent-type")}
+                        {t("category")}
                       </p>
                       <p className="text-sm font-medium text-gray-900 dark:text-white capitalize">
-                        {t(`rent-types.${rent.rentType.toLowerCase()}`)}
+                        {tCategories(rent.property.category)}
                       </p>
                     </div>
                   </div>
-                )}
 
-                {rent.lastPaidAt && (
-                  <div className={cn("flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg col-span-2", isRTL && "flex-row-reverse text-right")}>
+                  {rent.property.type && (
+                    <div className={cn("flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg col-span-2", isRTL && "flex-row-reverse text-right")}>
+                      <Home className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                          {t("type")}
+                        </p>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white capitalize">
+                          {rent.property.type}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Rental Period */}
+              <div className="space-y-3">
+                <h3 className={cn("text-base font-semibold text-gray-900 dark:text-white", isRTL && "text-right")}>
+                  {t("rental-period")}
+                </h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className={cn("flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg", isRTL && "flex-row-reverse text-right")}>
                     <Calendar className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
                     <div className="min-w-0 flex-1">
                       <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                        {t("last-paid")}
+                        {t("start-date")}
                       </p>
                       <p className="text-sm font-medium text-gray-900 dark:text-white">
-                        {formatDate(rent.lastPaidAt)}
+                        {formatDate(rent.startDate)}
                       </p>
                     </div>
                   </div>
-                )}
-              </div>
-            </div>
 
-            {/* Owner Information */}
-            {rent.owner && (
-              <div className="space-y-3">
-                <h3 className={cn("text-base font-semibold text-gray-900 dark:text-white", isRTL && "text-right")}>
-                  {t("owner-info")}
-                </h3>
-                <div className={cn(
-                  "flex items-center gap-4 p-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg"
-                )}>
-                  {/* Owner Image */}
-                  <div className={cn(
-                    "relative h-16 w-16 shrink-0 rounded-full overflow-hidden bg-main-100 dark:bg-main-900",
-                    isRTL && "order-first"
-                  )}>
-                    {rent.owner.image ? (
-                      <Image
-                        src={rent.owner.image}
-                        alt={rent.owner.name}
-                        fill
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center h-full w-full">
-                        <span className="text-xl font-semibold text-main-600 dark:text-main-400">
-                          {rent.owner.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .slice(0, 2)
-                            .join("")
-                            .toUpperCase()}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  {/* Owner Details */}
-                  <div className={cn("flex-1 min-w-0", isRTL && "order-first text-right")}>
-                    <p className="text-base font-semibold text-gray-900 dark:text-white truncate">
-                      {rent.owner.name}
-                    </p>
-                    {rent.owner.phoneNumber && (
-                      <div className={cn(
-                        "flex items-center gap-2 mt-1 text-gray-600 dark:text-gray-400",
-                        isRTL && " justify-start"
-                      )}>
-                        <Phone className="h-4 w-4 shrink-0" />
-                        <a href={`tel:${rent.owner.phoneNumber}`} className="text-sm hover:underline" dir="ltr">{rent.owner.phoneNumber}</a>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Services */}
-            {rent.services && rent.services.length > 0 && (
-              <div className="space-y-3">
-                <h3 className={cn("text-base font-semibold text-gray-900 dark:text-white", isRTL && "text-right")}>
-                  {t("services")}
-                </h3>
-                <div className="space-y-2">
-                  {rent.services.map((service) => (
-                    <div
-                      key={service._id}
-                      className={cn("flex items-center justify-between p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg", isRTL && "flex-row-reverse")}
-                    >
-                      <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
-                        <Wrench className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                        <span className="text-sm font-medium capitalize text-gray-900 dark:text-white">
-                          {service.name}
-                        </span>
-                      </div>
-                      <span className="text-sm font-medium text-main-600 dark:text-main-400">
-                        {service.amount} {currency}
-                      </span>
+                  <div className={cn("flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg", isRTL && "flex-row-reverse text-right")}>
+                    <Calendar className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                        {t("end-date")}
+                      </p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        {formatDate(rent.endDate)}
+                      </p>
                     </div>
-                  ))}
+                  </div>
                 </div>
               </div>
-            )}
 
-            {/* Selected Tents/Booths (for camp/booth categories) */}
-            {((rent.tents && rent.tents.length > 0) || (rent.apartments && rent.apartments.length > 0)) && rent.property.groups && (
+              {/* Rental Information */}
               <div className="space-y-3">
                 <h3 className={cn("text-base font-semibold text-gray-900 dark:text-white", isRTL && "text-right")}>
-                  {rent.property.category === "hotelApartment" ? t("selected-apartments") : t("selected-tents")}
+                  {t("rental-info")}
                 </h3>
-                <div className="space-y-2">
-                  {(() => {
-                    const selectedIds = (rent.tents && rent.tents.length > 0) ? rent.tents : (rent.apartments || []);
-                    const matchedGroups = rent.property.groups
-                      .filter((group) =>
-                        group.ids.some((id) => selectedIds.includes(id as never))
-                      )
-                      .map((group) => ({
-                        ...group,
-                        selectedCount: group.ids.filter((id) => selectedIds.includes(id as never)).length,
-                      }));
-
-                    return matchedGroups.map((group) => (
-                      <div
-                        key={group._id}
-                        className={cn("p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg", isRTL && "text-right")}
-                      >
-                        <div className={cn("flex items-center justify-between mb-2", isRTL && "flex-row-reverse")}>
-                          <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
-                            <div
-                              className="w-3 h-3 rounded-full"
-                              style={{ backgroundColor: group.color }}
-                            />
-                            <span className="text-sm font-medium text-gray-900 dark:text-white">
-                              {group.name}
-                            </span>
-                            <span className="text-xs text-gray-500 dark:text-gray-400">
-                              (x{group.selectedCount})
-                            </span>
-                          </div>
-                          <span className="text-sm font-medium text-main-600 dark:text-main-400">
-                            {group.price} {currency}
-                          </span>
-                        </div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {group.description} • {group.area} m²
+                <div className="grid grid-cols-2 gap-3">
+                  {rent.amount && (
+                    <div className={cn("flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg", isRTL && "flex-row-reverse text-right")}>
+                      <DollarSign className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                          {t("amount")}
+                        </p>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          {rent.amount} {currency}
                         </p>
                       </div>
-                    ));
-                  })()}
+                    </div>
+                  )}
+
+                  {rent.rentType && (
+                    <div className={cn("flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg", isRTL && "flex-row-reverse text-right")}>
+                      <Clock className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                          {t("rent-type")}
+                        </p>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white capitalize">
+                          {t(`rent-types.${rent.rentType.toLowerCase()}`)}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {rent.lastPaidAt && (
+                    <div className={cn("flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg col-span-2", isRTL && "flex-row-reverse text-right")}>
+                      <Calendar className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                          {t("last-paid")}
+                        </p>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          {formatDate(rent.lastPaidAt)}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
-            )}
 
-            {/* Selected Apartments (for hotelApartment category with property.apartments) */}
-            {rent.apartments && rent.apartments.length > 0 && rent.property.apartments && !rent.property.groups && (
-              <div className="space-y-3">
-                <h3 className={cn("text-base font-semibold text-gray-900 dark:text-white", isRTL && "text-right")}>
-                  {t("selected-apartments")}
+              {rent.status === "TERMINATED" && <div className="space-y-3">
+                <h3 className={cn("text-base font-semibold text-secondary-500 dark:text-white", isRTL && "text-right")}>
+                  {t("end-contract-info")}
                 </h3>
-                <div className="space-y-2">
-                  {rent.property.apartments
-                    .filter((apt) => rent.apartments!.includes(apt._id))
-                    .map((apartment) => (
-                      <div
-                        key={apartment._id}
-                        className={cn("p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg", isRTL && "text-right")}
-                      >
-                        <div className={cn("flex items-center justify-between mb-1", isRTL && "flex-row-reverse")}>
-                          <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
-                            <Hotel className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                            <span className="text-sm font-medium text-gray-900 dark:text-white">
-                              {apartment.name}
-                            </span>
-                          </div>
-                          <span className="text-sm font-medium text-main-600 dark:text-main-400">
-                            {apartment.price} {currency}
+                <div className="grid grid-cols-2 gap-3">
+                  {rent.endContract.reason && (
+                    <div className={cn("flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg", isRTL && "flex-row-reverse text-right")}>
+                      <FaComment className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                          {t("admin-comment")}
+                        </p>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          {rent.endContract.reason}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {rent.endContract.file && (
+                    <div className={cn("flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg", isRTL && "flex-row-reverse text-right")}>
+                      <PaperclipIcon className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                          {t("file")}
+                        </p>
+                        <a
+                          href={rent.endContract.file}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-main-600 hover:underline text-sm"
+                        >
+                          <FileText className="h-4 w-4 stroke-red-600" />
+                          {t("view-file")}
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>}
+
+              {/* Owner Information */}
+              {rent.owner && (
+                <div className="space-y-3">
+                  <h3 className={cn("text-base font-semibold text-gray-900 dark:text-white", isRTL && "text-right")}>
+                    {t("owner-info")}
+                  </h3>
+                  <div className={cn(
+                    "flex items-center gap-4 p-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg"
+                  )}>
+                    {/* Owner Image */}
+                    <div className={cn(
+                      "relative h-16 w-16 shrink-0 rounded-full overflow-hidden bg-main-100 dark:bg-main-900",
+                      isRTL && "order-first"
+                    )}>
+                      {rent.owner.image ? (
+                        <Image
+                          src={rent.owner.image}
+                          alt={rent.owner.name}
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center h-full w-full">
+                          <span className="text-xl font-semibold text-main-600 dark:text-main-400">
+                            {rent.owner.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .slice(0, 2)
+                              .join("")
+                              .toUpperCase()}
                           </span>
                         </div>
-                        {(apartment.description || apartment.area) && (
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {apartment.description}{apartment.description && apartment.area ? " • " : ""}{apartment.area ? `${apartment.area} m²` : ""}
-                          </p>
+                      )}
+                    </div>
+
+
+                    {/* Owner Details */}
+                    <div className={cn("flex-1 min-w-0", isRTL && "order-first text-right")}>
+
+                      <Link
+                        href={`/${locale}/companies/${rent.owner._id}`}
+                        className={cn(
+                          "text-sm text-main-600 hover:text-main-700 dark:text-main-400 dark:hover:text-main-300 mt-1 inline-flex items-center gap-1 hover:underline",
+                          isRTL && "flex-row-reverse"
                         )}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <p className="text-base font-semibold text-gray-900 dark:text-white truncate">
+                          {rent.owner.name}
+                        </p>
+                      </Link>
+                      {rent.owner.phoneNumber && (
+                        <div className={cn(
+                          "flex items-center gap-2 mt-1 text-gray-600 dark:text-gray-400",
+                          isRTL && " justify-start"
+                        )}>
+                          <Phone className="h-4 w-4 shrink-0" />
+                          <a href={`tel:${rent.owner.phoneNumber}`} className="text-sm hover:underline" dir="ltr">{rent.owner.phoneNumber}</a>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Services */}
+              {rent.services && rent.services.length > 0 && (
+                <div className="space-y-3">
+                  <h3 className={cn("text-base font-semibold text-gray-900 dark:text-white", isRTL && "text-right")}>
+                    {t("services")}
+                  </h3>
+                  <div className="space-y-2">
+                    {rent.services.map((service) => (
+                      <div
+                        key={service._id}
+                        className={cn("flex items-center justify-between p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg", isRTL && "flex-row-reverse")}
+                      >
+                        <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                          <Wrench className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                          <span className="text-sm font-medium capitalize text-gray-900 dark:text-white">
+                            {service.name}
+                          </span>
+                        </div>
+                        <span className="text-sm font-medium text-main-600 dark:text-main-400">
+                          {service.amount} {currency}
+                        </span>
                       </div>
                     ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Pickup Location - Movable Campers Only */}
-            {rent.property.category === "camper" &&
-             rent.property.type === "movable" &&
-             rent.lat &&
-             rent.long && (
-              <div className="space-y-3">
-                <h3 className={cn("text-base font-semibold text-gray-900 dark:text-white", isRTL && "text-right")}>
-                  {t("pickup-location")}
-                </h3>
-                <PickupLocationMapView
-                  latitude={Number(rent.lat)}
-                  longitude={Number(rent.long)}
-                  zoom={15}
-                  height="300px"
-                />
-              </div>
-            )}
+              {/* Selected Tents/Booths (for camp/booth categories) */}
+              {((rent.tents && rent.tents.length > 0) || (rent.apartments && rent.apartments.length > 0)) && rent.property.groups && (
+                <div className="space-y-3">
+                  <h3 className={cn("text-base font-semibold text-gray-900 dark:text-white", isRTL && "text-right")}>
+                    {rent.property.category === "hotelApartment" ? t("selected-apartments") : t("selected-tents")}
+                  </h3>
+                  <div className="space-y-2">
+                    {(() => {
+                      const selectedIds = (rent.tents && rent.tents.length > 0) ? rent.tents : (rent.apartments || []);
+                      const matchedGroups = rent.property.groups
+                        .filter((group) =>
+                          group.ids.some((id) => selectedIds.includes(id as never))
+                        )
+                        .map((group) => ({
+                          ...group,
+                          selectedCount: group.ids.filter((id) => selectedIds.includes(id as never)).length,
+                        }));
+
+                      return matchedGroups.map((group) => (
+                        <div
+                          key={group._id}
+                          className={cn("p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg", isRTL && "text-right")}
+                        >
+                          <div className={cn("flex items-center justify-between mb-2", isRTL && "flex-row-reverse")}>
+                            <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                              <div
+                                className="w-3 h-3 rounded-full"
+                                style={{ backgroundColor: group.color }}
+                              />
+                              <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                {group.name}
+                              </span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400">
+                                (x{group.selectedCount})
+                              </span>
+                            </div>
+                            <span className="text-sm font-medium text-main-600 dark:text-main-400">
+                              {group.price} {currency}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {group.description} • {group.area} m²
+                          </p>
+                        </div>
+                      ));
+                    })()}
+                  </div>
+                </div>
+              )}
+
+              {/* Selected Apartments (for hotelApartment category with property.apartments) */}
+              {rent.apartments && rent.apartments.length > 0 && rent.property.apartments && !rent.property.groups && (
+                <div className="space-y-3">
+                  <h3 className={cn("text-base font-semibold text-gray-900 dark:text-white", isRTL && "text-right")}>
+                    {t("selected-apartments")}
+                  </h3>
+                  <div className="space-y-2">
+                    {rent.property.apartments
+                      .filter((apt) => rent.apartments!.includes(apt._id))
+                      .map((apartment) => (
+                        <div
+                          key={apartment._id}
+                          className={cn("p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg", isRTL && "text-right")}
+                        >
+                          <div className={cn("flex items-center justify-between mb-1", isRTL && "flex-row-reverse")}>
+                            <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                              <Hotel className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                              <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                {apartment.name}
+                              </span>
+                            </div>
+                            <span className="text-sm font-medium text-main-600 dark:text-main-400">
+                              {apartment.price} {currency}
+                            </span>
+                          </div>
+                          {(apartment.description || apartment.area) && (
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              {apartment.description}{apartment.description && apartment.area ? " • " : ""}{apartment.area ? `${apartment.area} m²` : ""}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Pickup Location - Movable Campers Only */}
+              {rent.property.category === "camper" &&
+                rent.property.type === "movable" &&
+                rent.lat &&
+                rent.long && (
+                  <div className="space-y-3">
+                    <h3 className={cn("text-base font-semibold text-gray-900 dark:text-white", isRTL && "text-right")}>
+                      {t("pickup-location")}
+                    </h3>
+                    <Button
+          onClick={handleStartNavigation}
+          className="mt-6 bg-main-600 text-white hover:bg-main-500 justify-center gap-2 font-semibold shadow-sm hover:shadow-md transition-all"
+        >
+          <Navigation className="h-4 w-4" />
+          {t("start-navigation")}
+        </Button>
+                    <PickupLocationMapView
+                      latitude={Number(rent.lat)}
+                      longitude={Number(rent.long)}
+                      zoom={15}
+                      height="300px"
+                    />
+                  </div>
+                )}
             </TabsContent>
 
             <TabsContent value="invoices" className="mt-0">
@@ -813,8 +883,8 @@ export default function RentDetailsModal({
                                   claim.status.toLowerCase() === "resolved"
                                     ? "bg-green-500 text-white"
                                     : claim.status.toLowerCase() === "pending"
-                                    ? "bg-yellow-500 text-white"
-                                    : "bg-gray-500 text-white"
+                                      ? "bg-yellow-500 text-white"
+                                      : "bg-gray-500 text-white"
                                 )}
                               >
                                 {t(`claims.status.${claim.status.toLowerCase()}`)}

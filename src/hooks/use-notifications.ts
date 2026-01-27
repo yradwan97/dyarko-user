@@ -10,7 +10,7 @@ export function useGetNotifications(session: Session, page: number = 1) {
   return useQuery<{data: Notification[], pages: number, itemsCount: number, unreadCount: number}>({
     queryKey: ["notifications", page],
     queryFn: async () => {
-      let response = await axiosClient.get(`/notifications?page=${page}&sort=isRead`);
+      let response = await axiosClient.get(`/notifications?page=${page}&sort=1`);
       return response.data.data
     },
     enabled: !!session, // Only fetch when user is logged in

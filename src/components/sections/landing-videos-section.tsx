@@ -35,7 +35,7 @@ export default function LandingVideosSection() {
           <Typography
             variant="h2"
             as="h2"
-            className="text-2xl font-bold leading-[44px] text-black sm:leading-[56px] md:text-4xl"
+            className="text-2xl font-bold leading-11 text-black sm:leading-14 md:text-4xl"
           >
             {t("title")}
           </Typography>
