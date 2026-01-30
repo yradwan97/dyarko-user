@@ -22,6 +22,7 @@ export interface Property {
   slug: string;
   code: string;
   category: string; // "house", "villa", etc.
+  type: string; 
   class: string; // "entertainment", etc.
   offerType: string; // "rent", "sale", etc.
   adType?: string; // "management", "ad", etc.

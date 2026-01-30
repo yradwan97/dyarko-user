@@ -96,7 +96,7 @@ export default function PropertiesFilterSection() {
         <div className="flex flex-col items-center gap-5 lg:flex-row lg:justify-between lg:gap-0">
           <ul className="flex flex-row items-center rounded-lg border-[1.5px] border-main-100 bg-white p-2">
             <li
-              className={`${
+              className={`gap-1 ${
                 activeTab === "rent"
                   ? "stroke-main-600 font-bold text-main-600 shadow-[0_3px_40px_rgba(14,8,84,0.05)]"
                   : "stroke-gray-500 font-medium text-gray-500"
@@ -107,7 +107,7 @@ export default function PropertiesFilterSection() {
               {tGeneral("PaymentMethods.rent")}
             </li>
             <li
-              className={`${
+              className={`gap-1 ${
                 activeTab === "installment"
                   ? "stroke-main-600 font-bold text-main-600 shadow-[0_3px_40px_rgba(14,8,84,0.05)]"
                   : "stroke-gray-500 font-medium text-gray-500"
@@ -136,7 +136,7 @@ export default function PropertiesFilterSection() {
               </SelectContent>
             </Select>
           </div>
-          <Button variant="primary" onClick={handleBrowse} className="block w-full py-2 sm:w-fit">
+          <Button variant="primary" onClick={handleBrowse} className="block w-full py-2 sm:w-fit cursor-pointer hover:bg-white hover:text-main-500">
             {tGeneral("browse")}
           </Button>
         </div>
@@ -188,9 +188,7 @@ export default function PropertiesFilterSection() {
                         price={displayPrice}
                         badge={property.offerType?.toLowerCase()}
                         propertyType={
-                          locale === "ar"
-                            ? tGeneral(`Categories.${property.category}`)
-                            : property.category
+                          property?.category
                         }
                         propertyId={property._id}
                         isVerified={property.isVerified}

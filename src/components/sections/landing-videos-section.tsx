@@ -41,7 +41,7 @@ export default function LandingVideosSection() {
           </Typography>
           <Link
             href={getLocalizedPath("/videos", locale)}
-            className="text-xl font-bold text-main-600"
+            className="text-xl font-bold text-main-600 hover:underline"
           >
             {t("view-all")}
           </Link>

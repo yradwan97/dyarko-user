@@ -110,9 +110,9 @@ export default function Header() {
                 <button className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700">
                   <BellIcon className="relative z-10 h-5 w-5 text-gray-700 dark:text-gray-300" />
                   
-                    <span className="absolute -right-1 -top-1 z-20 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-medium text-white">
+                    {notificationCount > 0 && <span className="absolute -right-1 -top-1 z-20 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-medium text-white">
                       {notificationCount}
-                    </span>
+                    </span>}
                 </button>
               </DropdownMenuTrigger>
               <NotificationDropdown
@@ -158,9 +158,9 @@ export default function Header() {
           <DropdownMenuTrigger asChild>
             <button className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700">
               <BellIcon className="relative z-10 h-5 w-5 text-gray-700 dark:text-gray-300" />
-                <span className="absolute -right-1 -top-1 z-20 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-medium text-white">
+                {notificationCount > 0 && <span className="absolute -right-1 -top-1 z-20 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-medium text-white">
                   {notificationCount}
-                </span>
+                </span>}
             </button>
           </DropdownMenuTrigger>
           <NotificationDropdown

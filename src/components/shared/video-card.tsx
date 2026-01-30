@@ -49,7 +49,7 @@ export default function VideoCard({ video, priority = false }: VideoCardProps) {
   return (
     <Link href={`/${locale}/videos/${video._id}`}>
       <Card className="group overflow-hidden border-0 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] dark:bg-gray-800 dark:shadow-[0_2px_8px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_8px_16px_rgba(0,0,0,0.3)]">
-        <div className="relative aspect-video w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="relative aspect-video w-full overflow-hidden bg-linear-to-br from-gray-50 to-gray-100">
           <Image
             src={video.thumbnail || "/service.png"}
             alt={video.title}
@@ -68,7 +68,7 @@ export default function VideoCard({ video, priority = false }: VideoCardProps) {
           </h3>
 
           {video.expirationDate && (
-            <div className={cn("mb-3 flex items-center gap-1.5", isRTL && "flex-row-reverse")}>
+            <div className={cn("mb-3 flex items-center gap-1.5")}>
               <ClockIcon className={cn(
                 "h-4 w-4",
                 isExpired(video.expirationDate) ? "text-red-500" : "text-main-500 dark:text-main-400"
@@ -78,7 +78,7 @@ export default function VideoCard({ video, priority = false }: VideoCardProps) {
                   {t("expired")}
                 </span>
               ) : (
-                <span className="text-xs font-medium text-main-500 dark:text-main-400">
+                <span className={cn("text-xs font-medium text-main-500 dark:text-main-400")}>
                   {t("expires-at")}: {formatExpiryDate(video.expirationDate)}
                 </span>
               )}

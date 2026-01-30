@@ -77,7 +77,7 @@ function CompaniesContent() {
                 onError={() => setImageError(true)}
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-main-400 to-main-600">
+              <div className="flex h-full w-full items-center justify-center rounded-full bg-linear-to-br from-main-400 to-main-600">
                 <Typography variant="h3" as="span" className="font-bold text-white">
                   {company.owner.name?.charAt(0).toUpperCase() || "?"}
                 </Typography>
@@ -115,8 +115,8 @@ function CompaniesContent() {
           </CarouselItem>
         ))}
       </CarouselContent>
-      <CarouselPrevious className="hidden md:flex -left-2" />
-      <CarouselNext className="hidden md:flex -right-2" />
+      <CarouselPrevious className="hidden md:flex" />
+      <CarouselNext className="hidden md:flex" />
       <CarouselDots className="mt-8" />
     </Carousel>
   );
@@ -133,7 +133,7 @@ export default function FeaturedCompaniesSection() {
             <Typography
               variant="h2"
               as="h2"
-              className="text-2xl font-bold leading-[44px] text-black sm:text-4xl sm:leading-[56px]"
+              className="text-2xl font-bold leading-11 text-black sm:text-4xl sm:leading-14"
             >
               {t("main")}
             </Typography>

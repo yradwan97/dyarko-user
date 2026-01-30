@@ -16,6 +16,7 @@ import { VerifiedCheck } from "@/components/icons/verified-check";
 import { toast } from "sonner";
 import { axiosClient } from "@/lib/services";
 import { getLocalizedPath } from "@/lib/utils";
+import Image from "next/image";
 
 interface SignupSuccessModalProps {
   isOpen: boolean;
@@ -95,7 +96,7 @@ export function SignupSuccessModal({
       <DialogContent showCloseButton={false} className="sm:max-w-md">
         <DialogHeader className="items-center text-center">
           <div className="mx-auto mb-4">
-            <VerifiedCheck size={80} className="text-main-500" />
+            <Image alt="success-check" src="/icons/successIcon.svg" width={80} height={80} className="text-main-500" />
           </div>
           <DialogTitle className="text-xl font-bold text-gray-900">
             {t("title")}
