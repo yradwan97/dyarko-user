@@ -42,6 +42,8 @@ declare module "next-auth" {
     status?: string;
     isConfirmed?: boolean;
     nationalID?: string;
+    level?: string;
+    rentsCount?: number;
     data?: Record<string, unknown>;
   }
 }

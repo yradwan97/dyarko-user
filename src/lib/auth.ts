@@ -134,6 +134,8 @@ export const authOptions: NextAuthConfig = {
           status: userData.status as string,
           isConfirmed: userData.isConfirmed as boolean,
           nationalID: userData.nationalID as string,
+          level: userData.level as string,
+          rentsCount: userData.rentsCount as number,
           // Spread all data from the API response
           ...(userData.data as Record<string, unknown> || {}),
           // Also spread top-level user data for backward compatibility

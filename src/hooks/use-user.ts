@@ -120,6 +120,22 @@ export function useGetTransactions(page: number = 1) {
   });
 }
 
+// Transactions hooks
+export function useGetPoints(page: number = 1) {
+  const { data: session, status } = useSession();
+
+  return useQuery({
+    queryKey: ["points", page],
+    queryFn: async () => {
+      const response = await axiosClient.get(`/points?page=${page}&size=8`);
+
+      return response?.data?.data;
+    },
+    enabled: status === "authenticated" && !!session,
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
 // Requests hooks
 export function useGetRequests(endpoint: string, page: number = 1) {
   const { data: session, status } = useSession();

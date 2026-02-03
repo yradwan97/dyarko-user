@@ -19,6 +19,8 @@ import {
 
 import Typography from "@/components/shared/typography";
 import { cn, getLocalizedPath } from "@/lib/utils";
+import { useLevels } from "@/hooks/use-levels";
+import Image from "next/image";
 
 interface UserSidebarProps {
   currentPath?: string;
@@ -45,6 +47,10 @@ export default function UserSidebar({ currentPath, onNavigate }: UserSidebarProp
     return currentPath.includes(path);
   };
 
+  const { data: levels } = useLevels()
+  const userLevel = levels?.find(level => level._id === session?.user?.level)
+  console.log('User Level:', userLevel);
+
   return (
     <div className="flex h-screen flex-col bg-white lg:rounded-xl lg:border lg:border-main-100 lg:shadow-sm">
       <div className="border-b border-gray-200 p-6">
@@ -55,6 +61,13 @@ export default function UserSidebar({ currentPath, onNavigate }: UserSidebarProp
           <Typography variant="body-sm" as="p" className="mt-1 text-gray-500">
             {session.user.email}
           </Typography>
+        )}
+        {userLevel && (
+          <Link href={getLocalizedPath("/user/levels", locale)}>
+            <Typography variant="body-sm" as="p" className="mt-1 font-semibold hover:underline text-gray-500">
+              {userLevel.title}
+            </Typography>
+          </Link>
         )}
       </div>
 
