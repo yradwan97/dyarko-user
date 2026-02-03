@@ -73,7 +73,7 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
         try {
           const res = await axiosClient.get("/requests/otp/check", {
             headers: {
-              "Auth-Token"  : session.user.accessToken,
+              "Auth-Token": session.user.accessToken,
             }
           });
 
@@ -94,30 +94,23 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
   const price = getPropertyPrice(property);
   const hasDiscount = property.discount > 0 && (new Date(property.discountStartDate!).getTime() > Date.now() && new Date(property.discountEndDate!).getTime() < Date.now());
 
-  const decideSubmitButtonLinkHref = () => {
-    if (property.offerType === "rent") {
-      if (confirmedUser) {
-        return getLocalizedPath(`/rent/${property._id}`, locale);
-      } else {
-        return getLocalizedPath("/login/confirm", locale);
-      }
-    } else if (property.offerType === "sale") {
-      if (!confirmedUser) {
-        return getLocalizedPath("/login/confirm", locale);
-      }
+  const decideSubmitButtonLinkHref = (path: string) => {
+    if (confirmedUser) {
+      return getLocalizedPath(`/rent/${property._id}`, locale);
+    } else {
+      return getLocalizedPath(`/login?redirect=${path}`, locale);
     }
-    return "";
   };
 
   const handleMainSubmitButtonClick = async () => {
+    const currentPath = encodeURIComponent(pathname);
     if (!session) {
-      const currentPath = encodeURIComponent(pathname);
       router.push(getLocalizedPath(`/login?redirect=${currentPath}`, locale));
       return;
     }
 
     if (property.offerType === "rent" && property.adType === "management") {
-      const href = decideSubmitButtonLinkHref();
+      const href = decideSubmitButtonLinkHref(currentPath);
       if (href) {
         router.push(href);
       }
@@ -260,10 +253,10 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
                 {property.dailyPrice && (
                   <div className={cn("flex items-center justify-between", locale === "ar" && "flex-row-reverse")}>
                     <span className="text-gray-500 text-sm">{tPrice("day")}</span>
-                    {hasDiscount ? (<div className="flex items-center gap-2">  
+                    {hasDiscount ? (<div className="flex items-center gap-2">
                       <span className="text-main-600 font-bold">{formatPrice(applyDiscount(property.dailyPrice, property.discount), currency, locale)}</span>
                       <span className="text-main-400 font-semibold line-through">{formatPrice(property.dailyPrice, currency, locale)}</span>
-                    </div>) :(
+                    </div>) : (
                       <span className="text-main-600 font-bold">{formatPrice(property.dailyPrice, currency, locale)}</span>
                     )}
                   </div>
@@ -271,10 +264,10 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
                 {property.weeklyPrice && (
                   <div className={cn("flex items-center justify-between", locale === "ar" && "flex-row-reverse")}>
                     <span className="text-gray-500 text-sm">{tPrice("week")}</span>
-                    {hasDiscount ? (<div className="flex items-center gap-2">  
+                    {hasDiscount ? (<div className="flex items-center gap-2">
                       <span className="text-main-600 font-bold">{formatPrice(applyDiscount(property.weeklyPrice, property.discount), currency, locale)}</span>
                       <span className="text-main-400 font-semibold line-through">{formatPrice(property.weeklyPrice, currency, locale)}</span>
-                    </div>) :(
+                    </div>) : (
                       <span className="text-main-600 font-bold">{formatPrice(property.weeklyPrice, currency, locale)}</span>
                     )}
                   </div>
@@ -282,10 +275,10 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
                 {property.monthlyPrice && (
                   <div className={cn("flex items-center justify-between", locale === "ar" && "flex-row-reverse")}>
                     <span className="text-gray-500 text-sm">{tPrice("month")}</span>
-                    {hasDiscount ? (<div className="flex items-center gap-2">  
+                    {hasDiscount ? (<div className="flex items-center gap-2">
                       <span className="text-main-600 font-bold">{formatPrice(applyDiscount(property.monthlyPrice, property.discount), currency, locale)}</span>
                       <span className="text-main-400 font-semibold line-through">{formatPrice(property.monthlyPrice, currency, locale)}</span>
-                    </div>) :(
+                    </div>) : (
                       <span className="text-main-600 font-bold">{formatPrice(property.monthlyPrice, currency, locale)}</span>
                     )}
                   </div>
@@ -293,10 +286,10 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
                 {property.weekdaysPrice && (
                   <div className={cn("flex items-center justify-between", locale === "ar" && "flex-row-reverse")}>
                     <span className="text-gray-500 text-sm">{tPrice("weekdays")}</span>
-                    {hasDiscount ? (<div className="flex items-center gap-2">  
+                    {hasDiscount ? (<div className="flex items-center gap-2">
                       <span className="text-main-600 font-bold">{formatPrice(applyDiscount(property.weekdaysPrice, property.discount), currency, locale)}</span>
                       <span className="text-main-400 font-semibold line-through">{formatPrice(property.weekdaysPrice, currency, locale)}</span>
-                    </div>) :(
+                    </div>) : (
                       <span className="text-main-600 font-bold">{formatPrice(property.weekdaysPrice, currency, locale)}</span>
                     )}
                   </div>
@@ -304,10 +297,10 @@ export default function ReservationBox({ property, currency = "KWD" }: Reservati
                 {property.holidaysPrice && (
                   <div className={cn("flex items-center justify-between", locale === "ar" && "flex-row-reverse")}>
                     <span className="text-gray-500 text-sm">{tPrice("holidays")}</span>
-                    {hasDiscount ? (<div className="flex items-center gap-2">  
+                    {hasDiscount ? (<div className="flex items-center gap-2">
                       <span className="text-main-600 font-bold">{formatPrice(applyDiscount(property.holidaysPrice, property.discount), currency, locale)}</span>
                       <span className="text-main-400 font-semibold line-through">{formatPrice(property.holidaysPrice, currency, locale)}</span>
-                    </div>) :(
+                    </div>) : (
                       <span className="text-main-600 font-bold">{formatPrice(property.holidaysPrice, currency, locale)}</span>
                     )}
                   </div>
