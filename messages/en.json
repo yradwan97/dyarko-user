@@ -8,6 +8,8 @@
     "helloSignIn": "Hello, Sign in",
     "kwd": "KWD",
     "owner": "Owner",
+    "submit": "Submit",
+    "verifying": "Verifying...",
     "price-not-available": "Price not available",
     "rent-types": {
       "hourly": "Hourly",
@@ -64,7 +66,11 @@
       "court": "Court",
       "caravan": "Caravan",
       "tent_single": "Single Tent",
-      "tent_group": "Tent Group"
+      "tent_group": "Tent Group",
+      "cafeandrestaurant": "Cafe & Restaurant",
+      "officeandstudio": "Office & Studio",
+      "studio": "Studio",
+      "fivestar": "5 Star Hotel"
     },
     "PoweredBy": {
       "main": "Powered by",
@@ -113,6 +119,14 @@
       "fail-alt": "Failure icon",
       "close": "Close"
     }
+  },
+  "Verify": {
+    "title": "Verify Your Phone Number",
+    "description": "Please enter the 6-digit code sent to your phone to continue.",
+    "success": "account verified successfully!",
+    "invalid": "Invalid or expired code. Please try again.",
+    "didnt-receive": "Didn't receive the code?",
+    "resend": "Resend Code"
   },
   "PropertyListing": {
     "title": "Browse Properties -",
@@ -315,7 +329,11 @@
           "submitting": "Submitting..."
         },
         "installment-request-success": "Installment request submitted successfully. The owner will review your request.",
-        "installment-request-error": "Failed to submit installment request. Please try again."
+        "installment-request-error": "Failed to submit installment request. Please try again.",
+        "otp": {
+          "success": "Phone number verified successfully!",
+          "fail": "Invalid code. Please try again."
+        }
       },
       "Tour": {
         "Phone": {

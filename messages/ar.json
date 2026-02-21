@@ -8,15 +8,17 @@
     "helloSignIn": "مرحباً، سجل دخولك",
     "kwd": "د.ك",
     "owner": "مالك",
+    "submit": "إرسال",
+    "verifying": "جاري التحقق...",
     "price-not-available": "السعر غير متاح",
     "rent-types": {
-        "hourly": "ساعي",
-        "daily": "يومي",
-        "weekly": "أسبوعي",
-        "monthly": "شهري",
-        "weekdays": "أيام الأسبوع",
-        "holidays": "العطلات"
-      },
+      "hourly": "ساعي",
+      "daily": "يومي",
+      "weekly": "أسبوعي",
+      "monthly": "شهري",
+      "weekdays": "أيام الأسبوع",
+      "holidays": "العطلات"
+    },
     "PaymentMethods": {
       "rent": "إيجار",
       "cash": "كاش",
@@ -64,7 +66,11 @@
       "court": "ملاعب",
       "caravan": "كرفان",
       "tent_single": "مخيم خاص",
-      "tent_group": "مخيمات جماعية"
+      "tent_group": "مخيمات جماعية",
+      "cafeandrestaurant": "كافيهات & مطاعم",
+      "officeandstudio": "مكاتب & ستوديوهات",
+      "studio": "ستوديو",
+      "fivestar": "فندق 5 نجوم"
     },
     "PoweredBy": {
       "main": "مشغل بواسطة",
@@ -113,6 +119,14 @@
       "fail-alt": "أيقونة الفشل",
       "close": "إغلاق"
     }
+  },
+  "Verify": {
+    "title": "تأكيد رقم الهاتف",
+    "description": "يرجى إدخال الرمز المكون من 6 أرقام الذي تم إرساله إلى هاتفك للمتابعة.",
+    "success": "تم التحقق من الحساب بنجاح!",
+    "invalid": "الرمز غير صحيح أو منتهي الصلاحية. حاول مرة أخرى.",
+    "didnt-receive": "لم تستلم الرمز؟",
+    "resend": "إعادة إرسال الرمز"
   },
   "PropertyListing": {
     "title": "تصفح العقارات -",
@@ -168,7 +182,7 @@
     },
     "read-all": "قراءة الكل",
     "property": "الوحدة",
-    "title" : "الإشعارات",
+    "title": "الإشعارات",
     "no-notifications": "ليس لديك أي إشعارات"
   },
   "Properties": {
@@ -311,7 +325,11 @@
           "submitting": "جاري الإرسال..."
         },
         "installment-request-success": "تم تقديم طلب التقسيط بنجاح. سيقوم المالك بمراجعة طلبك.",
-        "installment-request-error": "فشل في تقديم طلب التقسيط. يرجى المحاولة مرة أخرى."
+        "installment-request-error": "فشل في تقديم طلب التقسيط. يرجى المحاولة مرة أخرى.",
+        "otp": {
+          "success": "تم التحقق من رقم الهاتف بنجاح!",
+          "fail": "الرمز غير صحيح. حاول مرة أخرى."
+        }
       },
       "Tour": {
         "Phone": {
@@ -1765,7 +1783,7 @@
       "status-canceled": "ملغي",
       "phone-number": "رقم الهاتف",
       "view-file": "عرض الملف",
-      "file":"الملف",
+      "file": "الملف",
       "comment": "التعليق",
       "reject-reason": "سبب الرفض",
       "cancel": "إلغاء",
