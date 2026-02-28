@@ -128,18 +128,34 @@ export default function ScheduleTour({
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!selectedDate || !selectedTime || !phoneNumber) {
+    // Always required
+    if (!selectedDate || !phoneNumber || !userComment) {
       toast.error(t("missing-fields"));
       return;
     }
 
-    // Combine date and time
-    const [hours, minutes] = selectedTime.split(":");
-    const dateWithTime = new Date(selectedDate);
-    dateWithTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+    // Required only if owner has time slots
+    if (
+      availableTimesForSelectedDate.length > 0 &&
+      !selectedTime
+    ) {
+      toast.error(t("missing-fields"));
+      return;
+    }
 
-    // Format as "mm/dd/yyyy hh:mm"
-    const formattedDate = format(dateWithTime, "MM/dd/yyyy HH:mm");
+    let formattedDate: string;
+
+    if (availableTimesForSelectedDate.length > 0) {
+      // Combine date + selected time
+      const [hours, minutes] = selectedTime.split(":");
+      const dateWithTime = new Date(selectedDate);
+      dateWithTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+      formattedDate = format(dateWithTime, "MM/dd/yyyy HH:mm");
+    } else {
+      // No schedule from owner → send date only
+      formattedDate = format(selectedDate, "MM/dd/yyyy");
+    }
 
     const tourData = {
       property: propertyId,
@@ -151,10 +167,11 @@ export default function ScheduleTour({
     try {
       await axiosClient.post("/tours", tourData);
       toast.success(t("success"));
+
       setVisible(false);
-      setPhoneNumber("");
       setSelectedDate(undefined);
       setSelectedTime("");
+      setPhoneNumber("");
       setUserComment("");
     } catch (error) {
       toast.error(t("error"));
@@ -265,7 +282,12 @@ export default function ScheduleTour({
           {/* Confirm Button */}
           <Button
             type="submit"
-            disabled={!selectedDate || !selectedTime || !phoneNumber}
+            disabled={
+              !selectedDate ||
+              !phoneNumber ||
+              !userComment ||
+              (availableTimesForSelectedDate.length > 0 && !selectedTime)
+            }
             className="w-full h-12 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {t("add")}
