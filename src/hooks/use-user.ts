@@ -59,6 +59,7 @@ export interface UserProfile {
   deviceToken?: string;
   bankInfo?: BankInfo;
   socialMedia?: SocialMedia;
+  PointsPerCurrency: number;
   __v?: number;
 }
 

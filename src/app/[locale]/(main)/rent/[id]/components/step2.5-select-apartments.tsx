@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Bed, Bath, Home, Users, Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCountries } from "@/hooks/use-countries";
+import { applyDiscount } from "@/lib/utils/property-pricing";
 
 interface Apartment {
   _id?: string;
@@ -225,29 +226,38 @@ export default function Step25SelectApartments({
                 {apartment.isDaily && apartment.dailyPrice && (
                   <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg">
                     <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                      {apartment.dailyPrice} {currency}/{t("day")}
+                      {property.discount ? applyDiscount(apartment.dailyPrice, property.discount) : apartment.dailyPrice} {currency}/{t("day")}
                     </span>
+                    {property.discount && <span className="text-sm text-gray-400 line-through">
+                      {apartment.dailyPrice} {currency}/{t("day")}
+                    </span>}
                   </div>
                 )}
                 {apartment.isWeekly && apartment.weeklyPrice && (
                   <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg">
                     <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                      {apartment.weeklyPrice} {currency}/{t("week")}
+                      {property.discount ? applyDiscount(apartment.weeklyPrice, property.discount) : apartment.weeklyPrice} {currency}/{t("week")}
                     </span>
+                    {property.discount && <span className="text-sm text-gray-400 line-through">
+                      {apartment.weeklyPrice} {currency}/{t("week")}
+                    </span>}
                   </div>
                 )}
                 {apartment.isMonthly && apartment.monthlyPrice && (
                   <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg">
                     <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                      {apartment.monthlyPrice} {currency}/{t("month")}
+                      {property.discount ? applyDiscount(apartment.monthlyPrice, property.discount) : apartment.monthlyPrice} {currency}/{t("month")}
                     </span>
+                    {property.discount && <span className="text-sm text-gray-400 line-through">
+                      {apartment.monthlyPrice} {currency}/{t("month")}
+                    </span>}
                   </div>
                 )}
               </div>
 
               {/* Description */}
               {apartment.description && (
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                <p className="text-md capitalize text-gray-600 dark:text-gray-400 mb-4">
                   {apartment.description}
                 </p>
               )}

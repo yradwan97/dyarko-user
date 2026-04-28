@@ -158,11 +158,12 @@ export default function PersonalInfoForm({
       </div>
 
       {/* Email */}
-      <div className="space-y-2">
+      <div className="space-y-2 cursor-not-allowed">
         <Label htmlFor="email" className="rtl:text-right block">{t("email")}</Label>
         <Input
           id="email"
           type="email"
+          disabled
           placeholder={t("email-placeholder")}
           {...register("email", {
             required: t("email-required"),
@@ -171,7 +172,7 @@ export default function PersonalInfoForm({
               message: t("email-invalid"),
             },
           })}
-          className="h-12 rtl:text-right rtl:placeholder:text-right"
+          className="h-12 rtl:text-right disabled:opacity-60 rtl:placeholder:text-right"
         />
         {errors.email?.message && (
           <p className="text-sm text-red-600 rtl:text-right">{errors.email.message as string}</p>

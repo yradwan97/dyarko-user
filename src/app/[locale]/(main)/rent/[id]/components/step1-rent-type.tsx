@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import PickupLocationMap from "@/components/ui/pickup-location-map";
+import { useCountryCurrency } from "@/hooks/use-country-currency";
+import { applyDiscount } from "@/lib/utils/property-pricing";
 
 interface Step1RentTypeProps {
   property: Property;
@@ -18,6 +20,15 @@ interface Step1RentTypeProps {
   setPickupLocation: (location: { lat: number; lng: number } | null) => void;
   onNext: () => void;
 }
+
+const rentTypeMapping: { [key: string]: string } = {
+  daily: "dailyPrice",
+  weekly: "weeklyPrice",
+  monthly: "monthlyPrice",
+  weekdays: "weekdaysPrice",
+  holidays: "holidaysPrice",
+  hourly: "hourlyPrice",
+};
 
 export default function Step1RentType({
   property,
@@ -31,6 +42,8 @@ export default function Step1RentType({
 }: Step1RentTypeProps) {
   const locale = useLocale();
   const t = useTranslations("Rent.Step1");
+
+  const currency = useCountryCurrency(property.country);
 
   // Check if property is camper with movable type
   const isCamperMovable = property.category === "camper" && (property as any).type === "movable";
@@ -100,6 +113,16 @@ export default function Step1RentType({
     return `service-${index}`;
   };
 
+  const getCorrespondingPrice = (rentTypeKey: string) => {
+    const priceField = rentTypeMapping[rentTypeKey];
+    if (isCourt) {
+      // For hotel apartments, find the first apartment that has the price for the selected rent type
+      return property.price;
+    } else {
+      return (property as any)[priceField] || null;
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Rent Type Section */}
@@ -119,9 +142,14 @@ export default function Step1RentType({
                   : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
               )}
             >
-              <span className="font-medium text-gray-900 dark:text-white">
-                {type.label}
-              </span>
+              <div className="flex w-full me-4 justify-between">
+                <span className="font-medium text-gray-900 dark:text-white">
+                  {type.label} 
+                </span>
+                {!!getCorrespondingPrice(type.key) && <span className="font-medium text-gray-900 dark:text-white">
+                  {applyDiscount(getCorrespondingPrice(type.key), property.discount)} {currency}
+                </span>}
+              </div>
               {selectedRentType === type.key && (
                 <div className="w-6 h-6 rounded-full bg-main-500 flex items-center justify-center">
                   <div className="w-3 h-3 rounded-full bg-white" />
@@ -168,7 +196,7 @@ export default function Step1RentType({
                   <div className="flex items-center gap-3">
                     {servicePrice && (
                       <span className="font-semibold text-gray-900 dark:text-white">
-                        {servicePrice} {t("kwd")}
+                        {servicePrice} {currency}
                       </span>
                     )}
                     {isSelected && (

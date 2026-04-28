@@ -29,7 +29,7 @@ export function OwnerImage({ owner }: OwnerImageProps) {
   }
 
   return (
-    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-main-400 to-main-600 flex items-center justify-center">
+    <div className="h-10 w-10 rounded-full bg-linear-to-br from-main-400 to-main-600 flex items-center justify-center">
       <Typography variant="body-sm" as="span" className="font-bold text-white">
         {owner.name?.charAt(0).toUpperCase() || "?"}
       </Typography>
@@ -37,8 +37,8 @@ export function OwnerImage({ owner }: OwnerImageProps) {
   );
 }
 
-export const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString("en-US", {
+export const formatDate = (dateString: string, locale: string = "en") => {
+  return new Date(dateString).toLocaleDateString(locale === "en" ? "en-US" : "ar-EG", {
     year: "numeric",
     month: "short",
     day: "numeric",

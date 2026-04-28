@@ -109,7 +109,7 @@ export default function CompanyProperties({
               return (
                 <Link key={property._id} href={`/properties/${property._id}`}>
                   <PropertyCard
-                    variant="featured"
+                    variant="grid"
                     image={getProxiedImageUrl(property.image || property.video)}
                     name={property.title || "Property"}
                     location={locationStr || tGeneral("location-not-specified")}

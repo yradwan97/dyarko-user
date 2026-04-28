@@ -16,6 +16,8 @@ import { useQuery } from "@tanstack/react-query";
 import type { Governorate } from "@/types/property";
 import { Spinner } from "@/components/ui/spinner";
 import PaginationControls from "@/components/shared/pagination-controls";
+import { useProperties } from "@/hooks/use-properties";
+import PropertySkeletonGrid from "@/components/shared/property-skeleton-grid";
 
 const FilterSection = dynamic(() => import("./filter-section"), {
   loading: () => <div className="h-24 animate-pulse bg-gray-100 rounded-lg" />,
@@ -27,15 +29,19 @@ const PropertyGrid = dynamic(() => import("./property-grid"), {
 
 export default function SearchPageContent() {
   const t = useTranslations("PropertySearch");
+  const tGeneral = useTranslations("General");
   const locale = useLocale();
   const { data: session } = useSession();
   const searchParams = useSearchParams();
   const { selectedCountry } = useCountryContext();
   const { data: cities, isLoading: citiesLoading } = useCities(selectedCountry);
 
+
+
   // View state
   const [viewType, setViewType] = useState<"grid" | "list">("grid");
   const [page, setPage] = useState(1);
+  const [promotedPage, setPromotedPage] = useState(1);
 
   // Filter states - staged (not applied until submit)
   const [selectedCity, setSelectedCity] = useState<Governorate | undefined>();
@@ -128,14 +134,16 @@ export default function SearchPageContent() {
     enabled: true,
   });
 
+  const { data: searchPromotedProperties, isLoading: isSearchPromotedLoading } = useProperties({ country: selectedCountry, city: searchParamsObj.city || undefined, offerType: appliedOfferType, promote: "searchFeature", size: 4, page: promotedPage });
+
   // Convert cities to governorate format
   const cityOptions: Governorate[] = useMemo(() => {
     return cities
       ? cities.map((city) => ({
-          id: city.key,
-          name: locale === "ar" ? city.cityAr : city.city,
-          icon: locale === "ar" ? city.cityAr : city.city,
-        }))
+        id: city.key,
+        name: locale === "ar" ? city.cityAr : city.city,
+        icon: locale === "ar" ? city.cityAr : city.city,
+      }))
       : [];
   }, [cities, locale]);
 
@@ -241,11 +249,23 @@ export default function SearchPageContent() {
           </div>
         </div>
 
+        {!!searchPromotedProperties && searchPromotedProperties.data.data.length > 0 ? (
+          <>
+            <PropertyGrid title={tGeneral("promoted-properties")} properties={searchPromotedProperties.data.data} viewType={viewType} />
+            <PaginationControls
+              currentPage={promotedPage}
+              totalPages={searchPromotedProperties.data.totalPages || searchPromotedProperties.data.pages || 1}
+              onPageChange={setPromotedPage}
+              disabled={isSearchPromotedLoading}
+            />
+          </>
+        ) : false ? (
+          <PropertySkeletonGrid title={tGeneral("promoted-properties")} viewType={viewType} promoted />
+        ) : null}
+
         {/* Results */}
         {isLoading ? (
-          <div className="flex justify-center py-12">
-            <Spinner className="h-12 w-12 text-main-400" />
-          </div>
+          <PropertySkeletonGrid viewType={viewType} promoted={false} />
         ) : properties.length === 0 ? (
           <div className="py-12 text-center">
             <Typography variant="h3" as="h3" className="text-gray-500">

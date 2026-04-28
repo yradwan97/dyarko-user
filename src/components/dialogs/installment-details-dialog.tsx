@@ -216,7 +216,7 @@ export default function InstallmentDetailsDialog({
                   </Typography>
                   <Link href={getLocalizedPath(`/properties/${installment.property._id}`, locale)}>
                     <PropertyCard
-                      variant="featured"
+                      variant="grid"
                       image={getProxiedImageUrl(installment.property.image || installment.property.video)}
                       name={installment.property.title || "Property"}
                       location={locationStr || t("location-not-specified")}

@@ -21,12 +21,12 @@ interface FAQsResponse {
   };
 }
 
-export const useFAQs = (page: number = 1, limit: number = 10) => {
+export const useFAQs = (page: number = 1, ) => {
   return useQuery({
-    queryKey: ["faqs", page, limit],
+    queryKey: ["faqs", page],
     queryFn: async () => {
       const response = await axiosClient.get<FAQsResponse>(
-        `/faqs?page=${page}&limit=${limit}`
+        `/faqs?page=${page}&size=10`
       );
       return response.data.data;
     },

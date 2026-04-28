@@ -13,7 +13,6 @@ export function PersonImage({ person, size = 40 }: { person: { image?: string; n
   }, [person.image]);
 
   const hasValidImage = person.image && (person.image.startsWith('/') || person.image.startsWith('http'));
-  console.log('PersonImage render:', { person, size, imageError, hasValidImage });
 
   if (hasValidImage && !imageError) {
     return (
@@ -31,7 +30,7 @@ export function PersonImage({ person, size = 40 }: { person: { image?: string; n
 
   return (
     <div
-      className="rounded-full bg-gradient-to-br from-main-400 to-main-600 flex items-center justify-center"
+      className="rounded-full bg-linear-to-br from-main-400 to-main-600 flex items-center justify-center"
       style={{ width: `${size}px`, height: `${size}px` }}
     >
       <Typography variant="body-sm" as="span" className="font-bold text-white">

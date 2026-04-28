@@ -248,17 +248,28 @@ export function BaseDetailsModal({
                   <Link
                     href={`/${locale}/companies/${request.owner._id}`}
                     target="_blank"
-                    className="font-medium text-main-600 hover:text-main-700 hover:underline"
+                    className="font-medium text-main-500 hover:text-main-600 hover:underline"
                   >
                     <Typography variant="body-sm" as="span">
                       {request.owner.name}
                     </Typography>
                   </Link>
-                  {request.owner.ownerType && (
-                    <Typography variant="body-sm" as="p" className="text-gray-500">
-                      {request.owner.ownerType}
-                    </Typography>
-                  )}
+                  <div className="flex flex-row items-center gap-2">
+                    {request.owner.ownerType && (
+                      <Typography variant="body-sm" as="p" className="text-gray-500">
+                        {request.owner.ownerType}
+                      </Typography>
+                    )}
+                    {request.owner.phoneNumber && (
+                      <>
+                      {" • "}
+                        <a href={`tel:${request.owner.phoneNumber}`} className="font-medium text-main-500 hover:text-main-600 hover:underline">
+                          {request.owner.phoneNumber}
+                        </a>
+                      </>
+                     
+                    )}
+                  </div>
                 </div>
               </div>
             )}

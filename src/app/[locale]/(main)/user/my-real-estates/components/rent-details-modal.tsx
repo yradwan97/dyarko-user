@@ -111,6 +111,19 @@ export default function RentDetailsModal({
     return format(new Date(date), "MMMM dd, yyyy");
   };
 
+  const getRentTerminatedOrEnded = () => {
+    if (!rent) return true
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const start = new Date(rent.startDate);
+    const end = new Date(rent.endDate);
+    start.setHours(0, 0, 0, 0);
+    end.setHours(0, 0, 0, 0);
+
+    return rent.status.toUpperCase() === "TERMINATED" || rent.status.toUpperCase() === "CANCELLED" || end < today;
+  }
+
   const getRentStatus = () => {
     if (!rent) return { text: "", badgeColor: "bg-gray-500 text-white" };
 
@@ -242,7 +255,6 @@ export default function RentDetailsModal({
 
   const claimsWindow = getClaimsWindowInfo();
   const claimsDisabled = !claimsWindow.canAdd;
-  console.log(claimsWindow)
 
   const handleDisclaimerRequest = () => {
     setShowDisclaimerDialog(true);
@@ -316,6 +328,7 @@ export default function RentDetailsModal({
                       <>
                         <DropdownMenuItem
                           onClick={handleDownloadContract}
+                          disabled={getRentTerminatedOrEnded()}
                           className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-gray-100 dark:focus:bg-gray-800"
                         >
                           <Download className="h-4 w-4 mr-2 text-gray-600 dark:text-gray-400" />
@@ -333,6 +346,7 @@ export default function RentDetailsModal({
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       onClick={handleRequestEndContract}
+                      disabled={getRentTerminatedOrEnded()}
                       className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-gray-100 dark:focus:bg-gray-800"
                     >
                       <FileX className="h-4 w-4 mr-2 text-gray-600 dark:text-gray-400" />
@@ -340,6 +354,7 @@ export default function RentDetailsModal({
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={handleRequestServices}
+                      disabled={getRentTerminatedOrEnded()}
                       className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-gray-100 dark:focus:bg-gray-800"
                     >
                       <Wrench className="h-4 w-4 mr-2 text-gray-600 dark:text-gray-400" />

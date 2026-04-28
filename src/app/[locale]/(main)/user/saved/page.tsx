@@ -77,7 +77,7 @@ export default function SavedPropertiesPage() {
                   href={getLocalizedPath(`/properties/${property._id}`, locale)}
                 >
                   <PropertyCard
-                    variant="featured"
+                    variant="grid"
                     name={property.title}
                     location={locationStr || tGeneral("location-not-specified")}
                     price={priceDisplay}

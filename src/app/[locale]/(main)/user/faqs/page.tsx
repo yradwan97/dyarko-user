@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
@@ -14,29 +14,45 @@ import { Spinner } from "@/components/ui/spinner";
 import Typography from "@/components/shared/typography";
 import { useFAQs } from "@/hooks/use-faqs";
 import { cn } from "@/lib/utils";
+import DOMPurify from "dompurify";
+import PaginationControls from "@/components/shared/pagination-controls";
 
 export default function FAQsPage() {
   const t = useTranslations("User.FAQs");
   const locale = useLocale();
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
 
-  const { data, isLoading, error } = useFAQs(currentPage, itemsPerPage);
+  const { data, isLoading, error } = useFAQs(currentPage);
 
-  const totalPages = data?.pages || 1;
   const faqs = data?.data || [];
 
-  const handlePreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
+  // Recommended config — adjust ALLOWED_TAGS / ALLOWED_ATTR as needed
+  const purifyConfig = useMemo(
+    () => ({
+      ALLOWED_TAGS: [
+        "p",
+        "div",
+        "span",
+        "br",
+        "strong",
+        "b",
+        "em",
+        "i",
+        "u",
+        "ul",
+        "ol",
+        "li",
+        // "a", "h1", "h2", "h3"  ← add only if you really need them
+      ],
+      ALLOWED_ATTR: ["class"], // keeps ql-direction-rtl etc.
+      FORBID_TAGS: ["script", "iframe", "object", "embed", "style", "form", "svg"],
+    }),
+    []
+  );
 
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
+  // Optional: helper to get sanitized content
+  const getSanitized = (html?: string) =>
+    html ? DOMPurify.sanitize(html, purifyConfig) : "";
 
   return (
     <div className="space-y-6">
@@ -70,75 +86,59 @@ export default function FAQsPage() {
       {!isLoading && !error && faqs.length > 0 && (
         <div className="space-y-4">
           <Accordion type="single" collapsible className="space-y-3">
-            {faqs.map((faq) => (
-              <AccordionItem
-                key={faq._id}
-                value={faq._id}
-                className="rounded-lg border border-gray-200 bg-white px-4 shadow-sm"
-              >
-                <AccordionTrigger
-                  className={cn(
-                    "py-4 hover:no-underline justify-between",
-                    locale === "ar" ? "text-right flex-row-reverse" : "text-left"
-                  )}
+            {faqs.map((faq) => {
+              const title =
+                locale === "ar" ? faq.titleAr : faq.titleEn;
+              const description =
+                locale === "ar" ? faq.descriptionAr : faq.descriptionEn;
+
+              const safeTitle = getSanitized(title);
+              const safeDescription = getSanitized(description);
+              console.log("Rendering FAQ:", { title, description, safeTitle, safeDescription });
+
+              return (
+                <AccordionItem
+                  key={faq._id}
+                  value={faq._id}
+                  className="rounded-lg border border-gray-200 bg-white px-4 shadow-sm"
                 >
-                  <Typography variant="body-md-bold" as="span" className={cn("font-semibold text-gray-900", locale === "ar" && "text-right")}>
-                    {locale === "ar" ? faq.titleAr : faq.titleEn}
-                  </Typography>
-                </AccordionTrigger>
-                <AccordionContent className={cn("pb-4 pt-1", locale === "ar" && "text-right")}>
-                  <Typography variant="body-md" as="p" className={cn("text-gray-600 leading-relaxed", locale === "ar" && "text-right")}>
-                    {locale === "ar" ? faq.descriptionAr : faq.descriptionEn}
-                  </Typography>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
+                  <AccordionTrigger
+                    className={cn(
+                      "py-4 hover:no-underline justify-between",
+                      locale === "ar" ? "text-right" : "text-left"
+                    )}
+                  >
+                    {/* Title – usually short, but sanitized anyway */}
+                    <span
+                      className={cn(
+                        "font-semibold text-gray-900",
+                        locale === "ar" && "text-right"
+                      )}
+                      dangerouslySetInnerHTML={{ __html: safeTitle }}
+                    />
+                  </AccordionTrigger>
+
+                  <AccordionContent className={cn("pb-4 pt-1", locale === "ar" && "text-right")}>
+                    <div
+                      className={cn(
+                        "text-gray-600 leading-relaxed prose prose-sm max-w-none",
+                        locale === "ar" && "text-right"
+                      )}
+                      dangerouslySetInnerHTML={{ __html: safeDescription }}
+                      dir={locale === "ar" ? "rtl" : "ltr"}
+                    />
+                  </AccordionContent>
+                </AccordionItem>
+              );
+            })}
           </Accordion>
 
           {/* Pagination */}
-          {totalPages > 1 && (
-            <div className={cn("flex items-center justify-between border-t border-gray-200 pt-6", locale === "ar" && "flex-row-reverse")}>
-              <Typography variant="body-sm" as="p" className="text-gray-600">
-                {t("showing-page", { currentPage, totalPages, itemsCount: data?.itemsCount || 0 })}
-              </Typography>
-
-              <div className={cn("flex items-center gap-2", locale === "ar" && "flex-row-reverse")}>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handlePreviousPage}
-                  disabled={currentPage === 1}
-                  className={cn("gap-2", locale === "ar" && "flex-row-reverse")}
-                >
-                  {locale === "ar" ? (
-                    <ChevronRight className="h-4 w-4" />
-                  ) : (
-                    <ChevronLeft className="h-4 w-4" />
-                  )}
-                  {t("previous")}
-                </Button>
-
-                <Typography variant="body-sm" as="span" className="px-3 text-gray-700">
-                  {currentPage} / {totalPages}
-                </Typography>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleNextPage}
-                  disabled={currentPage === totalPages}
-                  className={cn("gap-2", locale === "ar" && "flex-row-reverse")}
-                >
-                  {t("next")}
-                  {locale === "ar" ? (
-                    <ChevronLeft className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-            </div>
-          )}
+          <PaginationControls
+            currentPage={currentPage}
+            onPageChange={(page) => setCurrentPage(page)}
+            totalPages={data?.pages || 1}
+          />
         </div>
       )}
 

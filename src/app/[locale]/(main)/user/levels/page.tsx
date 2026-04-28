@@ -336,7 +336,7 @@ export default function RewardsPage() {
                           as="span"
                           className="block text-main-600"
                         >
-                          {level.title} - {(level.rewards || level.reward || 0).toLocaleString()} {t("points")}
+                          <div className="flex flex-row gap-2"><span>{level.title}</span>-<span>{(level.rewards || level.reward || 0).toLocaleString()}</span> {t("points")}</div>
                         </Typography>
                       </div>
                     </div>
@@ -358,7 +358,7 @@ export default function RewardsPage() {
                     </div>
                     {level.description && (
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-gray-700">{t("vibe")}: </span>
+                        <span className="font-semibold text-gray-700">{t("description")}: </span>
                         <span className="text-gray-600 whitespace-pre-line">
                           {level.description}
                         </span>

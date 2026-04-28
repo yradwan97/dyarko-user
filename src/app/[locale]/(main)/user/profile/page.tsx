@@ -224,7 +224,7 @@ export default function ProfilePage() {
       </Tabs>
 
       {/* Unified Action Buttons */}
-      <div className="flex gap-4 justify-center pt-6 border-t">
+      <div className="flex gap-4 justify-center pt-6">
         <Button
           type="submit"
           variant={hasChanges ? "primary" : "primary-outline"}

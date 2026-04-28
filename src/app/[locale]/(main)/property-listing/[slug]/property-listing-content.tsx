@@ -14,6 +14,7 @@ import { type GetPropertiesParams } from "@/lib/services/api/properties";
 import { useProperties } from "@/hooks/use-properties";
 import SearchControl from "./search-control";
 import { useCountryContext } from "@/components/providers/country-provider";
+import PropertySkeletonGrid from "@/components/shared/property-skeleton-grid";
 
 interface PropertyListingContentProps {
   slug: string;
@@ -22,12 +23,14 @@ interface PropertyListingContentProps {
 export default function PropertyListingContent({ slug }: PropertyListingContentProps) {
   const t = useTranslations("PropertyListing");
   const tPayment = useTranslations("General.PaymentMethods");
+  const tGeneral = useTranslations("General");
   const searchParams = useSearchParams();
   const { selectedCountry } = useCountryContext();
 
   // View state
   const [viewType, setViewType] = useState<"grid" | "list">("grid");
   const [page, setPage] = useState(1);
+  const [promotedPage, setPromotedPage] = useState(1);
 
   // Filter states
   const [filters, setFilters] = useState({
@@ -90,6 +93,7 @@ export default function PropertyListingContent({ slug }: PropertyListingContentP
 
   // Fetch properties
   const { data: propertiesData, isLoading } = useProperties(apiParams);
+  const { data: homePromotedProperties, isLoading: isHomePromotedLoading } = useProperties({ country: selectedCountry, offerType: getOfferType(slug), city: filters.city || undefined, promote: "homeFeature", size: 4, page: promotedPage });
 
   // Reset page when filters change
   useEffect(() => {
@@ -178,11 +182,23 @@ export default function PropertyListingContent({ slug }: PropertyListingContentP
           </div>
         </div>
 
+        {!!homePromotedProperties && homePromotedProperties.data.data.length > 0 ? (
+          <>
+            <PropertyGrid title={tGeneral("promoted-properties")} properties={homePromotedProperties.data.data} viewType={viewType} />
+            <PaginationControls
+                currentPage={promotedPage}
+                totalPages={homePromotedProperties.data.totalPages || homePromotedProperties.data.pages || 1}
+                onPageChange={setPromotedPage}
+                disabled={isHomePromotedLoading}
+              />
+          </>
+        ): isHomePromotedLoading ? (
+          <PropertySkeletonGrid viewType={viewType} promoted />
+        ) : null}
+
         {/* Results */}
         {isLoading ? (
-          <div className="flex justify-center py-12">
-            <Spinner className="h-12 w-12 text-main-400" />
-          </div>
+          <PropertySkeletonGrid viewType={viewType} promoted={false} />
         ) : properties.length === 0 ? (
           <div className="py-12 text-center">
             <Typography variant="h3" as="h3" className="text-gray-500">
@@ -191,7 +207,7 @@ export default function PropertyListingContent({ slug }: PropertyListingContentP
           </div>
         ) : (
           <>
-            <PropertyGrid properties={properties} viewType={viewType} />
+            <PropertyGrid title={tGeneral("all-properties")} properties={properties} viewType={viewType} />
             <PaginationControls
               currentPage={page}
               totalPages={totalPages}

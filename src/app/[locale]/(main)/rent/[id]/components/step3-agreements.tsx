@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { getLocalizedPath } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
+import { useContractFile } from "../hooks/use-contract-file";
 
 interface Step3AgreementsProps {
   property: Property;
@@ -31,7 +32,13 @@ export default function Step3Agreements({
   const locale = useLocale();
   const t = useTranslations("Rent.Step3");
 
-  const hasContract = !!property?.contract;
+  const { data: fileUrl, isLoading: isContractLoading, isError } = useContractFile({
+    ownerType: property?.owner?.role,
+    // offerType: 'rent',
+    propertyClass: property.class,
+  });
+
+  const hasContract = !!fileUrl && !isContractLoading; // If fileUrl is null/undefined, then we consider that there's no contract to agree to
   const hasRules = !!property?.rules;
 
   const handleCheckboxChange = (key: string, checked: boolean) => {
@@ -113,11 +120,12 @@ export default function Step3Agreements({
           </div>
 
           {/* Contract */}
-          {hasContract && (
+          {!!fileUrl && (
             <div className="flex items-start gap-3 p-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <Checkbox
                 id="contract"
                 checked={agreedToTerms.contract}
+                disabled={isContractLoading }
                 onCheckedChange={(checked) =>
                   handleCheckboxChange("contract", checked as boolean)
                 }
@@ -125,7 +133,7 @@ export default function Step3Agreements({
               />
               <div className="text-sm font-medium text-gray-700 dark:text-gray-300 flex-1">
                 <Link
-                  href={property.contract!}
+                  href={fileUrl}
                   target="_blank"
                   className="text-main-500 hover:underline"
                 >

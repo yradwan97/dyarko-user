@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { HomeIcon } from "lucide-react";
@@ -10,7 +9,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Typography from "@/components/shared/typography";
 import Button from "@/components/shared/button";
-import FullPageLoader from "@/components/shared/full-page-loader";
 import type { Notification } from "@/types";
 import { getLocalizedPath } from "@/lib/utils";
 
@@ -25,15 +23,12 @@ export default function NotificationDropdown({
 }: NotificationDropdownProps) {
   const router = useRouter();
   const locale = useLocale();
-  const [isLoading, setIsLoading] = useState(false);
   const t = useTranslations("Notifications.Dropdown");
 
   const goToNotifications = () => {
-    setIsLoading(true);
     router.push(getLocalizedPath("/notifications", locale));
   };
 
-  if (isLoading) return <FullPageLoader />;
 
   return (
     <DropdownMenuContent
@@ -96,7 +91,7 @@ export default function NotificationDropdown({
           <Button
             to={getLocalizedPath("/notifications", locale)}
             className="block text-center text-sm font-bold bg-white text-main-600"
-            onClick={goToNotifications}
+            // onClick={goToNotifications}
           >
             {t("see-all")}
           </Button>

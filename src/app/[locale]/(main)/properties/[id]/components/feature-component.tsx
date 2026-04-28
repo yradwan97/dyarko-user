@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { CheckCircle2, XCircle } from "lucide-react";
 import HeadTitle from "./head-title";
 import { cn } from "@/lib/utils";
+import { formatDate } from "../../../user/my-requests/components/cards/shared-utils";
 
 interface FeatureComponentProps {
   property: Property;
@@ -63,22 +64,28 @@ export default function FeatureComponent({ property }: FeatureComponentProps) {
     { label: t("offer-type"), value: getOfferTypeLabel() },
     { label: t("furnished"), value: "boolean", isBoolean: true, booleanValue: property.isFurnished },
     { label: t("finished"), value: "boolean", isBoolean: true, booleanValue: property.isFinished },
+    { label: t("capacity"), value: property.capacity ? String(property.capacity) : null },
     ...(property.isFinished && property.finishType ? [{ label: t("finish-type"), value: property.finishType }] : []),
     { label: t("rent-offer"), value: getRentOffer() },
     { label: t("paci-no"), value: property.paciNumber?.join(", ") || null },
     { label: t("commission"), value: property.commission ? `${property.commission}%` : null },
     // Chalet-specific features
-    ...(property.category === "chalet" ? [
-      { label: t("capacity"), value: property.capacity ? String(property.capacity) : null },
+    ...((property.category === "chalet" || property.category === "jakhoor") ? [
       { label: t("has-garden"), value: "boolean", isBoolean: true, booleanValue: property.hasGarden },
       { label: t("has-beach"), value: "boolean", isBoolean: true, booleanValue: property.hasBeach },
       { label: t("has-pool"), value: "boolean", isBoolean: true, booleanValue: property.hasPool },
+      { label: t("has-halal"), value: "boolean", isBoolean: true, booleanValue: property.hasHalal },
     ] : []),
     // Share-specific features
     ...(property.offerType === "share" ? [
       { label: t("capacity"), value: property.capacity ? String(property.capacity) : null },
       { label: t("available-capacity"), value: property.availableCapacity ? String(property.availableCapacity) : null },
     ] : []),
+    ...(
+      (property.category === "booth" && property.startDate && property.endDate) ? [
+        { label: t("galleryDaysLabel"), value: t("galleryDays", {start: formatDate(property.startDate, locale), end: formatDate(property.endDate, locale) }) || null },
+      ] : []
+    )
   ].filter(item => item.value !== null);
 
   // Split into two columns evenly

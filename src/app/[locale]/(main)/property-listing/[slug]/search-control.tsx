@@ -36,8 +36,6 @@ export default function SearchControl({ slug, onSearch, onReset }: SearchControl
   const searchParams = useSearchParams();
   const { selectedCountry } = useCountryContext();
 
-  console.log("currency in search control:", currency);
-
   // Get cities
   const { data: cities, isLoading: citiesLoading } = useCities(selectedCountry);
 

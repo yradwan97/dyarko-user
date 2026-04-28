@@ -32,8 +32,6 @@ function LoginForm() {
   const loginMutation = useLogin(redirect);
   const [showPassword, setShowPassword] = useState(false);
 
-  console.log("🔵 Login page - redirect param:", redirect);
-
   const loginSchema = useMemo(() => z.object({
     email: z.string().min(1, t("Form.email.required")).email(t("Form.email.valid")),
     password: z.string().min(1, t("Form.password.required")).min(6, t("Form.password.valid")),
@@ -53,7 +51,6 @@ function LoginForm() {
     if (session) {
       // If there's a redirect param, go there, otherwise go to home
       const destination = redirect || "/";
-      console.log("🔵 Session exists, redirecting to:", destination);
       router.push(destination);
     }
   }, [session, router, redirect]);

@@ -165,9 +165,7 @@ export default function Step4Checkout({
       setError(null);
 
       try {
-        console.log("Calling createRent with payload:", buildPayload);
         const response = await createRent(buildPayload);
-        console.log("createRent response:", response);
 
         if (response.status === "success" && response.data.PayUrl) {
           setPayUrl(response.data.PayUrl);

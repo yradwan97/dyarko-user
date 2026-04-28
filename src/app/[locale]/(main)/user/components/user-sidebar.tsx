@@ -49,7 +49,6 @@ export default function UserSidebar({ currentPath, onNavigate }: UserSidebarProp
 
   const { data: levels } = useLevels()
   const userLevel = levels?.find(level => level._id === session?.user?.level)
-  console.log('User Level:', userLevel);
 
   return (
     <div className="flex h-screen flex-col bg-white lg:rounded-xl lg:border lg:border-main-100 lg:shadow-sm">

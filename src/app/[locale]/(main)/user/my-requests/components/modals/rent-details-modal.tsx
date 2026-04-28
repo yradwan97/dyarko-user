@@ -47,8 +47,8 @@ export function RentDetailsModal(props: BaseModalProps) {
   const servicesTotal = useMemo(() => {
     if (!request?.services || request.services.length === 0) return 0;
     return request.services.reduce((sum: number, service: any) => {
-      return sum + Number(service.price || 0);
-    }, 0);
+      return sum + Number(service.price);
+    }, 0) || request.priceDetails.services;
   }, [request?.services]);
 
   const tax = useMemo(() => {
@@ -287,20 +287,6 @@ export function RentDetailsModal(props: BaseModalProps) {
                     </div>
                   </div>
 
-                  {/* Phone Number */}
-                  {(request.mobileNumber || request.user?.phoneNumber) && (
-                    <div className={cn("flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg", locale === "ar" && "flex-row-reverse")}>
-                      <Phone className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                      <div className={cn("flex-1", locale === "ar" && "text-right")}>
-                        <Typography variant="body-sm" as="p" className="text-gray-500 dark:text-gray-400">
-                          {t("phone-number")}
-                        </Typography>
-                        <Typography variant="body-sm" as="p" className="font-medium text-gray-900 dark:text-white">
-                          {request.mobileNumber || request.user?.phoneNumber}
-                        </Typography>
-                      </div>
-                    </div>
-                  )}
               {/* Rent Request Details - shown for approved status */}
               {request.status?.toLowerCase() === "confirmed" && (
                 <>
@@ -322,7 +308,7 @@ export function RentDetailsModal(props: BaseModalProps) {
                         </Typography>
                       </div>
 
-                      {/* Insurance */}
+                      {/* Insurance
                       <div className={cn("flex justify-between items-center", locale === "ar" && "flex-row-reverse")}>
                         <Typography variant="body-sm" as="span" className="text-gray-600 dark:text-gray-400">
                           {t("insurance")} {insurance === 0 && `(${t("credit")} ${t("at")} ${t("dyarko")})`}
@@ -330,7 +316,7 @@ export function RentDetailsModal(props: BaseModalProps) {
                         <Typography variant="body-sm" as="span" className="font-medium text-gray-900 dark:text-white">
                           {insurance} {currency}
                         </Typography>
-                      </div>
+                      </div> */}
 
                       {/* Services */}
                       <div className={cn("flex justify-between items-center", locale === "ar" && "flex-row-reverse")}>
@@ -359,14 +345,14 @@ export function RentDetailsModal(props: BaseModalProps) {
                       )}
 
                       {/* Commission */}
-                      {request?.priceDetails?.commission && <div className={cn("flex justify-between items-center", locale === "ar" && "flex-row-reverse")}>
+                      {/* {request?.priceDetails?.commission && <div className={cn("flex justify-between items-center", locale === "ar" && "flex-row-reverse")}>
                         <Typography variant="body-sm" as="span" className="text-gray-600 dark:text-gray-400">
                           {t("commission") || "Commission"}
                         </Typography>
                         <Typography variant="body-sm" as="span" className="font-medium text-gray-900 dark:text-white">
                           {request?.priceDetails?.commission} {currency}
                         </Typography>
-                      </div>}
+                      </div>} */}
 
                       {/* Tax */}
                       <div className={cn("flex justify-between items-center", locale === "ar" && "flex-row-reverse")}>

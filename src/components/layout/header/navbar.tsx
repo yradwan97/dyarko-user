@@ -59,7 +59,7 @@ export default function Navbar() {
   const getCurrentBuyValue = () => {
     if (pathname?.includes("/property-listing/cash")) return "/property-listing/cash";
     if (pathname?.includes("/property-listing/installment")) return "/property-listing/installment";
-    return "/property-listing/cash"; // default
+    return "buy"; // default
   };
 
   return (

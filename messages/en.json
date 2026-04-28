@@ -11,6 +11,8 @@
     "submit": "Submit",
     "verifying": "Verifying...",
     "price-not-available": "Price not available",
+    "all-properties": "All Properties",
+    "promoted-properties": "Promoted Properties",
     "rent-types": {
       "hourly": "Hourly",
       "daily": "Daily",
@@ -118,6 +120,13 @@
       "fail-description": "Your payment could not be processed. Please try again.",
       "fail-alt": "Failure icon",
       "close": "Close"
+    },
+    "Unsubscribe": {
+      "title": "You've been unsubscribed",
+      "description": "We're sorry to see you go. You will no longer receive emails from our mailing list.",
+      "go-home": "Return to Homepage",
+      "mistake": "If you unsubscribed by mistake, you can always",
+      "resub": "resubscribe here"
     }
   },
   "Verify": {
@@ -263,6 +272,7 @@
         "has-garden": "Has garden",
         "has-beach": "Has beach",
         "has-pool": "Has pool",
+        "has-halal": "Has Halal",
         "yes": "Yes",
         "no": "No",
         "class": "Class",
@@ -274,7 +284,9 @@
         "finish-type": "Finish Type",
         "rent-offer": "Rent Offer",
         "paci-no": "PACI No.",
-        "commission": "Commission"
+        "commission": "Commission",
+        "galleryDaysLabel": "Gallery Days",
+        "galleryDays": "{start} ---- {end}"
       },
       "Pricing": {
         "title": "Additional Fees",
@@ -358,6 +370,7 @@
         "cancel": "Cancel"
       },
       "area": "Area",
+      "activity": "Activity",
       "sqm": "m²",
       "area-unit-1": "m<sup>2</sup>",
       "status": "Status",
@@ -604,7 +617,13 @@
         "1": "Join",
         "2": "10,000+",
         "3": "other landlords in our Dyarko community."
-      }
+      },
+      "success": "Thank you for subscribing to our newsletter!",
+      "error": "Failed to subscribe. Please try again.",
+        "validation": {
+          "email-required": "Email is required",
+          "invalid-email": "Please enter a valid email address"
+        }
     },
     "Footer": {
       "Services": {
@@ -1436,13 +1455,21 @@
       "contact-us": "Contact Us"
     },
     "Rewards": {
+      "Page": {
+        "transactionsTitle": "Your Transactions",
+        "noTransactions": "No transactions yet.",
+        "yourPoints": "Your Points",
+        "yourBalance": "Your Balance",
+        "pointsBackgroundAlt": "Points background",
+        "points": "{count} Points"
+      },
       "user": "User",
       "level": "Level",
       "points": "Points",
       "reward": "Reward",
       "milestone": "Milestone",
-      "vibe": "Vibe",
-      "more-rentals": "more rentals",
+      "description": "description",
+      "more-rentals": "total rentals",
       "rentals": "rentals",
       "error": "Failed to load rewards data. Please try again later.",
       "hero": {
@@ -1468,34 +1495,6 @@
       "levels-section": {
         "title": "DYARKO Rewards",
         "description": "Enjoy Dyarko's Rewards System - climb levels, earn massive points up to 100,000 points, and turn every rental into real cashback."
-      },
-      "levels": {
-        "starter-spark": {
-          "title": "Starter Spark",
-          "milestone": "Complete 5 rentals.",
-          "vibe": "You've just kicked off your reward journey! Every step counts, and your first cashback boost is here."
-        },
-        "rising-star": {
-          "title": "Rising Star",
-          "milestone": "Another 10 rentals.",
-          "vibe": "You're moving up fast! Bigger rentals, bigger rewards - keep the streak alive."
-        },
-        "elite-explorer": {
-          "title": "Elite Explorer",
-          "milestone": "15 more rentals.",
-          "vibe": "You're shining bright! More rentals mean serious cashback power."
-        },
-        "master-host": {
-          "title": "Master Host",
-          "milestone": "30 rentals at this stage.",
-          "vibe": "You've mastered the game! Huge points, huge rewards - this level is pure win."
-        },
-        "legend-status": {
-          "title": "Legend Status",
-          "milestone": "50 more rentals.",
-          "vibe": "You made it! Complete all 50 rentals of Level 5 to unlock your massive 80,000 points reward.",
-          "bonus": "And the best part? From then on, every extra rental gives you +2,000 instant points. Endless cashback. Endless rewards."
-        }
       }
     },
     "FAQs": {

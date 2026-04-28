@@ -14,6 +14,7 @@ import Step25SelectApartments from "./components/step2.5-select-apartments";
 import Step3Agreements from "./components/step3-agreements";
 import Step4Checkout from "./components/step4-checkout";
 import { type PropertyService } from "@/lib/services/api/properties";
+import { useContractFile } from "./hooks/use-contract-file";
 
 interface RentApplicationProps {
   propertyId: string;
@@ -36,10 +37,17 @@ export default function RentApplication({ propertyId }: RentApplicationProps) {
   const [timeRange, setTimeRange] = useState<{ from: string; to: string }>({ from: "", to: "" });
   const [selectedTimeSlotIndices, setSelectedTimeSlotIndices] = useState<number[]>([]);
   const [pickupLocation, setPickupLocation] = useState<{ lat: number; lng: number } | null>(null);
+
+  const { data: fileUrl, isLoading: isContractLoading, isError } = useContractFile({
+      ownerType: property?.owner?.role!,
+      // offerType: 'rent',
+      propertyClass: property?.class!,
+    });
+
   const [agreedToTerms, setAgreedToTerms] = useState({
     termsAndConditions: false,
     refundPolicy: false,
-    contract: !!property?.contract ? false : true,
+    contract: !!fileUrl ? false : true,
     ownerRoles: !!property?.rules ? false : true,
   });
 

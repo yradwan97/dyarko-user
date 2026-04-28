@@ -9,13 +9,6 @@ export async function GET(request: NextRequest) {
     return new NextResponse("Missing url parameter", { status: 400 });
   }
 
-  console.log("🖼️ Proxy image request:", {
-    url: imageUrl,
-    hasSession: !!session,
-    hasUser: !!session?.user,
-    hasAccessToken: !!session?.user?.accessToken,
-  });
-
   try {
     const headers: HeadersInit = {
       "Content-Type": "image/*",
@@ -24,9 +17,6 @@ export async function GET(request: NextRequest) {
     // Add authorization if user is authenticated
     if (session?.user?.accessToken) {
       headers.Authorization = `Bearer ${session.user.accessToken}`;
-      console.log("✅ Adding auth header to image request");
-    } else {
-      console.log("⚠️ No access token found in session");
     }
 
     const imageResponse = await fetch(imageUrl, { headers });

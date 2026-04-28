@@ -21,6 +21,7 @@ import BoothCampDetails from "./components/booth-camp-details";
 import HotelApartmentTypes from "./components/hotel-apartment-types";
 import ReservationBox from "./components/reservation-box";
 import OwnerInfoBox from "./components/owner-info-box";
+import { useSubscribeToNewsletter } from "@/hooks/use-newsletter";
 
 interface PropertyDetailsProps {
   id: string;
@@ -29,12 +30,17 @@ interface PropertyDetailsProps {
 export default function PropertyDetails({ id }: PropertyDetailsProps) {
   const locale = useLocale();
   const t = useTranslations("Properties.Details");
+  const tNewsletter = useTranslations("HomePage.Newsletter");
   const tPrice = useTranslations("Properties.Price");
   const queryClient = useQueryClient();
   const [liked, setLiked] = useState(false);
+  const [email, setEmail] = useState("");
 
   const { data: property, isLoading, error } = useProperty(id);
   const { data: countries } = useCountries();
+  const {mutate, isPending} = useSubscribeToNewsletter();
+
+  console.log("Property Data:", property);
 
   // Get currency based on property country
   const currency = useMemo(() => {
@@ -109,6 +115,41 @@ export default function PropertyDetails({ id }: PropertyDetailsProps) {
       toast.error(t("Save.error"));
     }
   };
+
+  const handleSubscribe = () => {
+    if (!email) {
+      toast.warning(tNewsletter("validation.email-required"), {
+          duration: 5000,
+          position: "top-center",
+          style: {
+            background: "#ef4444",
+            color: "#ffffff",
+            border: "none",
+          },
+        });
+      return;
+    }
+
+    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+    if (!regex.test(email)) {
+      toast.error(tNewsletter("validation.invalid-email"), {
+          duration: 5000,
+          position: "top-center",
+          style: {
+            background: "#ef4444",
+            color: "#ffffff",
+            border: "none",
+          },
+        });
+      return;
+    }
+
+    mutate(email, {
+      onSuccess: () => {
+        setEmail("");
+      }
+    });
+  }
 
   if (isLoading) {
     return (
@@ -326,10 +367,16 @@ export default function PropertyDetails({ id }: PropertyDetailsProps) {
                 </p>
                 <input
                   type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder={t("newsletter.placeholder")}
                   className="w-full h-12 px-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm mb-3"
                 />
-                <Button className="flex w-full items-center justify-center gap-2 h-12 border-0 text-white bg-steelBlue-500 hover:text-steelBlue-500 hover:border-steelBlue-500 hover:border font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                <Button 
+                  className="flex w-full items-center justify-center gap-2 h-12 border-0 text-white bg-steelBlue-500 hover:text-steelBlue-500 hover:border-steelBlue-500 hover:border font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={handleSubscribe}
+                  disabled={isPending}
+                >
                   {t("newsletter.submit")}
                 </Button>
               </div>

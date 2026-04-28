@@ -203,7 +203,7 @@ export default function MapPage() {
             </button>
             <Link href={getLocalizedPath(`/properties/${selectedProperty._id}`, locale)}>
               <PropertyCard
-                variant="featured"
+                variant="grid"
                 propertyId={selectedProperty._id}
                 image={selectedProperty.image}
                 name={selectedProperty.title}

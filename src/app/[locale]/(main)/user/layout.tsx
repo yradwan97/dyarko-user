@@ -23,8 +23,6 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
       const currentPath = pathname ? encodeURIComponent(pathname) : '';
       const redirectParam = currentPath ? `?redirect=${currentPath}` : '';
       const loginUrl = `/login${redirectParam}`;
-      console.log("🔴 User not authenticated, redirecting from:", pathname);
-      console.log("🔴 Login URL:", loginUrl);
       router.push(loginUrl);
     }
   }, [status, router, pathname]);
@@ -43,8 +41,6 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
           const currentPath = pathname ? encodeURIComponent(pathname) : '';
           const redirectParam = currentPath ? `?redirect=${currentPath}` : '';
           const loginUrl = `/login${redirectParam}`;
-          console.log("🔴 Session expired, redirecting from:", pathname);
-          console.log("🔴 Login URL:", loginUrl);
           router.push(loginUrl);
         }
       }, 5 * 60 * 1000); // 5 minutes

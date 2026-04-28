@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/tooltip";
 import { addFavourite, removeFavourite } from "@/lib/services/api/favourites";
 import { toast } from "sonner";
+import { applyDiscount } from "@/lib/utils/property-pricing";
 
 export interface OtherPrice {
   period: string;
@@ -28,7 +29,7 @@ export interface OtherPrice {
 }
 
 interface PropertyCardProps {
-  variant?: "featured" | "list";
+  variant?: "grid" | "list";
   image?: string | null;
   name: string;
   location: string;
@@ -43,10 +44,11 @@ interface PropertyCardProps {
   adType?: string;
   otherPrices?: OtherPrice[];
   isFavourite?: boolean;
+  discount?: number;
 }
 
 export default function PropertyCard({
-  variant = "featured",
+  variant = "grid",
   image,
   name,
   location,
@@ -61,6 +63,7 @@ export default function PropertyCard({
   adType,
   otherPrices = [],
   isFavourite = false,
+  discount,
 }: PropertyCardProps) {
   const { data: session } = useSession();
   const locale = useLocale();
@@ -145,19 +148,33 @@ export default function PropertyCard({
     }
   };
 
+  const displayDiscountedOtherPrice = (otherPrice: OtherPrice) => {
+    if (!discount || discount <= 0) {
+      return otherPrice.price;
+    }
+
+    const [numericPrice, currency] = otherPrice.price.split(" ");
+
+    if (numericPrice) {
+      const discountedPrice = applyDiscount(Number(numericPrice), discount);
+      return `${discountedPrice} ${currency}`;
+    }
+    return otherPrice.price;
+  }
+
   // Price component with optional HoverCard for other prices
   const PriceDisplay = ({ className }: { className?: string }) => {
     return (
       <HoverCard openDelay={200} closeDelay={100}>
         <HoverCardTrigger asChild>
           <span className={cn("inline-flex items-center gap-2", className)}>
-          <span className="text-base font-bold text-main-600 dark:text-main-400">
-            {!!discountedPrice ? discountedPrice : price}
+            <span className="text-base font-bold text-main-600 dark:text-main-400">
+              {!!discountedPrice ? discountedPrice : price}
+            </span>
+            {discountedPrice && (
+              <span className="text-sm text-gray-400 line-through">{price}</span>
+            )}
           </span>
-          {discountedPrice && (
-            <span className="text-sm text-gray-400 line-through">{price}</span>
-          )}
-        </span>
         </HoverCardTrigger>
         <HoverCardContent
           className={cn("w-auto min-w-35 p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700", isRTL && "text-right")}
@@ -174,9 +191,20 @@ export default function PropertyCard({
                   "flex items-center justify-between gap-4 text-sm",
                   isRTL && "flex-row-reverse"
                 )}
-              >
-                <span className="text-gray-600 dark:text-gray-400">{otherPrice.period}</span>
-                <span className="font-semibold text-main-500 dark:text-main-400">{otherPrice.price}</span>
+                >
+                {!!discount ? (
+                  <>
+                    <span className="text-gray-600 dark:text-gray-400">{otherPrice.period}</span>
+                    <span className="font-semibold text-main-500 dark:text-main-400">{displayDiscountedOtherPrice(otherPrice)}</span>
+                    <span className="text-sm text-gray-400 line-through">{otherPrice.period}</span>
+                    <span className="text-sm text-gray-400 line-through">{otherPrice.price}</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-gray-600 dark:text-gray-400">{otherPrice.period}</span>
+                      <span className="font-semibold text-main-500 dark:text-main-400">{otherPrice.price}</span>
+                  </>
+                )}
               </li>
             ))}
           </ul>
@@ -185,7 +213,7 @@ export default function PropertyCard({
     )
   };
 
-  if (variant === "featured") {
+  if (variant === "grid") {
     return (
       <Card className="group min-w-55 shrink-0 overflow-hidden border-0 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] dark:bg-gray-800 dark:shadow-[0_2px_8px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_8px_16px_rgba(0,0,0,0.3)] p-0 rounded-xl max-h-75">
         <div className="relative h-44 w-full overflow-hidden bg-linear-to-br from-gray-50 to-gray-100 rounded-t-xl">

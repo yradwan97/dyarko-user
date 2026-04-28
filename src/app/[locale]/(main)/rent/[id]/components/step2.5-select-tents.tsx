@@ -23,6 +23,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useCountryCurrency } from "@/hooks/use-country-currency";
+import { applyDiscount } from "@/lib/utils/property-pricing";
 
 interface Step25SelectTentsProps {
   property: Property;
@@ -44,6 +46,8 @@ export default function Step25SelectTents({
   const tCommon = useTranslations("General");
   const [expandedTents, setExpandedTents] = useState<Set<number | string>>(new Set());
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+
+  const currency = useCountryCurrency(property.country);
 
   // Get dates for API call
   const startDate = useMemo(() => {
@@ -136,13 +140,6 @@ export default function Step25SelectTents({
       </div>
     );
   }
-
-  // Debug: log the data
-  console.log("📊 Tent Selection Debug:", {
-    totalTents: allTents.length,
-    availableTentIds,
-    groups: property.groups,
-  });
 
   return (
     <div className="space-y-6">
@@ -312,14 +309,21 @@ export default function Step25SelectTents({
                           )}
                           <div className="flex justify-between text-sm">
                             <span className="text-gray-600 dark:text-gray-400">{t("price")}:</span>
-                            <span className="font-medium text-gray-900 dark:text-white">
-                              {tent.price || property.groups?.[tent.groupIndex]?.price || 0} {tCommon("kwd")}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-gray-900 dark:text-white">
+                                {property.discount ? applyDiscount(tent.price || property.groups?.[tent.groupIndex]?.price || 0, property.discount) : tent.price || property.groups?.[tent.groupIndex]?.price || 0} {currency}
+                              </span>
+                              {property.discount && (
+                                <span className="text-sm text-gray-400 line-through">
+                                  {tent.price || property.groups?.[tent.groupIndex]?.price || 0} {currency}
+                                </span>
+                              )}
+                            </div>
                           </div>
                           <div className="flex justify-between text-sm">
                             <span className="text-gray-600 dark:text-gray-400">{t("insurance")}:</span>
                             <span className="font-medium text-gray-900 dark:text-white">
-                              {tent.insurance || property.insurancePrice || 0} {tCommon("kwd")}
+                              {tent.insurance || property.insurancePrice || 0} {currency}
                             </span>
                           </div>
                         </div>

@@ -46,11 +46,11 @@ export default function ServicesComponent({ services, currency = "KWD" }: Servic
 
   return (
     <div className="rounded-xl bg-gray-50 dark:bg-gray-800/50 p-6 mb-8">
-      <HeadTitle text={`${t("services")} \\ Extra Facilities`} className="mb-6" />
+      <HeadTitle text={`${t("services")}`} className="mb-6" />
 
       <div className={cn(
         "flex flex-wrap gap-3",
-        locale === "ar" && "flex-row-reverse"
+        // locale === "ar" && "flex-row-reverse"
       )}>
         {services.map((service, index) => {
           // Handle both string and object formats
@@ -66,7 +66,7 @@ export default function ServicesComponent({ services, currency = "KWD" }: Servic
               key={serviceId}
               className={cn(
                 "flex items-center gap-2 px-4 py-2 rounded-full border border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-800 transition-colors hover:border-main-400",
-                locale === "ar" && "flex-row-reverse"
+                // locale === "ar" && "flex-row-reverse"
               )}
             >
               {getServiceIcon(serviceName)}

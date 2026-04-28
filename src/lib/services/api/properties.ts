@@ -31,6 +31,7 @@ export interface Property {
   country: string;
   city: string;
   region: string;
+  activity?: string;
   lat: number;
   long: number;
   video?: string;
@@ -97,6 +98,8 @@ export interface Property {
   hasGarden?: boolean;
   hasBeach?: boolean;
   hasPool?: boolean;
+  // Jakhoor-specific
+  hasHalal?: boolean;
   // Documents
   contract?: string;
   refundPolicy?: string;
@@ -112,6 +115,8 @@ export interface Property {
     price?: number;
     [key: string]: any;
   }>;
+  startDate?: string; // For booth category
+  endDate?: string; // For booth category
   // Hotel apartment pricing
   apartments?: Array<{
     dailyPrice?: number | string;
@@ -163,6 +168,7 @@ export interface GetPropertiesParams {
   isMonthly?: boolean | string;
   isWeekdays?: boolean | string;
   isHolidays?: boolean | string;
+  promote?: "homeFeature" | "searchFeature" | "all";
 }
 
 export interface PropertyService {
@@ -200,6 +206,7 @@ export const getProperties = async (
     isMonthly,
     isWeekdays,
     isHolidays,
+    promote
   } = params;
 
   // Build query params
@@ -207,8 +214,8 @@ export const getProperties = async (
   queryParams.append("page", page.toString());
   queryParams.append("size", size.toString());
 
-  if (isFeatured) {
-    queryParams.append("promoted", "homeFeature");
+  if (promote) {
+    queryParams.append("promote", promote);
   }
 
   if (category) {

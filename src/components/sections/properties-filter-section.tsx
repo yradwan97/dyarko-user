@@ -181,7 +181,7 @@ export default function PropertiesFilterSection() {
                   >
                     <Link href={getLocalizedPath(`/properties/${property._id}`, locale)}>
                       <PropertyCard
-                        variant="featured"
+                        variant="grid"
                         image={property.image}
                         name={property.title}
                         location={`${isRTL ? property.region : property.region}, ${property.city}`}

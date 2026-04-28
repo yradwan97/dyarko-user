@@ -44,7 +44,6 @@ export const getCities = async (countryCode: string): Promise<City[]> => {
   const response = await axiosClient.get<CitiesResponse>(
     `/places/cities?countryCode=${countryCode}`
   );
-  console.log("Fetched cities:", response.data.data);
   return response.data.data;
 };
 

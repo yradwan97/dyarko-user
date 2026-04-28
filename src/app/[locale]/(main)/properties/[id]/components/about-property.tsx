@@ -13,6 +13,7 @@ import ServicesComponent from "./services-component";
 import Location from "./location";
 import InteriorDesign from "./interior-design";
 import HeadTitle from "./head-title";
+import { Divider } from "@mui/material";
 
 interface AboutPropertyProps {
   property: Property;
@@ -25,6 +26,7 @@ export default function AboutProperty({ property, currency = "KWD" }: AboutPrope
   const t = useTranslations("Properties.Details");
   const tCategories = useTranslations("General.Categories");
   const [showFullDescription, setShowFullDescription] = useState(false);
+  const [showFullActivity, setShowFullActivity] = useState(false);
 
   const { owner, lat, long, amenities, services } = property;
   const { _id: ownerId, name: ownerName, image: ownerImage } = owner;
@@ -211,13 +213,36 @@ export default function AboutProperty({ property, currency = "KWD" }: AboutPrope
               {property.description.length > 200 && (
                 <button
                   onClick={() => setShowFullDescription(!showFullDescription)}
-                  className="mt-2 text-main-600 hover:text-main-700 font-medium"
+                  className="mt-2 text-main-600 hover:text-main-700 font-medium cursor-pointer hover:underline"
                 >
                   {showFullDescription ? t("see-less") : t("see-more")}
                 </button>
               )}
             </div>
           )}
+          {property?.activity && (
+          <>
+            <Divider className="my-6 border-gray-300 dark:border-gray-700" />
+             <HeadTitle text={`${t("activity")}`} />
+              <div className="mt-4">
+                <p className={cn(
+                  "text-gray-600 dark:text-gray-400 leading-relaxed",
+                  !showFullActivity && "line-clamp-3"
+                )}>
+                  {property.activity}
+                </p>
+                {property.activity.length > 200 && (
+                  <button
+                    onClick={() => setShowFullActivity(!showFullActivity)}
+                    className="mt-2 text-main-600 hover:text-main-700 font-medium cursor-pointer hover:underline"
+                  >
+                    {showFullActivity ? t("see-less") : t("see-more")}
+                  </button>
+                )}
+              </div>
+          </>
+          )}
+          <Divider className="my-6 border-gray-300 dark:border-gray-700" />
         </div>
 
         {/* Property Stats Boxes */}
